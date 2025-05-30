@@ -1,0 +1,634 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */; };
+		98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */; };
+		98B23B102DE9BFEB00888A7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0F2DE9BFEB00888A7C /* ContentView.swift */; };
+		98B23B122DE9BFEF00888A7C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98B23B112DE9BFEF00888A7C /* Assets.xcassets */; };
+		98B23B172DE9BFEF00888A7C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98B23B162DE9BFEF00888A7C /* Preview Assets.xcassets */; };
+		98B23B212DE9BFEF00888A7C /* KishoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B202DE9BFEF00888A7C /* KishoTests.swift */; };
+		98B23B2B2DE9BFEF00888A7C /* KishoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B2A2DE9BFEF00888A7C /* KishoUITests.swift */; };
+		98B23B2D2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B2C2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		98B23B1D2DE9BFEF00888A7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98B23B002DE9BFEB00888A7C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98B23B072DE9BFEB00888A7C;
+			remoteInfo = Kisho;
+		};
+		98B23B272DE9BFEF00888A7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98B23B002DE9BFEB00888A7C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98B23B072DE9BFEB00888A7C;
+			remoteInfo = Kisho;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		98B23B082DE9BFEB00888A7C /* Kisho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kisho.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoApp.swift; sourceTree = "<group>"; };
+		98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocument.swift; sourceTree = "<group>"; };
+		98B23B0F2DE9BFEB00888A7C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		98B23B112DE9BFEF00888A7C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		98B23B132DE9BFEF00888A7C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		98B23B142DE9BFEF00888A7C /* Kisho.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kisho.entitlements; sourceTree = "<group>"; };
+		98B23B162DE9BFEF00888A7C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		98B23B1C2DE9BFEF00888A7C /* KishoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KishoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		98B23B202DE9BFEF00888A7C /* KishoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoTests.swift; sourceTree = "<group>"; };
+		98B23B262DE9BFEF00888A7C /* KishoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KishoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		98B23B2A2DE9BFEF00888A7C /* KishoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoUITests.swift; sourceTree = "<group>"; };
+		98B23B2C2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		98B23B052DE9BFEB00888A7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B192DE9BFEF00888A7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B232DE9BFEF00888A7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		98B23AFF2DE9BFEB00888A7C = {
+			isa = PBXGroup;
+			children = (
+				98B23B0A2DE9BFEB00888A7C /* Kisho */,
+				98B23B1F2DE9BFEF00888A7C /* KishoTests */,
+				98B23B292DE9BFEF00888A7C /* KishoUITests */,
+				98B23B092DE9BFEB00888A7C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		98B23B092DE9BFEB00888A7C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				98B23B082DE9BFEB00888A7C /* Kisho.app */,
+				98B23B1C2DE9BFEF00888A7C /* KishoTests.xctest */,
+				98B23B262DE9BFEF00888A7C /* KishoUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		98B23B0A2DE9BFEB00888A7C /* Kisho */ = {
+			isa = PBXGroup;
+			children = (
+				98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */,
+				98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */,
+				98B23B0F2DE9BFEB00888A7C /* ContentView.swift */,
+				98B23B112DE9BFEF00888A7C /* Assets.xcassets */,
+				98B23B132DE9BFEF00888A7C /* Info.plist */,
+				98B23B142DE9BFEF00888A7C /* Kisho.entitlements */,
+				98B23B152DE9BFEF00888A7C /* Preview Content */,
+			);
+			path = Kisho;
+			sourceTree = "<group>";
+		};
+		98B23B152DE9BFEF00888A7C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				98B23B162DE9BFEF00888A7C /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		98B23B1F2DE9BFEF00888A7C /* KishoTests */ = {
+			isa = PBXGroup;
+			children = (
+				98B23B202DE9BFEF00888A7C /* KishoTests.swift */,
+			);
+			path = KishoTests;
+			sourceTree = "<group>";
+		};
+		98B23B292DE9BFEF00888A7C /* KishoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				98B23B2A2DE9BFEF00888A7C /* KishoUITests.swift */,
+				98B23B2C2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift */,
+			);
+			path = KishoUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		98B23B072DE9BFEB00888A7C /* Kisho */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98B23B302DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "Kisho" */;
+			buildPhases = (
+				98B23B042DE9BFEB00888A7C /* Sources */,
+				98B23B052DE9BFEB00888A7C /* Frameworks */,
+				98B23B062DE9BFEB00888A7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Kisho;
+			productName = Kisho;
+			productReference = 98B23B082DE9BFEB00888A7C /* Kisho.app */;
+			productType = "com.apple.product-type.application";
+		};
+		98B23B1B2DE9BFEF00888A7C /* KishoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98B23B332DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "KishoTests" */;
+			buildPhases = (
+				98B23B182DE9BFEF00888A7C /* Sources */,
+				98B23B192DE9BFEF00888A7C /* Frameworks */,
+				98B23B1A2DE9BFEF00888A7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				98B23B1E2DE9BFEF00888A7C /* PBXTargetDependency */,
+			);
+			name = KishoTests;
+			productName = KishoTests;
+			productReference = 98B23B1C2DE9BFEF00888A7C /* KishoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		98B23B252DE9BFEF00888A7C /* KishoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98B23B362DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "KishoUITests" */;
+			buildPhases = (
+				98B23B222DE9BFEF00888A7C /* Sources */,
+				98B23B232DE9BFEF00888A7C /* Frameworks */,
+				98B23B242DE9BFEF00888A7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				98B23B282DE9BFEF00888A7C /* PBXTargetDependency */,
+			);
+			name = KishoUITests;
+			productName = KishoUITests;
+			productReference = 98B23B262DE9BFEF00888A7C /* KishoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98B23B002DE9BFEB00888A7C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					98B23B072DE9BFEB00888A7C = {
+						CreatedOnToolsVersion = 15.2;
+					};
+					98B23B1B2DE9BFEF00888A7C = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 98B23B072DE9BFEB00888A7C;
+					};
+					98B23B252DE9BFEF00888A7C = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 98B23B072DE9BFEB00888A7C;
+					};
+				};
+			};
+			buildConfigurationList = 98B23B032DE9BFEB00888A7C /* Build configuration list for PBXProject "Kisho" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 98B23AFF2DE9BFEB00888A7C;
+			productRefGroup = 98B23B092DE9BFEB00888A7C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				98B23B072DE9BFEB00888A7C /* Kisho */,
+				98B23B1B2DE9BFEF00888A7C /* KishoTests */,
+				98B23B252DE9BFEF00888A7C /* KishoUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		98B23B062DE9BFEB00888A7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98B23B172DE9BFEF00888A7C /* Preview Assets.xcassets in Resources */,
+				98B23B122DE9BFEF00888A7C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B1A2DE9BFEF00888A7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B242DE9BFEF00888A7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		98B23B042DE9BFEB00888A7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */,
+				98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */,
+				98B23B102DE9BFEB00888A7C /* ContentView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B182DE9BFEF00888A7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98B23B212DE9BFEF00888A7C /* KishoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B23B222DE9BFEF00888A7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98B23B2B2DE9BFEF00888A7C /* KishoUITests.swift in Sources */,
+				98B23B2D2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		98B23B1E2DE9BFEF00888A7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98B23B072DE9BFEB00888A7C /* Kisho */;
+			targetProxy = 98B23B1D2DE9BFEF00888A7C /* PBXContainerItemProxy */;
+		};
+		98B23B282DE9BFEF00888A7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98B23B072DE9BFEB00888A7C /* Kisho */;
+			targetProxy = 98B23B272DE9BFEF00888A7C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		98B23B2E2DE9BFEF00888A7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		98B23B2F2DE9BFEF00888A7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		98B23B312DE9BFEF00888A7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Kisho/Kisho.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Kisho/Preview Content\"";
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kisho/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UISupportsDocumentBrowser[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UISupportsDocumentBrowser[sdk=iphonesimulator*]" = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.Kisho;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		98B23B322DE9BFEF00888A7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Kisho/Kisho.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Kisho/Preview Content\"";
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kisho/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UISupportsDocumentBrowser[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UISupportsDocumentBrowser[sdk=iphonesimulator*]" = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.Kisho;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		98B23B342DE9BFEF00888A7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.KishoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kisho.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kisho";
+			};
+			name = Debug;
+		};
+		98B23B352DE9BFEF00888A7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.KishoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kisho.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kisho";
+			};
+			name = Release;
+		};
+		98B23B372DE9BFEF00888A7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.KishoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Kisho;
+			};
+			name = Debug;
+		};
+		98B23B382DE9BFEF00888A7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NNM3WB8BE4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.PM.KishoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Kisho;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		98B23B032DE9BFEB00888A7C /* Build configuration list for PBXProject "Kisho" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98B23B2E2DE9BFEF00888A7C /* Debug */,
+				98B23B2F2DE9BFEF00888A7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98B23B302DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "Kisho" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98B23B312DE9BFEF00888A7C /* Debug */,
+				98B23B322DE9BFEF00888A7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98B23B332DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "KishoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98B23B342DE9BFEF00888A7C /* Debug */,
+				98B23B352DE9BFEF00888A7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98B23B362DE9BFEF00888A7C /* Build configuration list for PBXNativeTarget "KishoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98B23B372DE9BFEF00888A7C /* Debug */,
+				98B23B382DE9BFEF00888A7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 98B23B002DE9BFEB00888A7C /* Project object */;
+}
