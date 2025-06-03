@@ -11,7 +11,7 @@ import SwiftUI
 struct KishoApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: KishoDocument()) { file in
-            ContentView(document: file.$document)
+            KishoDocumentView(document: file.$document.model)
         }
     }
 }

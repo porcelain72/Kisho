@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "richtexteditor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/porcelain72/RichTextEditor",
+      "state" : {
+        "branch" : "main",
+        "revision" : "cc76a80e1a758a0d242664da18323c23e96b0bf9"
+      }
+    }
+  ],
+  "version" : 2
+}

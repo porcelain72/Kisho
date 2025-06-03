@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "6E70C603-5321-48D9-B97F-344E0185D55C"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FB6D4A8C-3BAE-4A08-A2E5-4BD81E11F5D5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/SectionRow.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "77"
+            endingLineNumber = "77"
+            landmarkName = "handleDrop(providers:position:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F4725B2A-8504-4FD4-B7A3-CC669495E557"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/SectionRow.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
+            landmarkName = "handleDrop(providers:position:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F4725B2A-8504-4FD4-B7A3-CC669495E557 - 3da398d414130383"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;__C.NSSecureCoding&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Kisho.SectionRow.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;, position: Kisho.SectionRow.DropPosition) -&gt; Swift.Bool"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/SectionRow.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83"
+                  offsetFromSymbolStart = "2047">
+               </Location>
+               <Location
+                  uuid = "F4725B2A-8504-4FD4-B7A3-CC669495E557 - 134f7b1f3e84ab05"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in closure #1 @Sendable (Swift.Optional&lt;__C.NSSecureCoding&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Kisho.SectionRow.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;, position: Kisho.SectionRow.DropPosition) -&gt; Swift.Bool"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/SectionRow.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83"
+                  offsetFromSymbolStart = "113">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "48"
+            endingLineNumber = "48"
+            landmarkName = "childrenBinding(for:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC - 35ac162d248ed2d7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.childrenBinding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Array&lt;Kisho.KishoSection&gt;&gt;&gt;"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "48"
+                  endingLineNumber = "48"
+                  offsetFromSymbolStart = "2368">
+               </Location>
+               <Location
+                  uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC - 35ac162d248ed2d7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.childrenBinding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Array&lt;Kisho.KishoSection&gt;&gt;&gt;"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "48"
+                  endingLineNumber = "48"
+                  offsetFromSymbolStart = "2759">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7C672FD7-30C6-4A39-A58F-D5673EDF402D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
+            landmarkName = "childrenBinding(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BE1F837A-EB15-49B2-9364-AD3249720875"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "childrenBinding(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DE3EBBD5-E14E-45A3-A20A-4E2E1421405F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "makeNSView(context:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3A4351B4-E268-4BE9-BB3F-7E09A17F00AC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "updateNSView(_:context:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C7085A27-3657-43CD-96E7-E748865731A2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "binding(for:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C7085A27-3657-43CD-96E7-E748865731A2 - 35ea6a5ff0d4b860"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.binding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Kisho.KishoSection&gt;&gt;"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "71"
+                  endingLineNumber = "71"
+                  offsetFromSymbolStart = "586">
+               </Location>
+               <Location
+                  uuid = "C7085A27-3657-43CD-96E7-E748865731A2 - 35ea6a5ff0d4b860"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.binding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Kisho.KishoSection&gt;&gt;"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "71"
+                  endingLineNumber = "71"
+                  offsetFromSymbolStart = "1043">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9C0CAE4B-EF13-4236-9BCA-36E62D366E75"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "binding(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2A8E0854-E964-48D4-A29B-DE2A0665F4FF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocument.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "76"
+            endingLineNumber = "76"
+            landmarkName = "binding(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2D49184A-0762-41F0-8165-D3B860BE638B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "98"
+            endingLineNumber = "98"
+            landmarkName = "scrollCaretIfNeeded()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "2D49184A-0762-41F0-8165-D3B860BE638B - e9dc6b07f5ec0427"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "98"
+                  endingLineNumber = "98"
+                  offsetFromSymbolStart = "1295">
+               </Location>
+               <Location
+                  uuid = "2D49184A-0762-41F0-8165-D3B860BE638B - e9dc6b07f5ec0427"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "98"
+                  endingLineNumber = "98"
+                  offsetFromSymbolStart = "816">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8EC674A6-C10C-46DA-8E0E-E353BB0A7C9D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
+            landmarkName = "scrollCaretIfNeeded()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "8EC674A6-C10C-46DA-8E0E-E353BB0A7C9D - e9dc6b07f5ec0590"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "85"
+                  endingLineNumber = "85"
+                  offsetFromSymbolStart = "287">
+               </Location>
+               <Location
+                  uuid = "8EC674A6-C10C-46DA-8E0E-E353BB0A7C9D - e9dc6b07f5ec0590"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "85"
+                  endingLineNumber = "85"
+                  offsetFromSymbolStart = "366">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C08788DD-F963-427D-8097-605FABCB203F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
+            landmarkName = "scrollCaretIfNeeded()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2ECED859-5954-4988-9BB7-55180B196150"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "103"
+            endingLineNumber = "103"
+            landmarkName = "scrollCaretIfNeeded()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E4A15A75-1CE0-4C86-BE9A-E1787E87B1FF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "scrollCaretIfNeeded()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3DAE1BA9-8C43-4727-A79D-D8B3F1141E46"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "updateNSView(_:context:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "textDidChange(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "225A53D8-A952-4765-8393-5340F78774F5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "81"
+            endingLineNumber = "81"
+            landmarkName = "textViewSelectionDidChange(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1BDD39A2-279E-42E8-AB5B-6EE6276FAE95"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/KishoDocumentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
