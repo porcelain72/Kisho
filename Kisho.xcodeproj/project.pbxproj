@@ -18,6 +18,7 @@
 		98B23B3C2DE9C0F200888A7C /* KishoDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */; };
 		98B23B3E2DE9C40700888A7C /* KishoSidebarOutlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */; };
 		98B23B402DE9C49000888A7C /* KishoSectionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */; };
+		98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D641D42DF0650E00B757D2 /* SectionCommandMenu.swift */; };
 		98EA64DB2DED99FD00B4AEFE /* KishoInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98EA64DA2DED99FC00B4AEFE /* KishoInspectorView.swift */; };
 		98EA64DD2DEDA07E00B4AEFE /* SectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */; };
 		98EA64E02DEE4C3F00B4AEFE /* RichTextEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 98EA64DF2DEE4C3F00B4AEFE /* RichTextEditor */; };
@@ -58,6 +59,7 @@
 		98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocumentView.swift; sourceTree = "<group>"; };
 		98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSidebarOutlineView.swift; sourceTree = "<group>"; };
 		98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSectionEditorView.swift; sourceTree = "<group>"; };
+		98D641D42DF0650E00B757D2 /* SectionCommandMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCommandMenu.swift; sourceTree = "<group>"; };
 		98EA64DA2DED99FC00B4AEFE /* KishoInspectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KishoInspectorView.swift; sourceTree = "<group>"; };
 		98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionRow.swift; sourceTree = "<group>"; };
 		98EA654D2DEF5BAF00B4AEFE /* KishoDocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocumentModel.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */,
+				98D641D42DF0650E00B757D2 /* SectionCommandMenu.swift */,
 				98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */,
 				98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */,
 				98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */,
@@ -298,6 +301,7 @@
 				98B23B3E2DE9C40700888A7C /* KishoSidebarOutlineView.swift in Sources */,
 				98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */,
 				98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */,
+				98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */,
 				98EA654E2DEF5BAF00B4AEFE /* KishoDocumentModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

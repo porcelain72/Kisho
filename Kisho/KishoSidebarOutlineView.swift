@@ -9,18 +9,13 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct KishoSidebarOutlineView: View {
-    @Binding var sections: [KishoSection]
-    @Binding var selectedSectionID: UUID?
+    @EnvironmentObject var document : KishoDocumentModel
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(sections) { section in
-                    SectionRow(
-                        section: section,
-                        selectedSectionID: $selectedSectionID,
-                        allSections: $sections,        // <--- always the ROOT array
-                        parentSections: $sections      // top-level: root is also the parent
-                    )
+                ForEach(document.sections) { section in
+                    SectionRow(section: section, depth: 0)
                 }
             }
         }

@@ -9,13 +9,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SectionRow: View {
-    let section: KishoSection
-    @Binding var selectedSectionID: UUID?
-    @Binding var allSections: [KishoSection]
-    var parentSections: Binding<[KishoSection]> // Parent array (for sibling drops)
+    @EnvironmentObject var document : KishoDocumentModel
 
+    @ObservedObject var section: KishoSection
+   
     @State private var dropPosition: DropPosition?
 
+    let depth : Int
+    
     enum DropPosition { case above, on, below }
 
     var body: some View {
@@ -26,12 +27,15 @@ struct SectionRow: View {
             // The row content
             HStack {
                 Text(section.title)
-                    .padding(.leading, 4)
-                    .background(selectedSectionID == section.id ? Color.accentColor.opacity(0.2) : Color.clear)
-                    .onTapGesture { selectedSectionID = section.id }
+                   
+                                      
                 Spacer()
             }
-            .background(dropPosition == .on ? Color.accentColor.opacity(0.12) : Color.clear)
+            .modifier(CellModifier(depth: depth))
+
+.onTapGesture {self.document.select(section: section)}
+            
+            //.background(dropPosition == .on ? Color.accentColor.opacity(0.12) : Color.clear)
             .onDrag {
                 NSItemProvider(object: section.id.uuidString as NSString)
             }
@@ -45,22 +49,52 @@ struct SectionRow: View {
             if !section.children.isEmpty {
                 VStack(spacing: 0) {
                     ForEach(section.children) { child in
-                        SectionRow(
-                            section: child,
-                            selectedSectionID: $selectedSectionID,
-                            allSections: $allSections,      // <--- KEEP PASSING THE ROOT
-                            parentSections: binding(for: section, in: $allSections)?.children ?? .constant([])
-                        )
-                        .padding(.leading, 20)
+                        SectionRow(section: child, depth: self.depth + 1)
+                            .padding(.leading, (depth<4 ? 20 : 0))
                     }
-
-
                 }
             }
         }
+      
+
         .background(dropPosition == .above || dropPosition == .below ? Color.accentColor.opacity(0.08) : Color.clear)
     }
+  
+    
+    // ─── Computed capsule background, tinted by depth ─────────
+    private var labelBackground: some View {
+        let base = Color.blue    // pick any base color you like
+        // reduce lightness (or increase opacity) per depth
+        let fraction = min(0.6 + Double(self.depth) * 0.08, 0.95)
+        return base
+            .opacity(0.15)         // overall translucence
+            .blendMode(.plusLighter)
+            .background(
+                Capsule()
+                    .fill(base.opacity(fraction * 0.8))
+                    .blur(radius: 0) // subtle “frosted” feel
+            )
+    }
+    /*
+    private var labelBackground: some View {
+        let hue = Double(section.depth) * 0.08 // deeper = more offset in hue
+        let color = Color(hue: hue.truncatingRemainder(dividingBy: 1.0), saturation: 0.4, brightness: 0.9)
+        return Capsule()
+            .fill(color.opacity(0.15))
+            .background(Capsule().stroke(color.opacity(0.3), lineWidth: 1))
+    }
 
+    let palette: [Color] = [.blue, .teal, .green, .yellow, .orange]
+    let idx = section.depth % palette.count
+    return Capsule()
+        .fill(palette[idx].opacity(0.12))
+        .overlay(
+            Capsule()
+                .stroke(palette[idx].opacity(0.3), lineWidth: 1)
+        )
+
+    */
+    
     // Drop target for above/below sibling insert
     @ViewBuilder
     private func dropTargetView(position: DropPosition) -> some View {
@@ -81,14 +115,15 @@ struct SectionRow: View {
             if let data = item as? Data, let s = String(data: data, encoding: .utf8) { idStr = s }
             else if let s = item as? String { idStr = s }
             guard let idStr, let draggedID = UUID(uuidString: idStr), draggedID != section.id else { return }
+            
             DispatchQueue.main.async {
                 switch position {
                 case .on:
-                    moveAsChild(draggedID: draggedID)
+                    self.document.moveAsChild(draggedID: draggedID, destinationID: self.section.id)
                 case .above:
-                    moveAsSibling(draggedID: draggedID, insertBefore: true)
+                    self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id, insertBefore: true)
                 case .below:
-                    moveAsSibling(draggedID: draggedID, insertBefore: false)
+                    self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id,  insertBefore: false)
                 }
                 dropPosition = nil
             }
@@ -99,28 +134,7 @@ struct SectionRow: View {
 
     
 
-    // Move as sibling (above/below)
-    private func moveAsSibling(draggedID: UUID, insertBefore: Bool) {
-        print("Sibling move with ID:\t\t\(draggedID.uuidString)")
-        guard let parentArray = parentSections.wrappedValue as? [KishoSection] else { return }
-        print("Removing from allSections:\n\t\(allSections.map{$0.id.uuidString})")
-        if let dragged = removeSection(withID: draggedID, in: &allSections) {
-            if let idx = parentSections.wrappedValue.firstIndex(where: { $0.id == section.id }) {
-                parentSections.wrappedValue.insert(dragged, at: insertBefore ? idx : idx + 1)
-            }
-        }
-    }
 
-    // Move as child (on)
-    private func moveAsChild(draggedID: UUID) {
-        if let dragged = removeSection(withID: draggedID, in: &allSections) {
-            if !section.children.contains(where: { $0.id == draggedID }) {
-                if let selfBinding = binding(for: section, in: $allSections) {
-                    selfBinding.children.wrappedValue.append(dragged)
-                }
-            }
-        }
-    }
 
     // Recursively get binding to target section or its children array
     private func binding(for target: KishoSection, in sections: Binding<[KishoSection]>) -> Binding<KishoSection>? {
@@ -138,16 +152,29 @@ struct SectionRow: View {
 
 
 
-
-// Remove section and return it
-private func removeSection(withID id: UUID, in sections: inout [KishoSection]) -> KishoSection? {
-    if let idx = sections.firstIndex(where: { $0.id == id }) {
-        return sections.remove(at: idx)
+struct CellModifier : ViewModifier {
+    
+    let depth : Int
+    
+    func body(content: Content) -> some View {
+        content
+            .font(.headline) // headline font
+                               .padding(.horizontal, 12)
+                               .padding(.vertical, 8)
+            .background(
+             Capsule()
+                                       .fill(capsuleColor.opacity(0.2))
+            )
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal,6.0)
     }
-    for idx in sections.indices {
-        if let found = removeSection(withID: id, in: &sections[idx].children) {
-            return found
-        }
-    }
-    return nil
+    
+    /// Compute a base color that darkens slightly as depth increases
+      private var capsuleColor: Color {
+          // Example: shift hue or adjust brightness by depth
+          let baseHue: Double = 0.55 // roughly teal/blue
+          let depthFactor = Double(self.depth) * 0.08
+          let hue = (baseHue + depthFactor).truncatingRemainder(dividingBy: 1.0)
+          return Color(hue: hue, saturation: 0.4, brightness: 0.9)
+      }
 }

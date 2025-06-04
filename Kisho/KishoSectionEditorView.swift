@@ -10,16 +10,72 @@ import RichTextEditor
 
 
 struct KishoSectionEditorView: View {
+    @EnvironmentObject var document : KishoDocumentModel
+
     @ObservedObject var section: KishoSection
+    @Binding var focusTitle: Bool
+
+    // ← FocusState for the title field
+     @FocusState private var isTitleFocused: Bool
+     // ← FocusState for the rich‐text editor
+    @FocusState private var isRichTextFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
             TextField("Section Title", text: $section.title)
-                .font(.title2)
-            RichTextEditor(attributedText: $section.attributedText)
+                .textFieldStyle(.plain)
+                .focused($isTitleFocused)
+                .modifier(CellModifier(depth:self.document.depth(forSection: section)))
+            
+            
+            TextEditor(text: Binding(get: {
+                section.attributedText.string
+            }, set: { new in
+                section.attributedText = NSAttributedString(string: new)
+            }))
+            .focused($isRichTextFocused)
+            /*
+             RichTextEditor(attributedText: Binding(get: {
+             section.attributedText
+             }, set: { newVal in
+             section.attributedText = newVal
+             }))
+             */
             .frame(minHeight: 200)
         }
         .padding()
+        .onAppear {
+            if focusTitle {
+                // → Delay slightly so SplitView finishes handing off focus to content pane
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    isTitleFocused = true
+                    // Reset the flag so we don’t refocus repeatedly
+                    focusTitle = false
+                }
+            } else {
+                // No “focusTitle” request means user clicked an existing section.
+                // Focus the rich‐text editor instead:
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    isRichTextFocused = true
+                }
+            }
+
+        }
+        .onChange(of: section.id) { _ in
+            if focusTitle {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            isTitleFocused = true
+                            focusTitle = false
+                        }
+            }  else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    isRichTextFocused = true
+                }
+            }
+        }
+        .id(section.id)
+
+        
     }
 }
 /*

@@ -5,52 +5,88 @@
 //  Created by Peter Macdonald on 30/05/2025.
 //
 import SwiftUI
+import Combine
+
 
 struct KishoDocumentView: View {
-    @Binding var document: KishoDocumentModel
-    @State private var selectedID: UUID?
+  //  @Binding var document: KishoDocumentModel
+   
     @State private var showDeleteAlert = false
 
+    @EnvironmentObject var document : KishoDocumentModel
 
+    @State private var focusTitle: Bool = false
+    
     var body: some View {
         NavigationSplitView {
             
-            KishoSidebarOutlineView(sections: $document.sections, selectedSectionID: $selectedID)
+            KishoSidebarOutlineView()
+                .environmentObject(self.document)
+                .focusedValue(\.kishoDocumentModel, document)
+                .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+
             .frame(minWidth: 220)
     
         } content: {
-            if let selectedID,
-               let sectionObject = findSection(with: selectedID, in: document.sections) {
-                KishoSectionEditorView(section: sectionObject)
+            if let sectionObject = document.selectedSection {
+                KishoSectionEditorView(section: sectionObject, focusTitle: $focusTitle)
                     .frame(minWidth: 600)
+                    .environmentObject(self.document)
+                    .focusedValue(\.kishoDocumentModel, document)
+                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+
+            }else {
+                Text("Select a section")
+                    .foregroundStyle(.secondary)
+                    .focusedValue(\.kishoDocumentModel, document)
+                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+
             }
             
         } detail: {
-            if let selectedID, let section = $document.sections.binding(for: selectedID) {
-                // KishoInspectorView(section: section.wrappedValue)
+            if  let section = document.selectedSection {
                 Text("Inspector view")
-                
+                    .focusedValue(\.kishoDocumentModel, document)
+                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+
+
             } else {
                 Text("Select a section")
                     .foregroundStyle(.secondary)
+                    .focusedValue(\.kishoDocumentModel, document)
+                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+
             }
         }
         .toolbar {
             ToolbarItem {
                 Button {
-                    addSiblingSection()
+                    self.document.addSiblingSection()
+                    focusTitle = true
+
                 } label: {
-                    Label("Add Sibling", systemImage: "plus.square.on.square")
+                
+                    Label("Add Child", systemImage: "plus")
                 }
                 .help("Add section at same level as selected")
+
             }
             ToolbarItem {
                 Button {
-                    addChildSection()
+                    self.document.addChildSection()
+                    focusTitle = true
+
                 } label: {
-                    Label("Add Child", systemImage: "plus")
+                    Label("Add Sibling", systemImage: "plus.square.on.square")
                 }
+                .disabled(document.selectedSection == nil)
                 .help("Add child section")
+
             }
             ToolbarItem {
                 Button(role: .destructive) {
@@ -58,7 +94,7 @@ struct KishoDocumentView: View {
                 } label: {
                     Label("Delete Section", systemImage: "trash")
                 }
-                .disabled(selectedID == nil)
+                .disabled(document.selectedSection == nil)
             }
             
             
@@ -66,61 +102,24 @@ struct KishoDocumentView: View {
         .alert("Delete Section?",
                isPresented: $showDeleteAlert,
                actions: {
-            Button("Delete", role: .destructive) { deleteSection() }
+            Button("Delete") {
+             
+                    document.deleteSection()
+                }
+            .keyboardShortcut(.defaultAction)
+            
+            
             Button("Cancel", role: .cancel) { }
         },
                message: {
             Text("Are you sure you want to delete the selected section? All child sections will be deleted.")
         }
         )
+        
     }
 
-        func deleteSection() {
-              guard let selectedID else { return }
-              if let idx = document.sections.firstIndex(where: { $0.id == selectedID }) {
-                  document.sections.remove(at: idx)
-                  self.selectedID = nil
-                  return
-              }
-              deleteSectionRecursively(selectedID: selectedID, sections: $document.sections)
-              self.selectedID = nil
-          }
+    
 
-          private func deleteSectionRecursively(selectedID: UUID, sections: Binding<[KishoSection]>) {
-              for idx in sections.wrappedValue.indices {
-                  if let childIdx = sections.wrappedValue[idx].children.firstIndex(where: { $0.id == selectedID }) {
-                      sections.wrappedValue[idx].children.remove(at: childIdx)
-                      return
-                  }
-                  deleteSectionRecursively(selectedID: selectedID, sections: sections[idx].children)
-              }
-          }
-        // Section insertion helpers as above...
-    func addSiblingSection() {
-        guard let selectedID else {
-            document.sections.append(KishoSection(title: "New Section"))
-            return
-        }
-        addSiblingSectionRecursively(selectedID: selectedID, sections: $document.sections)
-    }
-
-    private func addSiblingSectionRecursively(selectedID: UUID, sections: Binding<[KishoSection]>) {
-        for idx in sections.wrappedValue.indices {
-            if sections.wrappedValue[idx].id == selectedID {
-                let newSection = KishoSection(title: "New Sibling Section")
-                sections.wrappedValue.insert(newSection, at: idx + 1)
-                return
-            }
-            addSiblingSectionRecursively(selectedID: selectedID, sections: sections[idx].children)
-        }
-    }
-
-    func addChildSection() {
-        guard let selectedID, let section = $document.sections.binding(for: selectedID) else {
-            return
-        }
-        section.children.wrappedValue.append(KishoSection(title: "New Child Section"))
-    }
     
     // Anywhere in your code (e.g. in DocumentView.swift)
 
