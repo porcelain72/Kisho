@@ -15,6 +15,7 @@ struct SectionRow: View {
    
     @State private var dropPosition: DropPosition?
 
+  //  @Binding var showDeleteAlert : Bool
     let depth : Int
     
     enum DropPosition { case above, on, below }
@@ -31,8 +32,8 @@ struct SectionRow: View {
                                       
                 Spacer()
             }
-            .modifier(CellModifier(depth: depth))
-
+            .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+           
 .onTapGesture {self.document.select(section: section)}
             
             //.background(dropPosition == .on ? Color.accentColor.opacity(0.12) : Color.clear)
@@ -156,6 +157,7 @@ struct CellModifier : ViewModifier {
     
     let depth : Int
     
+    let selected : Bool
     func body(content: Content) -> some View {
         content
             .font(.headline) // headline font
@@ -163,7 +165,7 @@ struct CellModifier : ViewModifier {
                                .padding(.vertical, 8)
             .background(
              Capsule()
-                                       .fill(capsuleColor.opacity(0.2))
+                .fill(capsuleColor.opacity(selected == true ?  0.6 : 0.2))
             )
             .frame(maxWidth: .infinity)
             .padding(.horizontal,6.0)

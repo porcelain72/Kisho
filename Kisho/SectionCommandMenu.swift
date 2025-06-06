@@ -31,7 +31,7 @@ struct SectionMenuCommands: Commands {
 
             // Delete Section
             Button("Delete Section") {
-                document.deleteSection()
+              //  document.deleteSection()
             }
             .keyboardShortcut(.delete, modifiers: .command)
             .disabled(document.selectedSection == nil)

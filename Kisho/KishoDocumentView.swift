@@ -6,84 +6,141 @@
 //
 import SwiftUI
 import Combine
-
+import UniformTypeIdentifiers
 
 struct KishoDocumentView: View {
   //  @Binding var document: KishoDocumentModel
    
     @State private var showDeleteAlert = false
+    @Environment(\.undoManager) private var undoManager
 
     @EnvironmentObject var document : KishoDocumentModel
 
     @State private var focusTitle: Bool = false
+    // Track whether to show the export‐choice sheet:
+    @State private var showingExportOptions = false
+    
+    let fileURL : URL?
+    
+    /// A computed “title” that tracks the file’s name if available,
+      /// otherwise falls back to your model’s internal title (or “Untitled”).
+    private var documentTitle: String {
+        if let url = fileURL {
+            return url.deletingPathExtension().lastPathComponent
+        }
+        return  "Untitled"
+       
+    }
     
     var body: some View {
         NavigationSplitView {
             
-            KishoSidebarOutlineView()
+            KishoSidebarOutlineView(showDeleteAlert: $showDeleteAlert)
                 .environmentObject(self.document)
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                 .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-
+    
             .frame(minWidth: 220)
     
         } content: {
             if let sectionObject = document.selectedSection {
                 KishoSectionEditorView(section: sectionObject, focusTitle: $focusTitle)
-                    .frame(minWidth: 600)
+                  //  .frame(minWidth: 600)
                     .environmentObject(self.document)
                     .focusedValue(\.kishoDocumentModel, document)
                     .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                   .focusedValue(\.showDeleteAlert , $showDeleteAlert)
 
             }else {
                 Text("Select a section")
                     .foregroundStyle(.secondary)
-                    .focusedValue(\.kishoDocumentModel, document)
-                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                //    .focusedValue(\.kishoDocumentModel, document)
+                 //   .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                //    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
 
             }
             
         } detail: {
+            
             if  let section = document.selectedSection {
-                Text("Inspector view")
+                KishoInspectorView(section: section)
+                
                     .focusedValue(\.kishoDocumentModel, document)
                     .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                     .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                    .frame(minWidth: 250, idealWidth: 300, maxWidth: 350)
+                    .navigationSplitViewColumnWidth(300.0)
+             //   Text("Inspector")
+                              // .frame(minWidth: 300)
+                               .environmentObject(self.document)
+
 
 
             } else {
-                Text("Select a section")
+                Text("Select a section")    
                     .foregroundStyle(.secondary)
-                    .focusedValue(\.kishoDocumentModel, document)
-                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                 //   .focusedValue(\.kishoDocumentModel, document)
+                 //   .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+               //     .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                    .navigationSplitViewColumnWidth(300.0)
 
             }
         }
         .toolbar {
+            
             ToolbarItem {
                 Button {
-                    self.document.addSiblingSection()
+                    showingExportOptions = true
+                } label: {
+                    Label("Export…", systemImage: "square.and.arrow.up")
+                }
+                .help("Export document as Plaintext or pdf")
+                
+            }
+            ToolbarItem {
+              Button {
+                undoManager?.undo()
+              } label: {
+                Label("Undo", systemImage: "arrow.uturn.left")
+              }
+              .keyboardShortcut("z", modifiers: .command)
+              .disabled(!(undoManager?.canUndo ?? false))
+            }
+
+            ToolbarItem {
+                 
+              Button {
+                undoManager?.redo()
+              } label: {
+                Label("Redo", systemImage: "arrow.uturn.right")
+              }
+              .keyboardShortcut("z", modifiers: [.command, .shift])
+              .disabled(!(undoManager?.canRedo ?? false))
+            }
+            
+            ToolbarItem {
+                Button {
+                    document.addSiblingSection(using: undoManager)
                     focusTitle = true
 
                 } label: {
                 
                     Label("Add Child", systemImage: "plus")
                 }
+                 .keyboardShortcut("=", modifiers: [.command])
                 .help("Add section at same level as selected")
 
             }
             ToolbarItem {
                 Button {
-                    self.document.addChildSection()
+                    document.addChildSection(using: undoManager)
                     focusTitle = true
 
                 } label: {
                     Label("Add Sibling", systemImage: "plus.square.on.square")
                 }
+                .keyboardShortcut("+", modifiers: [.command, .shift])
                 .disabled(document.selectedSection == nil)
                 .help("Add child section")
 
@@ -99,12 +156,36 @@ struct KishoDocumentView: View {
             
             
         }
+        .confirmationDialog(
+            "Choose Export Format",
+            isPresented: $showingExportOptions,
+            titleVisibility: .visible
+        ) {
+            Button("Plain Text") {
+                exportAsPlainText()
+            }
+            Button("PDF") {
+                exportAsPDF()
+            }
+            Button("HTML") {
+                let html = Exporter.htmlString(from: document.sections)
+                let data = Data(html.utf8)
+                let filename = "\(documentTitle).html"
+                #if os(macOS)
+                showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["html", "htm"])
+                #else
+                #endif
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+    
+
         .alert("Delete Section?",
                isPresented: $showDeleteAlert,
                actions: {
             Button("Delete") {
              
-                    document.deleteSection()
+                document.deleteSelectedSection(using: undoManager)
                 }
             .keyboardShortcut(.defaultAction)
             
@@ -120,6 +201,58 @@ struct KishoDocumentView: View {
 
     
 
+    // MARK: –– Export Actions
+
+    private func exportAsPlainText() {
+        let fullText = Exporter.plainText(from: document.sections)
+        let data = Data(fullText.utf8)
+        let filename = "\(documentTitle).txt"
+        #if os(macOS)
+        showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["txt"])
+        #else
+        #endif
+    }
+
+    private func exportAsPDF() {
+        let fullAttr = Exporter.attributedText(from: document.sections)
+        guard let pdfData = Exporter.pdfData(from: fullAttr) else {
+            // Handle PDF generation failure if needed
+            return
+        }
+        let filename = "\(documentTitle).pdf"
+        #if os(macOS)
+        showSavePanel(for: pdfData, defaultFileName: filename, allowedTypes: ["pdf"])
+        #else
+        
+        #endif
+    }
+
+
+    #if os(macOS)
+    /// Presents the standard NSSavePanel and writes the given data to the chosen file URL.
+    private func showSavePanel(
+        for data: Data,
+        defaultFileName: String,
+        allowedTypes: [String]
+    ) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = defaultFileName
+        panel.allowedContentTypes = allowedTypes.compactMap { UTType(filenameExtension: $0) }
+        panel.canCreateDirectories = true
+        panel.isExtensionHidden = false
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                do {
+                    try data.write(to: url)
+                } catch {
+                    // Present an alert if write fails
+                    let alert = NSAlert(error: error)
+                    alert.runModal()
+                }
+            }
+        }
+    }
+    #endif
     
     // Anywhere in your code (e.g. in DocumentView.swift)
 

@@ -11,17 +11,21 @@ import SwiftUI
 struct KishoApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: KishoDocument()) { file in
-            KishoDocumentView()
+            KishoDocumentView(fileURL: file.fileURL)
                 .environmentObject(file.document.model)
-              
+                .frame(minWidth: 1200, idealWidth: 1800, minHeight: 800, idealHeight: 1200)
 
         }
+        #if os(macOS)
         .commands {
             SectionEditCommands()
         }
-     
+        #endif
     }
 }
+
+#if os(macOS)
+let undoManager = NSApp.keyWindow?.undoManager
 
 /// A `Commands` block that injects into the Edit menu right after Paste/Cut/Copy.
 struct SectionEditCommands: Commands {
@@ -38,25 +42,39 @@ struct SectionEditCommands: Commands {
             Button("Next") {
                 documentModel?.selectNext()
             }
-            .keyboardShortcut("]", modifiers: [.command])
+            .keyboardShortcut(.rightArrow, modifiers: [.command])
 
             Button("Previous") {
                 documentModel?.selectPrevious()
             }
-            .keyboardShortcut("[", modifiers: [.command])
+            .keyboardShortcut(.leftArrow, modifiers: [.command])
+            
+            Button("Level down") {
+                documentModel?.selectDown()
+            }
+            .keyboardShortcut(.downArrow, modifiers: [.command])
+            
+            Button("Level up") {
+                documentModel?.selectUp()
+            }
+            .keyboardShortcut(.upArrow, modifiers: [.command])
+            
             // Add Sibling Section  ⌘.
             Button("Add Sibling Section") {
-                documentModel?.addSiblingSection()
+                guard let man = undoManager else { fatalError()}
+                documentModel?.addSiblingSection(using: undoManager)
             }
-            .keyboardShortcut("=", modifiers: [.command])
-            .disabled(selectedSectionID == nil)
+           // .keyboardShortcut("=", modifiers: [.command])
+           // .disabled(selectedSectionID == nil)
             
             // Add Child Section  ⇧⌘.
             Button("Add Child Section") {
-                documentModel?.addChildSection()
+                guard let man = undoManager else { fatalError()}
+
+                documentModel?.addChildSection(using: undoManager)
             }
-            .keyboardShortcut("+", modifiers: [.command, .shift])
-            .disabled(selectedSectionID == nil)
+           // .keyboardShortcut("+", modifiers: [.command, .shift])
+           // .disabled(selectedSectionID == nil)
             
             Divider()
             
@@ -65,26 +83,9 @@ struct SectionEditCommands: Commands {
                 showDelete?.toggle()
             }
             .keyboardShortcut(.delete, modifiers: .command)
-            .disabled(selectedSectionID == nil)
+          //  .disabled(selectedSectionID == nil)
         }
     }
 }
+#endif
 
-
-struct CustomShortcutMenu: Commands {
-    @EnvironmentObject private var document: KishoDocumentModel
-
-    var body: some Commands {
-        CommandGroup( after: .pasteboard){
-            Button("Next") {
-                //document.selectNext()
-            }
-            .keyboardShortcut("K", modifiers: [.command, .shift])
-
-            Button("Previous") {
-              //  document.selectPrevious()
-            }
-            .keyboardShortcut("L", modifiers: [.command, .option])
-        }
-    }
-}

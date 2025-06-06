@@ -21,28 +21,37 @@ struct KishoSectionEditorView: View {
     @FocusState private var isRichTextFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 20.0) {
             TextField("Section Title", text: $section.title)
                 .textFieldStyle(.plain)
                 .focused($isTitleFocused)
-                .modifier(CellModifier(depth:self.document.depth(forSection: section)))
+                .modifier(CellModifier(depth:self.document.depth(forSection: section), selected: true))
             
-            
-            TextEditor(text: Binding(get: {
-                section.attributedText.string
-            }, set: { new in
-                section.attributedText = NSAttributedString(string: new)
-            }))
-            .focused($isRichTextFocused)
-            /*
-             RichTextEditor(attributedText: Binding(get: {
-             section.attributedText
-             }, set: { newVal in
-             section.attributedText = newVal
-             }))
-             */
-            .frame(minHeight: 200)
+            ZStack{
+                Color.white
+                VStack{
+                    /*
+                    TextEditor(text: Binding(get: {
+                        section.attributedText.string
+                    }, set: { new in
+                        section.attributedText = NSAttributedString(string: new)
+                    }))
+                    .focused($isRichTextFocused)
+                    */
+                    
+                    RichTextEditor(attributedText: $section.content.attributedString, inspector: $section.inspectorVersion)
+                     
+                    .frame(minHeight: 200)
+                    .focused($isRichTextFocused)
+                    Rectangle()
+                        .foregroundStyle(Color.white)
+                        .frame(height: 100)
+                }
+                .padding()
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 25.0))
         }
+        
         .padding()
         .onAppear {
             if focusTitle {
