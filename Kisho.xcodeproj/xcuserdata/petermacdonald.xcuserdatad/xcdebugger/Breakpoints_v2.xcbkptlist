@@ -619,8 +619,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "255"
-            endingLineNumber = "255"
+            startingLineNumber = "283"
+            endingLineNumber = "283"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
          </BreakpointContent>
@@ -635,8 +635,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
             <Locations>
@@ -683,8 +683,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
+            startingLineNumber = "194"
+            endingLineNumber = "194"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
             <Locations>
@@ -836,8 +836,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
             <Locations>
@@ -884,8 +884,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
             <Locations>
@@ -947,10 +947,10 @@
             filePath = "Kisho/SectionRow.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "156"
+            endingLineNumber = "156"
+            landmarkName = "SectionRow"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1059,8 +1059,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "209"
-            endingLineNumber = "209"
+            startingLineNumber = "237"
+            endingLineNumber = "237"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1122,8 +1122,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
+            startingLineNumber = "240"
+            endingLineNumber = "240"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1185,8 +1185,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
+            startingLineNumber = "242"
+            endingLineNumber = "242"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1248,8 +1248,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
+            startingLineNumber = "305"
+            endingLineNumber = "305"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1483,8 +1483,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "467"
-            endingLineNumber = "467"
+            startingLineNumber = "495"
+            endingLineNumber = "495"
             landmarkName = "addSiblingSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1546,8 +1546,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "675"
-            endingLineNumber = "675"
+            startingLineNumber = "703"
+            endingLineNumber = "703"
             landmarkName = "defaultAttributes()"
             landmarkType = "7">
             <Locations>
@@ -1721,8 +1721,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "459"
-            endingLineNumber = "459"
+            startingLineNumber = "487"
+            endingLineNumber = "487"
             landmarkName = "addSiblingSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1844,8 +1844,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "316"
-            endingLineNumber = "316"
+            startingLineNumber = "344"
+            endingLineNumber = "344"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
             <Locations>
@@ -1922,8 +1922,8 @@
             filePath = "Kisho/KishoDocumentModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "297"
-            endingLineNumber = "297"
+            startingLineNumber = "325"
+            endingLineNumber = "325"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
             <Locations>

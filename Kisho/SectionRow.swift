@@ -118,15 +118,17 @@ struct SectionRow: View {
             guard let idStr, let draggedID = UUID(uuidString: idStr), draggedID != section.id else { return }
             
             DispatchQueue.main.async {
-                switch position {
-                case .on:
-                    self.document.moveAsChild(draggedID: draggedID, destinationID: self.section.id)
-                case .above:
-                    self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id, insertBefore: true)
-                case .below:
-                    self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id,  insertBefore: false)
+                withAnimation{
+                    switch position {
+                    case .on:
+                        self.document.moveAsChild(draggedID: draggedID, destinationID: self.section.id)
+                    case .above:
+                        self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id, insertBefore: true)
+                    case .below:
+                        self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id,  insertBefore: false)
+                    }
+                    dropPosition = nil
                 }
-                dropPosition = nil
             }
         }
         return true

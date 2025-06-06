@@ -91,6 +91,18 @@ struct KishoDocumentView: View {
             
             ToolbarItem {
                 Button {
+                    //showingExportOptions = true
+                    document.makeChildren(undoManager: undoManager)
+                } label: {
+                    Label("Split…", systemImage: "square.fill.text.grid.1x2")
+                }
+                .keyboardShortcut("p", modifiers: .command)
+
+                .help("Create new subsections from paragraphs")
+                
+            }
+            ToolbarItem {
+                Button {
                     showingExportOptions = true
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")

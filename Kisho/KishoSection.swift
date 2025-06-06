@@ -93,6 +93,26 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         try container.encode(children,  forKey: .children)
         try container.encode(tags, forKey: .tags)
     }
+    
+    
+    func asSections() -> [KishoSection] {
+        
+        var secs : [KishoSection]  = []
+        
+        let paras = self.content.paragraphs()
+        
+        paras.forEach { paragraph in
+            let newSection = KishoSection(title: paragraph.defaultTitle, content: paragraph)
+            secs.append(newSection)
+        }
+        
+        return secs
+        
+    }
+    
+    func joinedChildrenContent() -> KishoRichText {
+        return KishoRichText.fromSections(self.children)
+    }
    /*
     // MARK: - Helpers for Rich Text
     var attributedText: NSAttributedString {
@@ -157,6 +177,126 @@ final class KishoRichText: ObservableObject, Codable {
         let rtfData = attributedString.rtfData()
         try container.encode(rtfData, forKey: .rtfData)
     }
+    
+    func flushContent()  {
+        self.attributedString = NSAttributedString(string: "")
+    }
+}
+
+
+
+extension KishoRichText {
+    
+    /// Create a single KishoRichText by concatenating the `content` of each KishoSection in order.
+    /// Inserts one newline between each section’s content, preserving all attributes.
+    static func fromSections(_ sections: [KishoSection]) -> KishoRichText {
+        // 1) Extract each section’s KishoRichText
+        let richParts = sections.map { $0.content }
+
+        // 2) Reuse the joined(_:) helper to concatenate them
+        return KishoRichText.joined(richParts)
+    }
+    
+    /// Splits `self.attributedString` into paragraphs, returning each paragraph
+    /// as a brand‐new `KishoRichText` (with its own attributed string).
+    ///
+    /// Paragraph boundaries are determined using NSString’s `.byParagraphs` enumeration,
+    /// so each returned wrapper contains exactly one paragraph (including any attached
+    /// newline or paragraph‐separator attributes).
+    func paragraphs() -> [KishoRichText] {
+        let full = self.attributedString
+        let fullNSString = full.string as NSString
+        var result: [KishoRichText] = []
+
+        // Enumerate by paragraph: this yields each “paragraph substring” and its range.
+        fullNSString.enumerateSubstrings(
+            in: NSRange(location: 0, length: fullNSString.length),
+            options: .byParagraphs
+        ) { (substring, substringRange, enclosingRange, stop) in
+            // substringRange is the character range of this paragraph (without trailing newline),
+            // but we want the full attributed substring including any paragraph separator.
+            // So use 'enclosingRange' to include the final newline (if any).
+            let paragraphRange = enclosingRange
+
+            // Extract the attributed substring for this paragraph
+            let subAttrString = full.attributedSubstring(from: paragraphRange)
+
+            // Wrap it in a new KishoRichText
+            let newRich = KishoRichText()
+            newRich.attributedString = subAttrString
+            result.append(newRich)
+        }
+
+        return result
+    }
+    
+
+        /// A reasonable “default title” drawn from the first short sentence (≤ 20 words) of the content.
+        /// - If the attributed string is empty (after trimming whitespace/newlines), returns "Untitled".
+        /// - Otherwise, enumerates by sentences; if it finds a sentence with ≤ 20 words, returns that.
+        /// - If no sentence under 20 words is found, returns the first 20 words of the text joined by spaces.
+        var defaultTitle: String {
+            // 1) Get the plain string and trim whitespace/newlines
+            let fullString = attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !fullString.isEmpty else {
+                return "Untitled"
+            }
+
+            // 2) Try to find a “short” (≤ 20‐word) sentence
+            let nsString = fullString as NSString
+            var shortSentence: String? = nil
+
+            nsString.enumerateSubstrings(
+                in: NSRange(location: 0, length: nsString.length),
+                options: .bySentences
+            ) { (substring, substringRange, enclosingRange, stop) in
+                guard
+                    let sentence = substring?.trimmingCharacters(in: .whitespacesAndNewlines),
+                    !sentence.isEmpty
+                else { return }
+
+                let wordCount = sentence
+                    .split { $0.isWhitespace }
+                    .count
+                if wordCount <= 20 {
+                    shortSentence = sentence
+                    stop.pointee = true
+                }
+            }
+
+            if let title = shortSentence {
+                return title
+            }
+
+            // 3) No sentence under 20 words found → return first 20 words
+            let allWords = fullString
+                .split { $0.isWhitespace }
+            let firstWords = allWords.prefix(20)
+            return firstWords.joined(separator: " ")
+        }
+
+
+        /// Returns a new KishoRichText which is the concatenation of `parts`,
+        /// with a single newline inserted between each part’s attributed string.
+        static func joined(_ parts: [KishoRichText]) -> KishoRichText {
+            let result = KishoRichText()
+            let combined = NSMutableAttributedString()
+
+            for (index, part) in parts.enumerated() {
+                // Append this part’s attributedString
+                combined.append(part.attributedString)
+
+                // If not the last element, append one newline (preserving default attributes)
+                if index < parts.count - 1 {
+                    combined.append(NSAttributedString(string: "\n"))
+                }
+            }
+
+            // Assign back to the wrapper’s published property
+            result.attributedString = combined
+            return result
+        }
+    
 }
 
 /// Convenience extension to export NSAttributedString as RTF data.

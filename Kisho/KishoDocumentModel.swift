@@ -40,6 +40,34 @@ final class KishoDocumentModel: ObservableObject, Codable {
         fixParents(self.sections)
     }
     
+    func makeChildren(undoManager: UndoManager? = nil) {
+        
+        guard let section = self.selectedSection else { return }
+        // Split section content
+        let newSections = section.asSections()
+        let sectionID = section.id
+        // Move it into section's children
+        // IF children !empty create intermediate empty section else provide section as parent
+        newSections.forEach { sect in
+            sect.parent = section
+            section.children.append(sect)
+        }
+        // Clear sectino contents
+        section.content.flushContent()
+        self.selectedSectionID = newSections.first?.id
+        
+        undoManager?.registerUndo(withTarget: self, handler: { target in
+            if let section = target.section(withID: sectionID, inSections: target.sections) {
+                let newContent = section.joinedChildrenContent()
+                section.content = newContent
+                section.children = []
+            }
+        })
+    }
+    
+    
+    
+    
     func select(section: KishoSection) {
         DispatchQueue.main.async{
             print("Selecting\(section.title)")
