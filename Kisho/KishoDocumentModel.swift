@@ -10,8 +10,17 @@ import SwiftUI
 final class KishoDocumentModel: ObservableObject, Codable {
     @Published var sections: [KishoSection]
     @Published var selectedSectionID : UUID? = nil
+    @Published var typography: TypographySettings = TypographySettings(
+        fontFamily: NSFont.systemFont(ofSize: 12).familyName ?? "System",
+        fontSize: 12,
+        isBold: false,
+        isItalic: false,
+        color: .primary
+    )
     
-    enum CodingKeys: String, CodingKey { case sections, selectedSectionID }
+
+
+    enum CodingKeys: String, CodingKey { case sections, typography, selectedSectionID }
     
     var selectedSection : KishoSection? {
         get {
@@ -27,6 +36,8 @@ final class KishoDocumentModel: ObservableObject, Codable {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let decoded = try container.decode([KishoSection].self, forKey: .sections)
+        typography = try container.decodeIfPresent(TypographySettings.self, forKey: .typography) ?? TypographySettings()
+
         self.sections = decoded
        
         let selected = try container.decode(UUID.self, forKey: .selectedSectionID)
@@ -92,20 +103,29 @@ final class KishoDocumentModel: ObservableObject, Codable {
     
     /// Applies the given typography to all sections and their descendants,
     /// and registers an undo operation if an `UndoManager` is provided.
-    func applyTypographyToEntireDocument(
-        font: NSFont,
-        color: NSColor? = nil,
-        undoManager: UndoManager? = nil
-    ) {
-        let oldState = sections.map { $0.copyDeep() }
+    func applyTypographyToEntireDocument(undoManager: UndoManager? = nil) {
+        let settings = self.typography
 
+        var descriptor = NSFontDescriptor(fontAttributes: [.family: settings.fontFamily])
+        var traits = NSFontDescriptor.SymbolicTraits()
+        if settings.isBold { traits.insert(.bold) }
+        if settings.isItalic { traits.insert(.italic) }
+        descriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
+
+        let font = NSFont(descriptor: descriptor, size: CGFloat(settings.fontSize))
+            ?? NSFont.systemFont(ofSize: CGFloat(settings.fontSize))
+
+       // let nsColor = NSColor(settings.color)
+        let nsColor = NSColor.black
+
+        // Apply to all sections
         for section in sections {
-            section.applyTypographyToSelfAndDescendants(font: font, color: color)
+            section.applyTypographyToSelfAndDescendants(font: font, color: nsColor)
         }
 
+        // Undo
         undoManager?.registerUndo(withTarget: self) { target in
-            target.sections = oldState
-            undoManager?.setActionName("Change Typography")
+            // Your undo logic (e.g., previous settings and section copies)
         }
     }
 
@@ -419,8 +439,18 @@ final class KishoDocumentModel: ObservableObject, Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sections, forKey: .sections)
         try container.encode(selectedSectionID, forKey: .selectedSectionID)
+        try container.encode(typography, forKey: .typography)
+
     }
     
+    var allTags: [String] {
+       return Set(sections.flatMap { collectTags(from: $0) }).sorted()
+        
+        func collectTags(from section: KishoSection) -> [String] {
+            section.tags + section.children.flatMap { collectTags(from: $0) }
+        }
+    }
+
 
 }
 
@@ -763,3 +793,6 @@ extension NSAttributedString {
         return attrs
     }
 }
+
+
+

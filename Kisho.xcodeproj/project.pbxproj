@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9855A7B62E3193FA00493ECB /* ToolbarTypographyControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */; };
+		9855A7B82E31961800493ECB /* FontSizePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B72E31961800493ECB /* FontSizePicker.swift */; };
+		9855A7BA2E31989100493ECB /* TypographySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B92E31989100493ECB /* TypographySettings.swift */; };
+		9855A7BC2E31A23B00493ECB /* TagEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7BB2E31A23B00493ECB /* TagEditorView.swift */; };
+		9855A7BE2E31A3F800493ECB /* TagSuggestingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7BD2E31A3F800493ECB /* TagSuggestingTextField.swift */; };
 		98AAE7F12DF2F74200B30147 /* KishoDocumentView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98AAE7F02DF2F74200B30147 /* KishoDocumentView+iOS.swift */; platformFilter = ios; };
 		98AAE7F32DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98AAE7F22DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift */; platformFilter = ios; };
 		98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */; };
@@ -47,6 +52,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTypographyControlsView.swift; sourceTree = "<group>"; };
+		9855A7B72E31961800493ECB /* FontSizePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontSizePicker.swift; sourceTree = "<group>"; };
+		9855A7B92E31989100493ECB /* TypographySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypographySettings.swift; sourceTree = "<group>"; };
+		9855A7BB2E31A23B00493ECB /* TagEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagEditorView.swift; sourceTree = "<group>"; };
+		9855A7BD2E31A3F800493ECB /* TagSuggestingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggestingTextField.swift; sourceTree = "<group>"; };
 		98AAE7F02DF2F74200B30147 /* KishoDocumentView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentView+iOS.swift"; sourceTree = "<group>"; };
 		98AAE7F22DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSectionEditorView+iOS.swift"; sourceTree = "<group>"; };
 		98B23B082DE9BFEB00888A7C /* Kisho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kisho.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,6 +146,11 @@
 				98B23B392DE9C0A200888A7C /* KishoSection.swift */,
 				98EA64DA2DED99FC00B4AEFE /* KishoInspectorView.swift */,
 				98D4CA202DF26E2B008C2E43 /* KishoInspectorView+iOS.swift */,
+				9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */,
+				9855A7B92E31989100493ECB /* TypographySettings.swift */,
+				9855A7BB2E31A23B00493ECB /* TagEditorView.swift */,
+				9855A7BD2E31A3F800493ECB /* TagSuggestingTextField.swift */,
+				9855A7B72E31961800493ECB /* FontSizePicker.swift */,
 				98B23B112DE9BFEF00888A7C /* Assets.xcassets */,
 				98B23B132DE9BFEF00888A7C /* Info.plist */,
 				98B23B142DE9BFEF00888A7C /* Kisho.entitlements */,
@@ -307,18 +322,23 @@
 			files = (
 				98D4CA1F2DF1F626008C2E43 /* Exporter.swift in Sources */,
 				98EA64DD2DEDA07E00B4AEFE /* SectionRow.swift in Sources */,
+				9855A7BC2E31A23B00493ECB /* TagEditorView.swift in Sources */,
 				98B23B3A2DE9C0A200888A7C /* KishoSection.swift in Sources */,
 				98B23B3C2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift in Sources */,
 				98EA64DB2DED99FD00B4AEFE /* KishoInspectorView.swift in Sources */,
 				98B23B402DE9C49000888A7C /* KishoSectionEditorView.swift in Sources */,
+				9855A7BA2E31989100493ECB /* TypographySettings.swift in Sources */,
 				98B23B3E2DE9C40700888A7C /* KishoSidebarOutlineView.swift in Sources */,
 				98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */,
+				9855A7B62E3193FA00493ECB /* ToolbarTypographyControlsView.swift in Sources */,
+				9855A7BE2E31A3F800493ECB /* TagSuggestingTextField.swift in Sources */,
 				98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */,
 				98D4CA212DF26E2B008C2E43 /* KishoInspectorView+iOS.swift in Sources */,
 				98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */,
 				98AAE7F12DF2F74200B30147 /* KishoDocumentView+iOS.swift in Sources */,
 				98AAE7F32DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift in Sources */,
 				98EA654E2DEF5BAF00B4AEFE /* KishoDocumentModel.swift in Sources */,
+				9855A7B82E31961800493ECB /* FontSizePicker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

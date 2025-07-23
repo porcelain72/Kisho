@@ -20,6 +20,13 @@ struct KishoDocumentView: View {
     // Track whether to show the export‐choice sheet:
     @State private var showingExportOptions = false
     
+    @State private var fontFamilies: [String] = []
+    @State private var selectedFontFamily: String = NSFont.systemFont(ofSize: 12).familyName ?? "System"
+    @State private var fontSize: Double = 12
+    @State private var isBold: Bool = false
+    @State private var isItalic: Bool = false
+
+    
     let fileURL : URL?
     
     /// A computed “title” that tracks the file’s name if available,
@@ -43,7 +50,7 @@ struct KishoDocumentView: View {
     
             .frame(minWidth: 220)
     
-        } content: {
+        } detail: {
             if let sectionObject = document.selectedSection {
                 KishoSectionEditorView(section: sectionObject, focusTitle: $focusTitle)
                   //  .frame(minWidth: 600)
@@ -61,35 +68,11 @@ struct KishoDocumentView: View {
 
             }
             
-        } detail: {
-            
-            if  let section = document.selectedSection {
-                KishoInspectorView(section: section)
-                
-                    .focusedValue(\.kishoDocumentModel, document)
-                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-                    .frame(minWidth: 250, idealWidth: 300, maxWidth: 350)
-                    .navigationSplitViewColumnWidth(300.0)
-             //   Text("Inspector")
-                              // .frame(minWidth: 300)
-                               .environmentObject(self.document)
-
-
-
-            } else {
-                Text("Select a section")    
-                    .foregroundStyle(.secondary)
-                 //   .focusedValue(\.kishoDocumentModel, document)
-                 //   .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-               //     .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-                    .navigationSplitViewColumnWidth(300.0)
-
-            }
         }
         .toolbar {
-            
-            ToolbarItem {
+            ToolbarItemGroup {
+                ToolbarTypographyControlsView()
+          
                 Button {
                     //showingExportOptions = true
                     document.makeChildren(undoManager: undoManager)
@@ -100,8 +83,7 @@ struct KishoDocumentView: View {
 
                 .help("Create new subsections from paragraphs")
                 
-            }
-            ToolbarItem {
+          
                 Button {
                     //showingExportOptions = true
                     document.gather(undoManager: undoManager)
@@ -112,17 +94,14 @@ struct KishoDocumentView: View {
 
                 .help("Gather all child content into section")
                 
-            }
-            ToolbarItem {
+  
                 Button {
                     showingExportOptions = true
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
                 }
                 .help("Export document as Plaintext or pdf")
-                
-            }
-            ToolbarItem {
+         
               Button {
                 undoManager?.undo()
               } label: {
@@ -130,9 +109,7 @@ struct KishoDocumentView: View {
               }
               .keyboardShortcut("z", modifiers: .command)
               .disabled(!(undoManager?.canUndo ?? false))
-            }
-
-            ToolbarItem {
+         
                  
               Button {
                 undoManager?.redo()
@@ -141,9 +118,7 @@ struct KishoDocumentView: View {
               }
               .keyboardShortcut("z", modifiers: [.command, .shift])
               .disabled(!(undoManager?.canRedo ?? false))
-            }
-            
-            ToolbarItem {
+           
                 Button {
                     document.addSiblingSection(using: undoManager)
                     focusTitle = true
@@ -155,8 +130,6 @@ struct KishoDocumentView: View {
                  .keyboardShortcut("=", modifiers: [.command])
                 .help("Add section at same level as selected")
 
-            }
-            ToolbarItem {
                 Button {
                     document.addChildSection(using: undoManager)
                     focusTitle = true
@@ -168,8 +141,7 @@ struct KishoDocumentView: View {
                 .disabled(document.selectedSection == nil)
                 .help("Add child section")
 
-            }
-            ToolbarItem {
+         
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
@@ -224,7 +196,7 @@ struct KishoDocumentView: View {
         
     }
 
-    
+ 
 
     // MARK: –– Export Actions
 
