@@ -109,17 +109,47 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         return secs
         
     }
+ 
+    func copyDeep(parent: KishoSection? = nil) -> KishoSection {
+        let sectionCopy = KishoSection(
+            id: self.id,
+            title: self.title,
+            content: self.content.copy(),
+            children: [], // we'll fill this in below
+            tags: self.tags,
+            parent: parent,
+            createdAt: self.createdAt,
+            modifiedAt: self.modifiedAt
+        )
+
+        // Recursively copy children
+        sectionCopy.children = self.children.map {
+            $0.copyDeep(parent: sectionCopy)
+        }
+
+        return sectionCopy
+    }
     
     func joinedChildrenContent() -> KishoRichText {
-        return KishoRichText.fromSections(self.children)
+        
+        
+        var childContent = KishoRichText.fromSections(self.children)
+    
+        return KishoRichText.joined([self.content, childContent])
     }
-   /*
-    // MARK: - Helpers for Rich Text
-    var attributedText: NSAttributedString {
-        get { NSAttributedString.fromRTF(data: richTextData) ?? .init(string: "") }
-        set { richTextData = newValue.rtfData() }
+    func applyTypographyToSelfAndDescendants(font: NSFont, color: NSColor? = nil) {
+        // Apply to this section
+        self.content.applyTypography(font: font, color: color)
+        
+        // Recursively apply to children
+        for child in children {
+            child.applyTypographyToSelfAndDescendants(font: font, color: color)
+        }
+        
+        // Trigger UI updates if needed
+        self.inspectorVersion = UUID()
     }
-    */
+    
 }
 
 
@@ -181,18 +211,42 @@ final class KishoRichText: ObservableObject, Codable {
     func flushContent()  {
         self.attributedString = NSAttributedString(string: "")
     }
+    
+    func copy() -> KishoRichText {
+         let new = KishoRichText()
+         new.attributedString = NSAttributedString(attributedString: self.attributedString)
+         return new
+     }
 }
 
 
 
 extension KishoRichText {
+
+    func applyTypography(font: NSFont, color: NSColor? = nil) {
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+        let mutableCopy = NSMutableAttributedString(attributedString: attributedString)
+
+        mutableCopy.beginEditing()
+        mutableCopy.enumerateAttributes(in: fullRange, options: []) { attributes, range, _ in
+            var newAttributes = attributes
+            newAttributes[.font] = font
+            if let color = color {
+                newAttributes[.foregroundColor] = color
+            }
+            mutableCopy.setAttributes(newAttributes, range: range)
+        }
+        mutableCopy.endEditing()
+
+        self.attributedString = mutableCopy
+    }
     
     /// Create a single KishoRichText by concatenating the `content` of each KishoSection in order.
     /// Inserts one newline between each section’s content, preserving all attributes.
     static func fromSections(_ sections: [KishoSection]) -> KishoRichText {
         // 1) Extract each section’s KishoRichText
-        let richParts = sections.map { $0.content }
-
+        var richParts = sections.map { $0.joinedChildrenContent() }
+      
         // 2) Reuse the joined(_:) helper to concatenate them
         return KishoRichText.joined(richParts)
     }
@@ -311,28 +365,4 @@ extension NSAttributedString {
         )) ?? Data()
     }
 }
-
-/*
-class KishoRichText: ObservableObject, Codable {
-    
-    @Published var attributedString: NSAttributedString
-    
-    init(rtfData: Data = Data()) {
-        self.attributedString = (try? NSAttributedString(data: rtfData,
-                                                        options: [.documentType: NSAttributedString.DocumentType.rtf],
-                                                        documentAttributes: nil)) ?? NSAttributedString(string: "")
-        // … Codable conformance that encodes/decodes `attributedString.rtfData()` …
-    }
-}
-// RTF helpers
-extension NSAttributedString {
-    func rtfData() -> Data {
-        (try? self.data(from: NSRange(location: 0, length: length), documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])) ?? Data()
-    }
-
-    static func fromRTF(data: Data) -> NSAttributedString? {
-        try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil)
-    }
-}
-*/
 

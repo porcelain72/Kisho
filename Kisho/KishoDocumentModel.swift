@@ -11,7 +11,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
     @Published var sections: [KishoSection]
     @Published var selectedSectionID : UUID? = nil
     
-    enum CodingKeys: String, CodingKey { case sections }
+    enum CodingKeys: String, CodingKey { case sections, selectedSectionID }
     
     var selectedSection : KishoSection? {
         get {
@@ -21,6 +21,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
     }
     init(sections: [KishoSection] = [KishoSection(title: "Untitled Section")]) {
         self.sections = sections
+        self.selectedSectionID = sections.first?.id
     }
     
     required init(from decoder: Decoder) throws {
@@ -28,6 +29,9 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let decoded = try container.decode([KishoSection].self, forKey: .sections)
         self.sections = decoded
        
+        let selected = try container.decode(UUID.self, forKey: .selectedSectionID)
+        self.selectedSectionID = selected
+
         // Fix parent pointers
         func fixParents(_ list: [KishoSection]) {
             for s in list {
@@ -65,8 +69,46 @@ final class KishoDocumentModel: ObservableObject, Codable {
         })
     }
     
+    func gather(undoManager: UndoManager? = nil) {
+        guard let section = self.selectedSection  else { return }
+
+        let currentContent = section.content
+        let currentChildren = section.children
+        let newContent = section.joinedChildrenContent()
+        
+        section.content = newContent
+        section.children = []
+        
+        undoManager?.registerUndo(withTarget: self, handler: { target in
+            
+                section.content = currentContent
+                section.children = currentChildren
+            
+        })
+        
+        
+        
+    }
     
-    
+    /// Applies the given typography to all sections and their descendants,
+    /// and registers an undo operation if an `UndoManager` is provided.
+    func applyTypographyToEntireDocument(
+        font: NSFont,
+        color: NSColor? = nil,
+        undoManager: UndoManager? = nil
+    ) {
+        let oldState = sections.map { $0.copyDeep() }
+
+        for section in sections {
+            section.applyTypographyToSelfAndDescendants(font: font, color: color)
+        }
+
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.sections = oldState
+            undoManager?.setActionName("Change Typography")
+        }
+    }
+
     
     func select(section: KishoSection) {
         DispatchQueue.main.async{
@@ -95,7 +137,18 @@ final class KishoDocumentModel: ObservableObject, Codable {
             self.self.selectedSectionID = self.previousSectionID()
         }
     }
-
+    
+    func section(withID id: UUID, inSections: [KishoSection]) -> KishoSection? {
+      for s in inSections {
+        if s.id == id { return s }
+        if let found = section(withID: id, inSections: s.children) {
+          return found
+        }
+      }
+      return nil
+    }
+    
+ 
     
     // MARK: –– Undo‐aware move (as sibling)
     func moveAsSibling(draggedID: UUID, destinationID: UUID, insertBefore: Bool, using undoManager: UndoManager? = nil) {
@@ -308,7 +361,6 @@ final class KishoDocumentModel: ObservableObject, Codable {
         // No selection—just append a top‐level section
         let newTitle = String(self.sections.count + 1)
         let newSection = KishoSection(title: newTitle)
-
         // Register undo to remove the last element
         undoManager?.registerUndo(withTarget: self) { target in
           // Undoing: remove that last element
@@ -356,6 +408,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
       undoManager?.setActionName("Add Child Section")
 
       // Perform the insertion
+        newSection.parent = parent
       parent.children.append(newSection)
       self.selectedSectionID = newSection.id
     }
@@ -365,6 +418,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sections, forKey: .sections)
+        try container.encode(selectedSectionID, forKey: .selectedSectionID)
     }
     
 
@@ -508,7 +562,7 @@ extension KishoDocumentModel {
                         content: newRichText   // assign our newly‐formatted rich text
                     )
 
-            
+            newSection.parent = parent
             parent.children.append(newSection)
             parentOfSelection = parent
             insertIndex = parent.children.count - 1
@@ -542,35 +596,32 @@ extension KishoDocumentModel {
         }
         undoManager?.setActionName("Add Sibling Section")
     }
+   
+  
 }
 
 private extension KishoDocumentModel {
     func dowmSectionID() -> UUID? {
-        var nextSection = self.sections.first
         
-        if let selected = selectedSection,
-           !selected.children.isEmpty{
-            
-            nextSection = selected.children.first
-               
+        if let selected = selectedSection {
+            return selected.children.first?.id ?? nextSectionID()
             }
-            
-            return nextSection?.id
+        
+            return nextSectionID()
         }
     
     
     func upSectionID() -> UUID? {
-        var nextSection = self.sections.first
-        
-        
+
         if let selected = selectedSection{
             
-            nextSection = selected.parent
+            return selected.parent?.id ?? previousSectionID()
                
-            }
+        } else {
             
-            return nextSection?.id
+            return previousSectionID()
         }
+    }
     
     func nextSectionID() -> UUID? {
         var nextSection = self.sections.first
@@ -581,7 +632,7 @@ private extension KishoDocumentModel {
             if index<(siblings.count-1) {
                 nextSection = siblings[index+1]
             } else {
-                // Next next candidate
+                nextSection = siblings[index].children.first ?? siblings[index]
             }
         }
         
@@ -593,11 +644,13 @@ private extension KishoDocumentModel {
         
         if let selected = selectedSectionID,
            let siblings = siblings(forID: selected, inSections: self.sections),
-           let index = siblings.firstIndex(where: {$0.id == selected}),
-           index>0 {
-            nextSection = siblings[index-1]
+           let index = siblings.firstIndex(where: {$0.id == selected}){
+            if index>0 {
+                nextSection = siblings[index-1]
+            } else {
+                nextSection = siblings[index].parent ?? siblings[index]
+            }
         }
-        
         return nextSection?.id
     }
     // Remove section and return it
@@ -617,16 +670,7 @@ private extension KishoDocumentModel {
         return nil
     }
     
-    func section(withID id: UUID, inSections: [KishoSection]) -> KishoSection? {
-      for s in inSections {
-        if s.id == id { return s }
-        if let found = section(withID: id, inSections: s.children) {
-          return found
-        }
-      }
-      return nil
-    }
-    
+  
     
     func parent(forSectionID id: UUID, inSections: [KishoSection]) -> KishoSection? {
       for s in inSections {

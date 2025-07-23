@@ -8,14 +8,12 @@
 import SwiftUI
 import RichTextEditor
 
-#if os(macOS)
 
 struct KishoSectionEditorView: View {
     @EnvironmentObject var document : KishoDocumentModel
 
     @ObservedObject var section: KishoSection
-    
-    @Binding var focusTitle: Bool
+ //   @Binding var focusTitle: Bool
 
     // ← FocusState for the title field
      @FocusState private var isTitleFocused: Bool
@@ -26,8 +24,8 @@ struct KishoSectionEditorView: View {
         VStack(alignment: .leading, spacing: 20.0) {
             TextField("Section Title", text: $section.title)
                 .textFieldStyle(.plain)
-                .focused($isTitleFocused)
-                .modifier(CellModifier(depth:self.document.depth(forSection: section), selected: true	))
+              //  .focused($isTitleFocused)
+                .modifier(CellModifier(depth:self.document.depth(forSection: section), selected: true    ))
             
             ZStack{
                 Color.white
@@ -44,7 +42,7 @@ struct KishoSectionEditorView: View {
                     RichTextEditor(attributedText: $section.content.attributedString, inspector: $section.inspectorVersion)
                      
                     .frame(minHeight: 200)
-                    .focused($isRichTextFocused)
+                //    .focused($isRichTextFocused)
                     Rectangle()
                         .foregroundStyle(Color.white)
                         .frame(height: 100)
@@ -55,6 +53,7 @@ struct KishoSectionEditorView: View {
         }
         
         .padding()
+        /*
         .onAppear {
             if focusTitle {
                 // → Delay slightly so SplitView finishes handing off focus to content pane
@@ -72,6 +71,7 @@ struct KishoSectionEditorView: View {
             }
 
         }
+         
         .onChange(of: section.id) { _ in
             if focusTitle {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -84,12 +84,12 @@ struct KishoSectionEditorView: View {
                 }
             }
         }
+         */
         .id(section.id)
 
         
     }
 }
-#endif
 /*
 import AppKit
 

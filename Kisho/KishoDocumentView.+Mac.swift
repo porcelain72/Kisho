@@ -103,6 +103,18 @@ struct KishoDocumentView: View {
             }
             ToolbarItem {
                 Button {
+                    //showingExportOptions = true
+                    document.gather(undoManager: undoManager)
+                } label: {
+                    Label("Gather…", systemImage: "rectangle.compress.vertical")
+                }
+                .keyboardShortcut("o", modifiers: [.command])
+
+                .help("Gather all child content into section")
+                
+            }
+            ToolbarItem {
+                Button {
                     showingExportOptions = true
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
@@ -165,6 +177,7 @@ struct KishoDocumentView: View {
                 }
                 .disabled(document.selectedSection == nil)
             }
+      
             
             
         }

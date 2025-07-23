@@ -17,6 +17,7 @@ struct SectionRow: View {
 
   //  @Binding var showDeleteAlert : Bool
     let depth : Int
+    @State private var showsSubSections = true
     
     enum DropPosition { case above, on, below }
 
@@ -24,16 +25,34 @@ struct SectionRow: View {
         VStack(spacing: 0) {
             // Drop above
             dropTargetView(position: .above)
-
-            // The row content
-            HStack {
-                Text(section.title)
-                   
-                                      
-                Spacer()
-            }
-            .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+            Group{
+#if os(iOS)
            
+                    HStack {
+                        Text(section.title)
+                        
+                        
+                        Spacer()
+                        showButton()
+                    }
+                    .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+                    
+
+                
+                
+#else
+                // The row content
+                
+                HStack {
+                    Text(section.title)
+                    
+                    
+                    Spacer()
+                    showButton()
+                }
+                .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+#endif
+            }
 .onTapGesture {self.document.select(section: section)}
             
             //.background(dropPosition == .on ? Color.accentColor.opacity(0.12) : Color.clear)
@@ -47,20 +66,41 @@ struct SectionRow: View {
             dropTargetView(position: .below)
 
             // Children, indented
-            if !section.children.isEmpty {
+            if !section.children.isEmpty,
+            showsSubSections == true {
                 VStack(spacing: 0) {
                     ForEach(section.children) { child in
                         SectionRow(section: child, depth: self.depth + 1)
                             .padding(.leading, (depth<4 ? 20 : 0))
                     }
                 }
+              //  .transition(.opacity.combined(with: .scale))
+                
+                
             }
         }
+    // .animation(.easeInOut,value: showsSubSections)
       
 
         .background(dropPosition == .above || dropPosition == .below ? Color.accentColor.opacity(0.08) : Color.clear)
     }
   
+    @ViewBuilder private func showButton() -> some View {
+        
+        Button("", systemImage: showsSubSections == true ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill") {
+            
+            let anim = Animation.easeInOut(duration: 0.1)
+          //  withAnimation {
+                showsSubSections.toggle()
+         //
+       //3 }
+          
+        }
+       // .rotationEffect((showsSubSections == true ? .zero : Angle(degrees: -90)))
+        .buttonStyle(.plain)
+        .opacity(0.4)
+        .frame(width: 24.0, height: 24.0)
+    }
     
     // ─── Computed capsule background, tinted by depth ─────────
     private var labelBackground: some View {

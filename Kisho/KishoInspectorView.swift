@@ -205,6 +205,7 @@ import AppKit
 /// - Constrains itself to a fixed width and scrolls if necessary.
 struct KishoInspectorView: View {
     @ObservedObject var section: KishoSection
+    @EnvironmentObject var document : KishoDocumentModel
 
     // MARK: –– One‐time initialization flags
     @State private var didLoadDefaults = false
@@ -298,11 +299,11 @@ struct KishoInspectorView: View {
             // Load initial tags
             tagString = section.tags.joined(separator: ", ")
         }
-        .onChange(of: selectedFontFamily) { _ in applyTypographyToSection() }
-        .onChange(of: fontSize) { _ in applyTypographyToSection() }
-        .onChange(of: isBold) { _ in applyTypographyToSection() }
-        .onChange(of: isItalic) { _ in applyTypographyToSection() }
-        .onChange(of: textColor) { _ in applyTypographyToSection() }
+        .onChange(of: selectedFontFamily) { _ in applyTypographyToDocument() }
+        .onChange(of: fontSize) { _ in applyTypographyToDocument() }
+        .onChange(of: isBold) { _ in applyTypographyToDocument() }
+        .onChange(of: isItalic) { _ in applyTypographyToDocument() }
+        .onChange(of: textColor) { _ in applyTypographyToDocument() }
         .onChange(of: tagString) { _ in commitTags() }
     }
 
@@ -325,7 +326,7 @@ struct KishoInspectorView: View {
     }
 
     // MARK: –– Apply all typography state to the entire section string
-    private func applyTypographyToSection() {
+    private func applyTypographyToDocument() {
         let fullText = section.content.attributedString.string
         let newAttributed = NSMutableAttributedString(string: fullText)
 print(fontSize)
@@ -348,10 +349,12 @@ print(fontSize)
         ]
         newAttributed.addAttributes(attrs, range: NSRange(location: 0, length: newAttributed.length))
 
+        
+        document.applyTypographyToEntireDocument(font: nsFont, color: nsColor, undoManager: undoManager)
         // Assign back to the section (Published → autosave)
       //  section.content.attributes = attrs
-        section.content.attributedString = newAttributed
-        section.inspectorVersion = UUID()
+      //  section.content.attributedString = newAttributed
+     //   section.inspectorVersion = UUID()
     }
 
     // MARK: –– Parse tagString into section.tags

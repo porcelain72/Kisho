@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		98AAE7F12DF2F74200B30147 /* KishoDocumentView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98AAE7F02DF2F74200B30147 /* KishoDocumentView+iOS.swift */; platformFilter = ios; };
+		98AAE7F32DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98AAE7F22DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift */; platformFilter = ios; };
 		98B23B0C2DE9BFEB00888A7C /* KishoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */; };
 		98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */; };
 		98B23B122DE9BFEF00888A7C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98B23B112DE9BFEF00888A7C /* Assets.xcassets */; };
@@ -15,9 +17,9 @@
 		98B23B2B2DE9BFEF00888A7C /* KishoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B2A2DE9BFEF00888A7C /* KishoUITests.swift */; };
 		98B23B2D2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B2C2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift */; };
 		98B23B3A2DE9C0A200888A7C /* KishoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B392DE9C0A200888A7C /* KishoSection.swift */; };
-		98B23B3C2DE9C0F200888A7C /* KishoDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */; };
+		98B23B3C2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3B2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift */; platformFilters = (macos, ); };
 		98B23B3E2DE9C40700888A7C /* KishoSidebarOutlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */; };
-		98B23B402DE9C49000888A7C /* KishoSectionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */; };
+		98B23B402DE9C49000888A7C /* KishoSectionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */; platformFilters = (macos, ); };
 		98D4CA1F2DF1F626008C2E43 /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D4CA1E2DF1F626008C2E43 /* Exporter.swift */; };
 		98D4CA212DF26E2B008C2E43 /* KishoInspectorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D4CA202DF26E2B008C2E43 /* KishoInspectorView+iOS.swift */; platformFilter = ios; };
 		98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D641D42DF0650E00B757D2 /* SectionCommandMenu.swift */; };
@@ -45,6 +47,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		98AAE7F02DF2F74200B30147 /* KishoDocumentView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentView+iOS.swift"; sourceTree = "<group>"; };
+		98AAE7F22DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSectionEditorView+iOS.swift"; sourceTree = "<group>"; };
 		98B23B082DE9BFEB00888A7C /* Kisho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kisho.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoApp.swift; sourceTree = "<group>"; };
 		98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocument.swift; sourceTree = "<group>"; };
@@ -58,7 +62,7 @@
 		98B23B2A2DE9BFEF00888A7C /* KishoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoUITests.swift; sourceTree = "<group>"; };
 		98B23B2C2DE9BFEF00888A7C /* KishoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		98B23B392DE9C0A200888A7C /* KishoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSection.swift; sourceTree = "<group>"; };
-		98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocumentView.swift; sourceTree = "<group>"; };
+		98B23B3B2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentView.+Mac.swift"; sourceTree = "<group>"; };
 		98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSidebarOutlineView.swift; sourceTree = "<group>"; };
 		98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSectionEditorView.swift; sourceTree = "<group>"; };
 		98D4CA1E2DF1F626008C2E43 /* Exporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exporter.swift; sourceTree = "<group>"; };
@@ -121,10 +125,12 @@
 			children = (
 				98B23B0B2DE9BFEB00888A7C /* KishoApp.swift */,
 				98D641D42DF0650E00B757D2 /* SectionCommandMenu.swift */,
-				98B23B3B2DE9C0F200888A7C /* KishoDocumentView.swift */,
+				98B23B3B2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift */,
+				98AAE7F02DF2F74200B30147 /* KishoDocumentView+iOS.swift */,
 				98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */,
 				98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */,
 				98B23B3F2DE9C49000888A7C /* KishoSectionEditorView.swift */,
+				98AAE7F22DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift */,
 				98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */,
 				98EA654D2DEF5BAF00B4AEFE /* KishoDocumentModel.swift */,
 				98B23B392DE9C0A200888A7C /* KishoSection.swift */,
@@ -302,7 +308,7 @@
 				98D4CA1F2DF1F626008C2E43 /* Exporter.swift in Sources */,
 				98EA64DD2DEDA07E00B4AEFE /* SectionRow.swift in Sources */,
 				98B23B3A2DE9C0A200888A7C /* KishoSection.swift in Sources */,
-				98B23B3C2DE9C0F200888A7C /* KishoDocumentView.swift in Sources */,
+				98B23B3C2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift in Sources */,
 				98EA64DB2DED99FD00B4AEFE /* KishoInspectorView.swift in Sources */,
 				98B23B402DE9C49000888A7C /* KishoSectionEditorView.swift in Sources */,
 				98B23B3E2DE9C40700888A7C /* KishoSidebarOutlineView.swift in Sources */,
@@ -310,6 +316,8 @@
 				98B23B0E2DE9BFEB00888A7C /* KishoDocument.swift in Sources */,
 				98D4CA212DF26E2B008C2E43 /* KishoInspectorView+iOS.swift in Sources */,
 				98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */,
+				98AAE7F12DF2F74200B30147 /* KishoDocumentView+iOS.swift in Sources */,
+				98AAE7F32DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift in Sources */,
 				98EA654E2DEF5BAF00B4AEFE /* KishoDocumentModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

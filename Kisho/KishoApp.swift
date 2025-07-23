@@ -7,20 +7,45 @@
 
 import SwiftUI
 
+
+  enum NavDestination : Hashable {
+     case section(UUID)
+ }
+ 
+
 @main
 struct KishoApp: App {
+    @State  var navigationPath : NavigationPath = NavigationPath()
+
     var body: some Scene {
         DocumentGroup(newDocument: KishoDocument()) { file in
-            KishoDocumentView(fileURL: file.fileURL)
-                .environmentObject(file.document.model)
-                .frame(minWidth: 1200, idealWidth: 1800, minHeight: 800, idealHeight: 1200)
-
+            
+              
+#if os(macOS)
+                
+                KishoDocumentView(fileURL: file.fileURL)
+                    .environmentObject(file.document.model)
+                    .frame(minWidth: 1200, idealWidth: 1800, minHeight: 800, idealHeight: 1200)
+                
+#else
+                KishoDocumentView(fileURL: file.fileURL)
+                    .environmentObject(file.document.model)
+            /*
+            .onChange(of: file.document.model.selectedSectionID, { oldValue, newValue in
+                if let sectionObjectID = newValue {
+                    self.navigationPath.append(NavDestination.section(sectionObjectID))
+                }
+            })
+             */
+#endif
+            
         }
         #if os(macOS)
         .commands {
             SectionEditCommands()
         }
         #endif
+  
     }
 }
 
@@ -42,22 +67,22 @@ struct SectionEditCommands: Commands {
             Button("Next") {
                 documentModel?.selectNext()
             }
-            .keyboardShortcut(.rightArrow, modifiers: [.command])
+            .keyboardShortcut(.downArrow, modifiers: [.command])
 
             Button("Previous") {
                 documentModel?.selectPrevious()
             }
-            .keyboardShortcut(.leftArrow, modifiers: [.command])
+            .keyboardShortcut(.upArrow, modifiers: [.command])
             
             Button("Level down") {
                 documentModel?.selectDown()
             }
-            .keyboardShortcut(.downArrow, modifiers: [.command])
+            .keyboardShortcut(.rightArrow, modifiers: [.command])
             
             Button("Level up") {
                 documentModel?.selectUp()
             }
-            .keyboardShortcut(.upArrow, modifiers: [.command])
+            .keyboardShortcut(.leftArrow, modifiers: [.command])
             
             // Add Sibling Section  ⌘.
             Button("Add Sibling Section") {
