@@ -12,7 +12,7 @@ import RichTextEditor
 
 struct KishoSectionEditorView: View {
     @EnvironmentObject var document : KishoDocumentModel
-    
+    @Environment(\.undoManager) private var undoManager
     @ObservedObject var section: KishoSection
     
     @Binding var focusTitle: Bool
@@ -31,15 +31,16 @@ struct KishoSectionEditorView: View {
                 .modifier(CellModifier(depth:self.document.depth(forSection: section), selected: true	))
             
             ZStack{
-                Color.white
+                Color(NSColor.textBackgroundColor)
+
                 VStack{
-                    
-                    RichTextEditor(attributedText: $section.content.attributedString, inspector: $section.inspectorVersion)
-                    
+                
+                    RichTextEditor(content: section.content, inspector: $section.inspectorVersion, undoManager: undoManager)
                         .frame(minHeight: 200)
                         .focused($isRichTextFocused)
                     Rectangle()
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color(NSColor.textBackgroundColor)
+)
                         .frame(height: 100)
                 }
                 .padding()

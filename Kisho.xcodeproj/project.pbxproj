@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		983EDEB72E322C4500A4C5B9 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983EDEB62E322C4500A4C5B9 /* FlowLayout.swift */; };
 		9855A7B62E3193FA00493ECB /* ToolbarTypographyControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */; };
 		9855A7B82E31961800493ECB /* FontSizePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B72E31961800493ECB /* FontSizePicker.swift */; };
 		9855A7BA2E31989100493ECB /* TypographySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855A7B92E31989100493ECB /* TypographySettings.swift */; };
@@ -52,6 +53,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		983EDEB62E322C4500A4C5B9 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTypographyControlsView.swift; sourceTree = "<group>"; };
 		9855A7B72E31961800493ECB /* FontSizePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontSizePicker.swift; sourceTree = "<group>"; };
 		9855A7B92E31989100493ECB /* TypographySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypographySettings.swift; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 				9855A7B52E3193FA00493ECB /* ToolbarTypographyControlsView.swift */,
 				9855A7B92E31989100493ECB /* TypographySettings.swift */,
 				9855A7BB2E31A23B00493ECB /* TagEditorView.swift */,
+				983EDEB62E322C4500A4C5B9 /* FlowLayout.swift */,
 				9855A7BD2E31A3F800493ECB /* TagSuggestingTextField.swift */,
 				9855A7B72E31961800493ECB /* FontSizePicker.swift */,
 				98B23B112DE9BFEF00888A7C /* Assets.xcassets */,
@@ -337,6 +340,7 @@
 				98D641D52DF0650E00B757D2 /* SectionCommandMenu.swift in Sources */,
 				98AAE7F12DF2F74200B30147 /* KishoDocumentView+iOS.swift in Sources */,
 				98AAE7F32DF30B0F00B30147 /* KishoSectionEditorView+iOS.swift in Sources */,
+				983EDEB72E322C4500A4C5B9 /* FlowLayout.swift in Sources */,
 				98EA654E2DEF5BAF00B4AEFE /* KishoDocumentModel.swift in Sources */,
 				9855A7B82E31961800493ECB /* FontSizePicker.swift in Sources */,
 			);

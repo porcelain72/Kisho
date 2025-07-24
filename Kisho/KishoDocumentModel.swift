@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RichTextEditor
 
 final class KishoDocumentModel: ObservableObject, Codable {
     @Published var sections: [KishoSection]
@@ -402,7 +403,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
                 let initialText = "new"  // or "\n" if you want an empty line
                 let newAttrString = NSAttributedString(string: initialText)
-                let newRichText = KishoRichText()
+                let newRichText = RichTextModel()
                 newRichText.attributedString = newAttrString
 
                 // 4) Create the new KishoSection using that as its content
@@ -582,7 +583,7 @@ extension KishoDocumentModel {
                     //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
                     let initialText = "New"  // or "\n" if you want an empty line
                     let newAttrString = NSAttributedString(string: initialText)
-                    let newRichText = KishoRichText()
+                    let newRichText = RichTextModel()
                     newRichText.attributedString = newAttrString
 
                     // 4) Create the new KishoSection using that as its content

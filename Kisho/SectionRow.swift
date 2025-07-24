@@ -102,39 +102,20 @@ struct SectionRow: View {
         .frame(width: 24.0, height: 24.0)
     }
     
-    // ─── Computed capsule background, tinted by depth ─────────
     private var labelBackground: some View {
-        let base = Color.blue    // pick any base color you like
-        // reduce lightness (or increase opacity) per depth
-        let fraction = min(0.6 + Double(self.depth) * 0.08, 0.95)
-        return base
-            .opacity(0.15)         // overall translucence
-            .blendMode(.plusLighter)
-            .background(
-                Capsule()
-                    .fill(base.opacity(fraction * 0.8))
-                    .blur(radius: 0) // subtle “frosted” feel
+        let base = Color.accentColor
+        let depthHueShift = CGFloat(depth) * 0.08  // shifts ~29° per level
+        let shiftedColor = base.shiftedHue(by: depthHueShift)
+        let depthOpacity = min(0.6 + Double(depth) * 0.08, 1.0)
+
+        return Capsule()
+            .fill(shiftedColor.opacity(depthOpacity))
+            .overlay(
+                Capsule().stroke(shiftedColor.opacity(0.4), lineWidth: 1)
             )
     }
-    /*
-    private var labelBackground: some View {
-        let hue = Double(section.depth) * 0.08 // deeper = more offset in hue
-        let color = Color(hue: hue.truncatingRemainder(dividingBy: 1.0), saturation: 0.4, brightness: 0.9)
-        return Capsule()
-            .fill(color.opacity(0.15))
-            .background(Capsule().stroke(color.opacity(0.3), lineWidth: 1))
-    }
 
-    let palette: [Color] = [.blue, .teal, .green, .yellow, .orange]
-    let idx = section.depth % palette.count
-    return Capsule()
-        .fill(palette[idx].opacity(0.12))
-        .overlay(
-            Capsule()
-                .stroke(palette[idx].opacity(0.3), lineWidth: 1)
-        )
 
-    */
     
     // Drop target for above/below sibling insert
     @ViewBuilder
@@ -221,4 +202,19 @@ struct CellModifier : ViewModifier {
           let hue = (baseHue + depthFactor).truncatingRemainder(dividingBy: 1.0)
           return Color(hue: hue, saturation: 0.4, brightness: 0.9)
       }
+}
+
+extension Color {
+    func shiftedHue(by amount: CGFloat) -> Color {
+        guard let nsColor = NSColor(self).usingColorSpace(.deviceRGB) else {
+            return self
+        }
+
+        var hue: CGFloat = 0, sat: CGFloat = 0, bri: CGFloat = 0, alpha: CGFloat = 0
+        nsColor.getHue(&hue, saturation: &sat, brightness: &bri, alpha: &alpha)
+
+        let newHue = fmod(hue + amount, 1.0)
+        let shifted = NSColor(hue: newHue, saturation: sat, brightness: bri, alpha: alpha)
+        return Color(shifted)
+    }
 }
