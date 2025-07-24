@@ -20,6 +20,24 @@ struct TagEditorView: View {
             Text("Tags")
                 .font(.headline)
             ZStack(alignment: .leading) {
+             
+
+                // Actual input field
+                TagSuggestingTextField(
+                    text: $tagInput,
+                    suggestion: $currentSuggestion,
+                    onChange: { _ in updateSuggestion() },
+                    acceptSuggestion: {
+                        if let suggestion = currentSuggestion {
+                            acceptSuggestion(suggestion)
+                        }
+                    }
+                )
+                
+                
+                .frame(height: 24)
+                .font(.system(size: 13, design: .monospaced))
+                .onChange(of: tagInput) { _ in updateTagsFromInput()}
                 // Suggestion overlay
                 if let suggestion = currentSuggestion {
                     HStack {
@@ -33,21 +51,6 @@ struct TagEditorView: View {
                     .padding(.horizontal, 4)
                     .allowsHitTesting(false)
                 }
-
-                // Actual input field
-                TagSuggestingTextField(
-                    text: $tagInput,
-                    suggestion: currentSuggestion,
-                    onChange: { _ in updateSuggestion() },
-                    acceptSuggestion: {
-                        if let suggestion = currentSuggestion {
-                            acceptSuggestion(suggestion)
-                        }
-                    }
-                )
-                
-                .frame(height: 24)
-                .font(.system(size: 13, design: .monospaced))
             }
 
         }
@@ -56,7 +59,15 @@ struct TagEditorView: View {
             updateSuggestion()
         }
     }
+    private func updateTagsFromInput() {
+        let split = tagInput
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
 
+        tags = split
+    }
+    
     private func updateSuggestion() {
         print("Suggestion:", currentSuggestion ?? "nil")
 
@@ -74,18 +85,22 @@ struct TagEditorView: View {
     }
 
     private func acceptSuggestion(_ suggestion: String) {
-        var parts = tagInput.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        if parts.isEmpty {
-            parts = [suggestion]
-        } else {
-            parts[parts.count - 1] = suggestion
-        }
+        var components = tagInput
+              .split(separator: ",")
+              .map { $0.trimmingCharacters(in: .whitespaces) }
 
-        tagInput = parts.joined(separator: ", ") + ", "
-        updateSuggestion()
+          if components.isEmpty {
+              components = [suggestion]
+          } else {
+              components[components.count - 1] = suggestion
+          }
+
+          tagInput = components.joined(separator: ", ") + ", "
+          tags = components
+          currentSuggestion = nil
     }
 }
-
+/*
 extension String {
     func ghostSuffix(with suggestion: String) -> String {
         guard let last = self.split(separator: ",").last else { return "" }
@@ -97,3 +112,4 @@ extension String {
         return ""
     }
 }
+*/

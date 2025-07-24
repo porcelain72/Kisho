@@ -3037,5 +3037,212 @@
             landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "90FD4371-DC74-4103-BC72-7F9A286B84B7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/TagSuggestingTextField.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
+            landmarkName = "ghostSuffix(with:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "90FD4371-DC74-4103-BC72-7F9A286B84B7 - eac9b59617fc2cc7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swift.String.ghostSuffix(with: Swift.String) -&gt; Swift.String"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "141"
+                  endingLineNumber = "141"
+                  offsetFromSymbolStart = "728">
+               </Location>
+               <Location
+                  uuid = "90FD4371-DC74-4103-BC72-7F9A286B84B7 - eac9b59617fc2cc7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swift.String.ghostSuffix(with: Swift.String) -&gt; Swift.String"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "141"
+                  endingLineNumber = "141"
+                  offsetFromSymbolStart = "195">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/TagSuggestingTextField.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "91"
+            endingLineNumber = "91"
+            landmarkName = "handleKeyDown(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "91"
+                  endingLineNumber = "91"
+                  offsetFromSymbolStart = "123">
+               </Location>
+               <Location
+                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "91"
+                  endingLineNumber = "91"
+                  offsetFromSymbolStart = "242">
+               </Location>
+               <Location
+                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "91"
+                  endingLineNumber = "91"
+                  offsetFromSymbolStart = "294">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E8E13391-F5E5-4DA7-9605-40854057CE30"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/TagEditorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "E8E13391-F5E5-4DA7-9605-40854057CE30 - 90f39546aafb04a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.font(Swift.Optional&lt;SwiftUI.Font&gt;) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.allowsHitTesting(Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt; in closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.ZStack&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.font(Swift.Optional&lt;SwiftUI.Font&gt;) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.allowsHitTesting(Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;)&gt; in Kisho.TagEditorView.body.getter : some"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagEditorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "81">
+               </Location>
+               <Location
+                  uuid = "E8E13391-F5E5-4DA7-9605-40854057CE30 - 90f39546aafb04a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.font(Swift.Optional&lt;SwiftUI.Font&gt;) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.allowsHitTesting(Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt; in closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.ZStack&lt;SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.font(Swift.Optional&lt;SwiftUI.Font&gt;) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.allowsHitTesting(Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt;&gt;)&gt; in Kisho.TagEditorView.body.getter : some"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagEditorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "375">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C1691094-7317-430A-A05C-5C9593700D58"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kisho/TagEditorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
+            landmarkName = "acceptSuggestion(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C1691094-7317-430A-A05C-5C9593700D58 - f5f6ce8e7f66a33d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Kisho.TagEditorView.acceptSuggestion(Swift.String) -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagEditorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "78"
+                  endingLineNumber = "78"
+                  offsetFromSymbolStart = "93">
+               </Location>
+               <Location
+                  uuid = "C1691094-7317-430A-A05C-5C9593700D58 - d4c0f0305b48a9de"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Substring) -&gt; Swift.String in Kisho.TagEditorView.acceptSuggestion(Swift.String) -&gt; ()"
+                  moduleName = "Kisho"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagEditorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "78"
+                  endingLineNumber = "78"
+                  offsetFromSymbolStart = "128">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
