@@ -16,8 +16,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "133"
             endingLineNumber = "133"
-            landmarkName = "handleDrop(providers:position:)"
-            landmarkType = "7">
+            landmarkName = "SectionRow"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -32,40 +32,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "141"
             endingLineNumber = "141"
-            landmarkName = "handleDrop(providers:position:)"
+            landmarkName = "dropTargetView(position:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "F4725B2A-8504-4FD4-B7A3-CC669495E557 - 3da398d414130383"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;__C.NSSecureCoding&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Kisho.SectionRow.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;, position: Kisho.SectionRow.DropPosition) -&gt; Swift.Bool"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/SectionRow.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "83"
-                  endingLineNumber = "83"
-                  offsetFromSymbolStart = "2047">
-               </Location>
-               <Location
-                  uuid = "F4725B2A-8504-4FD4-B7A3-CC669495E557 - 134f7b1f3e84ab05"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in closure #1 @Sendable (Swift.Optional&lt;__C.NSSecureCoding&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Kisho.SectionRow.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;, position: Kisho.SectionRow.DropPosition) -&gt; Swift.Bool"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/SectionRow.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "83"
-                  endingLineNumber = "83"
-                  offsetFromSymbolStart = "113">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -82,53 +50,6 @@
             endingLineNumber = "48"
             landmarkName = "childrenBinding(for:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC - 35ac162d248ed2d7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.childrenBinding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Array&lt;Kisho.KishoSection&gt;&gt;&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "48"
-                  endingLineNumber = "48"
-                  offsetFromSymbolStart = "2368">
-               </Location>
-               <Location
-                  uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC - 35ac162d248ed2d7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.childrenBinding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Array&lt;Kisho.KishoSection&gt;&gt;&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "48"
-                  endingLineNumber = "48"
-                  offsetFromSymbolStart = "2759">
-               </Location>
-               <Location
-                  uuid = "AA8147CE-6EFB-469A-BD86-7C2435F777DC - 35ac162d248ed2d7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.childrenBinding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Array&lt;Kisho.KishoSection&gt;&gt;&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "48"
-                  endingLineNumber = "48"
-                  offsetFromSymbolStart = "1864">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -177,38 +98,6 @@
             endingLineNumber = "18"
             landmarkName = "acceptsFirstResponder"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "DE3EBBD5-E14E-45A3-A20A-4E2E1421405F - 52fdafef94c30c4d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.makeNSView(context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; __C.NSTextView"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "18"
-                  endingLineNumber = "18"
-                  offsetFromSymbolStart = "222">
-               </Location>
-               <Location
-                  uuid = "DE3EBBD5-E14E-45A3-A20A-4E2E1421405F - b63cedf6cb7823ff"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.makeCoordinator() -&gt; RichTextEditor.RichTextEditor.Coordinator"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "18"
-                  endingLineNumber = "18"
-                  offsetFromSymbolStart = "91">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -241,38 +130,6 @@
             endingLineNumber = "71"
             landmarkName = "binding(for:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C7085A27-3657-43CD-96E7-E748865731A2 - 35ea6a5ff0d4b860"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.binding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Kisho.KishoSection&gt;&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "586">
-               </Location>
-               <Location
-                  uuid = "C7085A27-3657-43CD-96E7-E748865731A2 - 35ea6a5ff0d4b860"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SwiftUI.Binding&lt;&#x3c4;_0_0 where &#x3c4;_0_0 == Swift.Array&lt;Kisho.KishoSection&gt;&gt;.binding(for: Foundation.UUID) -&gt; Swift.Optional&lt;SwiftUI.Binding&lt;Kisho.KishoSection&gt;&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocument.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "1043">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -321,38 +178,6 @@
             endingLineNumber = "98"
             landmarkName = "makeNSView(context:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2D49184A-0762-41F0-8165-D3B860BE638B - e9dc6b07f5ec0427"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "98"
-                  endingLineNumber = "98"
-                  offsetFromSymbolStart = "1295">
-               </Location>
-               <Location
-                  uuid = "2D49184A-0762-41F0-8165-D3B860BE638B - e9dc6b07f5ec0427"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "98"
-                  endingLineNumber = "98"
-                  offsetFromSymbolStart = "816">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -369,38 +194,6 @@
             endingLineNumber = "85"
             landmarkName = "makeNSView(context:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "8EC674A6-C10C-46DA-8E0E-E353BB0A7C9D - e9dc6b07f5ec0590"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "85"
-                  endingLineNumber = "85"
-                  offsetFromSymbolStart = "287">
-               </Location>
-               <Location
-                  uuid = "8EC674A6-C10C-46DA-8E0E-E353BB0A7C9D - e9dc6b07f5ec0590"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.scrollCaretIfNeeded() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "85"
-                  endingLineNumber = "85"
-                  offsetFromSymbolStart = "366">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -465,38 +258,6 @@
             endingLineNumber = "55"
             landmarkName = "RichTextEditor"
             landmarkType = "14">
-            <Locations>
-               <Location
-                  uuid = "3DAE1BA9-8C43-4727-A79D-D8B3F1141E46 - 10d82bb6c2f7f611"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.updateNSView(_: __C.NSTextView, context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "55"
-                  endingLineNumber = "55"
-                  offsetFromSymbolStart = "1154">
-               </Location>
-               <Location
-                  uuid = "3DAE1BA9-8C43-4727-A79D-D8B3F1141E46 - 10d82bb6c2f7f611"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.updateNSView(_: __C.NSTextView, context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "55"
-                  endingLineNumber = "55"
-                  offsetFromSymbolStart = "1047">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -513,83 +274,6 @@
             endingLineNumber = "73"
             landmarkName = "makeCoordinator()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D - 843f47ebab3eae07"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "134">
-               </Location>
-               <Location
-                  uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D - 843f47ebab3eae07"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "513">
-               </Location>
-               <Location
-                  uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D - 843f47ebab3eae07"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "335">
-               </Location>
-               <Location
-                  uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D - 843f47ebab3eaee4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "74"
-                  endingLineNumber = "74"
-                  offsetFromSymbolStart = "160">
-               </Location>
-               <Location
-                  uuid = "C6559D19-7395-47F2-AACD-46839C0AE72D - 747b1d4872d96684"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.makeNSView(context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; RichTextEditor.FocusingScrollView"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "75"
-                  endingLineNumber = "75"
-                  offsetFromSymbolStart = "959">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -654,38 +338,6 @@
             endingLineNumber = "272"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "360C0BC9-C2D1-494B-8522-5E4CF3CD8676 - 2086b6e4b5fed57b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "function signature specialization &lt;Arg[0] = Value Promoted from Box&gt; of closure #2 @Swift.MainActor () -&gt; () in Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "107"
-                  endingLineNumber = "107"
-                  offsetFromSymbolStart = "143">
-               </Location>
-               <Location
-                  uuid = "360C0BC9-C2D1-494B-8522-5E4CF3CD8676 - 2086b6e4b5fed51a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "function signature specialization &lt;Arg[0] = Value Promoted from Box&gt; of closure #2 @Swift.MainActor () -&gt; () in Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "106"
-                  endingLineNumber = "106"
-                  offsetFromSymbolStart = "90">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -702,143 +354,6 @@
             endingLineNumber = "268"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a60e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "102"
-                  endingLineNumber = "102"
-                  offsetFromSymbolStart = "544">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a60e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "102"
-                  endingLineNumber = "102"
-                  offsetFromSymbolStart = "809">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - 1a1abf8bab9a47a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "102"
-                  endingLineNumber = "102"
-                  offsetFromSymbolStart = "142">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a66f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "544">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a66f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "809">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - 1a1abf8bab9a47c2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "142">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a66f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "689">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - f82fae51d923a66f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "1050">
-               </Location>
-               <Location
-                  uuid = "AEE63C89-4DFD-421B-8D09-87BF8853849B - 1a1abf8bab9a47c2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in Kisho.KishoDocumentModel.deleteSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "111">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -855,38 +370,6 @@
             endingLineNumber = "255"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "A8BA5D81-40EC-499B-BF9D-06C459A00A05 - fcc0708d3a6abbe7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.moveAsChild(draggedID: Foundation.UUID, destinationID: Foundation.UUID) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "91"
-                  endingLineNumber = "91"
-                  offsetFromSymbolStart = "261">
-               </Location>
-               <Location
-                  uuid = "A8BA5D81-40EC-499B-BF9D-06C459A00A05 - fcc0708d3a6abbe7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.moveAsChild(draggedID: Foundation.UUID, destinationID: Foundation.UUID) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "91"
-                  endingLineNumber = "91"
-                  offsetFromSymbolStart = "203">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -903,53 +386,6 @@
             endingLineNumber = "227"
             landmarkName = "KishoDocumentModel"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "3CC00071-EE72-4926-9968-2A9D41E89CA4 - c628362181611c01"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.moveAsSibling(draggedID: Foundation.UUID, destinationID: Foundation.UUID, insertBefore: Swift.Bool) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "218">
-               </Location>
-               <Location
-                  uuid = "3CC00071-EE72-4926-9968-2A9D41E89CA4 - c628362181611c01"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.moveAsSibling(draggedID: Foundation.UUID, destinationID: Foundation.UUID, insertBefore: Swift.Bool) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "349">
-               </Location>
-               <Location
-                  uuid = "3CC00071-EE72-4926-9968-2A9D41E89CA4 - c628362181611c01"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.moveAsSibling(draggedID: Foundation.UUID, destinationID: Foundation.UUID, insertBefore: Swift.Bool) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "316">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -964,8 +400,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "177"
             endingLineNumber = "177"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "SectionRow"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -982,38 +418,6 @@
             endingLineNumber = "99"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "EB88F63C-4079-43EF-987B-47A5F05BA562 - 54c133b6d066dd05"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, SwiftUI.Divider, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0)&gt; in Kisho.SectionEditCommands.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "63"
-                  endingLineNumber = "63"
-                  offsetFromSymbolStart = "2829">
-               </Location>
-               <Location
-                  uuid = "EB88F63C-4079-43EF-987B-47A5F05BA562 - 96454f25fb0ed5db"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #4 () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, SwiftUI.Divider, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0)&gt; in Kisho.SectionEditCommands.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "61"
-                  endingLineNumber = "61"
-                  offsetFromSymbolStart = "251">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1030,38 +434,6 @@
             endingLineNumber = "90"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "32B08022-AC2B-4032-912C-4C6CF2FBC4A4 - 76c7312b14c58af3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #3 () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, SwiftUI.Divider, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0)&gt; in Kisho.SectionEditCommands.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "52"
-                  endingLineNumber = "52"
-                  offsetFromSymbolStart = "363">
-               </Location>
-               <Location
-                  uuid = "32B08022-AC2B-4032-912C-4C6CF2FBC4A4 - 76c7312b14c58af3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #3 () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(&lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0, SwiftUI.Divider, &lt;&lt;opaque return type of SwiftUI.View.keyboardShortcut(_: SwiftUI.KeyEquivalent, modifiers: SwiftUI.EventModifiers) -&gt; some&gt;&gt;.0)&gt; in Kisho.SectionEditCommands.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "52"
-                  endingLineNumber = "52"
-                  offsetFromSymbolStart = "251">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1078,113 +450,6 @@
             endingLineNumber = "311"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58ce884"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "199"
-                  endingLineNumber = "199"
-                  offsetFromSymbolStart = "1547">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58ce884"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "199"
-                  endingLineNumber = "199"
-                  offsetFromSymbolStart = "1633">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58ce8eb"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "200"
-                  endingLineNumber = "200"
-                  offsetFromSymbolStart = "1633">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58cd2db"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "248"
-                  endingLineNumber = "248"
-                  offsetFromSymbolStart = "2076">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58cd1af"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "268"
-                  endingLineNumber = "268"
-                  offsetFromSymbolStart = "1633">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58cde33"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "1633">
-               </Location>
-               <Location
-                  uuid = "61E51C4A-D782-4955-8CF6-6D3254D54B64 - c3257946d58cdad5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "310"
-                  endingLineNumber = "310"
-                  offsetFromSymbolStart = "1633">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1201,113 +466,6 @@
             endingLineNumber = "314"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58ce908"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "203"
-                  endingLineNumber = "203"
-                  offsetFromSymbolStart = "1930">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58ce929"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "202"
-                  endingLineNumber = "202"
-                  offsetFromSymbolStart = "1718">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58ce908"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "203"
-                  endingLineNumber = "203"
-                  offsetFromSymbolStart = "1718">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58cd378"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "251"
-                  endingLineNumber = "251"
-                  offsetFromSymbolStart = "2172">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58cd1cc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "271"
-                  endingLineNumber = "271"
-                  offsetFromSymbolStart = "1718">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58cde50"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "275"
-                  endingLineNumber = "275"
-                  offsetFromSymbolStart = "1718">
-               </Location>
-               <Location
-                  uuid = "186A0071-5F24-4DA5-9DFB-DA1404D684D1 - c3257946d58cdb7a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "313"
-                  endingLineNumber = "313"
-                  offsetFromSymbolStart = "1718">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1324,113 +482,6 @@
             endingLineNumber = "316"
             landmarkName = "deleteSelectedSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58ce94e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "205"
-                  endingLineNumber = "205"
-                  offsetFromSymbolStart = "2213">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58ce96f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204"
-                  offsetFromSymbolStart = "1960">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58ce94e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "205"
-                  endingLineNumber = "205"
-                  offsetFromSymbolStart = "1960">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58cd3be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "253"
-                  endingLineNumber = "253"
-                  offsetFromSymbolStart = "2408">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58cde12"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "273"
-                  endingLineNumber = "273"
-                  offsetFromSymbolStart = "1960">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58cde96"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "277"
-                  endingLineNumber = "277"
-                  offsetFromSymbolStart = "1960">
-               </Location>
-               <Location
-                  uuid = "DC0E838C-6F35-4A14-8BEC-D459CDD34D8A - c3257946d58cdbb8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.deleteSelectedSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "315"
-                  endingLineNumber = "315"
-                  offsetFromSymbolStart = "1960">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1447,158 +498,6 @@
             endingLineNumber = "379"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f7a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "267"
-                  endingLineNumber = "267"
-                  offsetFromSymbolStart = "427">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f7a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "267"
-                  endingLineNumber = "267"
-                  offsetFromSymbolStart = "426">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f7a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "267"
-                  endingLineNumber = "267"
-                  offsetFromSymbolStart = "474">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f7a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "267"
-                  endingLineNumber = "267"
-                  offsetFromSymbolStart = "466">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f7a3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "267"
-                  endingLineNumber = "267"
-                  offsetFromSymbolStart = "463">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1f744"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "268"
-                  endingLineNumber = "268"
-                  offsetFromSymbolStart = "455">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1fd74"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "316"
-                  endingLineNumber = "316"
-                  offsetFromSymbolStart = "624">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1e098"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "336"
-                  endingLineNumber = "336"
-                  offsetFromSymbolStart = "455">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1e01c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "340"
-                  endingLineNumber = "340"
-                  offsetFromSymbolStart = "455">
-               </Location>
-               <Location
-                  uuid = "0DD3405C-3809-4C96-A807-4E617EBA2103 - bb45b2e293c1e572"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "378"
-                  endingLineNumber = "378"
-                  offsetFromSymbolStart = "455">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1615,38 +514,6 @@
             endingLineNumber = "54"
             landmarkName = "RichTextEditor"
             landmarkType = "14">
-            <Locations>
-               <Location
-                  uuid = "B9418C1E-FB7D-4C88-920A-03985FD69AC1 - 10d82bb6c2f7f630"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.updateNSView(_: __C.NSTextView, context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "54"
-                  endingLineNumber = "54"
-                  offsetFromSymbolStart = "669">
-               </Location>
-               <Location
-                  uuid = "B9418C1E-FB7D-4C88-920A-03985FD69AC1 - 10d82bb6c2f7f6bc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.updateNSView(_: __C.NSTextView, context: SwiftUI.NSViewRepresentableContext&lt;RichTextEditor.RichTextEditor&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "58"
-                  endingLineNumber = "58"
-                  offsetFromSymbolStart = "263">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1679,53 +546,6 @@
             endingLineNumber = "140"
             landmarkName = "applyTypographyToDocument()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C95E4F3E-3F3A-401C-A8E2-5FDC3B39BE11 - eb114db8508ff5e6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoInspectorView.applyTypographyToSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoInspectorView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "318"
-                  endingLineNumber = "318"
-                  offsetFromSymbolStart = "191">
-               </Location>
-               <Location
-                  uuid = "C95E4F3E-3F3A-401C-A8E2-5FDC3B39BE11 - eb114db8508ff5e6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoInspectorView.applyTypographyToSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoInspectorView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "318"
-                  endingLineNumber = "318"
-                  offsetFromSymbolStart = "197">
-               </Location>
-               <Location
-                  uuid = "C95E4F3E-3F3A-401C-A8E2-5FDC3B39BE11 - eb114db8508ff5e6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoInspectorView.applyTypographyToSection() -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoInspectorView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "318"
-                  endingLineNumber = "318"
-                  offsetFromSymbolStart = "174">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1742,113 +562,6 @@
             endingLineNumber = "580"
             landmarkName = "addSiblingSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658feadcd9"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "459"
-                  endingLineNumber = "459"
-                  offsetFromSymbolStart = "1076">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658feadc9f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "461"
-                  endingLineNumber = "461"
-                  offsetFromSymbolStart = "693">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658feadc7c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "462"
-                  endingLineNumber = "462"
-                  offsetFromSymbolStart = "693">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658feada4c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "510"
-                  endingLineNumber = "510"
-                  offsetFromSymbolStart = "912">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658fead5a0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "530"
-                  endingLineNumber = "530"
-                  offsetFromSymbolStart = "693">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658fead505"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "535"
-                  endingLineNumber = "535"
-                  offsetFromSymbolStart = "693">
-               </Location>
-               <Location
-                  uuid = "03FD9EFE-80EB-44B2-BDAB-A9A8BC49DF26 - 5588da658feaccd5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "583"
-                  endingLineNumber = "583"
-                  offsetFromSymbolStart = "693">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1865,38 +578,6 @@
             endingLineNumber = "778"
             landmarkName = "defaultAttributes()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "7AA235AD-B6C4-43C0-9128-684A5EAC7413 - dff2dd1c41dfda20"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.NSAttributedString.defaultAttributes() -&gt; Swift.Dictionary&lt;__C.NSAttributedStringKey, Any&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "729"
-                  endingLineNumber = "729"
-                  offsetFromSymbolStart = "137">
-               </Location>
-               <Location
-                  uuid = "7AA235AD-B6C4-43C0-9128-684A5EAC7413 - dff2dd1c41dfd1f0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.NSAttributedString.defaultAttributes() -&gt; Swift.Dictionary&lt;__C.NSAttributedStringKey, Any&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "777"
-                  endingLineNumber = "777"
-                  offsetFromSymbolStart = "137">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1929,38 +610,6 @@
             endingLineNumber = "110"
             landmarkName = "makeNSView(context:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "AE6E7293-04E1-40FA-B030-4B029C296AEC - 843f47ebab3eab21"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "111"
-                  endingLineNumber = "111"
-                  offsetFromSymbolStart = "160">
-               </Location>
-               <Location
-                  uuid = "AE6E7293-04E1-40FA-B030-4B029C296AEC - f1cbe5ad0243d70a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.init(RichTextEditor.RichTextEditor) -&gt; RichTextEditor.RichTextEditor.Coordinator"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "110"
-                  endingLineNumber = "110"
-                  offsetFromSymbolStart = "366">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1977,38 +626,6 @@
             endingLineNumber = "11"
             landmarkName = "unknown"
             landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "D4C4DA2C-CE4A-4EE3-A064-A0831553B5FC - 35d1ff02bda5ca9b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.FocusingScrollView.becomeFirstResponder() -&gt; Swift.Bool"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "87">
-               </Location>
-               <Location
-                  uuid = "D4C4DA2C-CE4A-4EE3-A064-A0831553B5FC - 35d1ff02bda5ca9b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.FocusingScrollView.becomeFirstResponder() -&gt; Swift.Bool"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "273">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2025,293 +642,6 @@
             endingLineNumber = "572"
             landmarkName = "addSiblingSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 5588da658feb23d1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "451"
-                  endingLineNumber = "451"
-                  offsetFromSymbolStart = "463">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d197f0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "449"
-                  endingLineNumber = "449"
-                  offsetFromSymbolStart = "199">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c568dd1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "449"
-                  endingLineNumber = "449"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20fd7d6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "449"
-                  endingLineNumber = "449"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d19613"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "450"
-                  endingLineNumber = "450"
-                  offsetFromSymbolStart = "199">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c568c32"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "450"
-                  endingLineNumber = "450"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20fd635"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "450"
-                  endingLineNumber = "450"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d06c23"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "498"
-                  endingLineNumber = "498"
-                  offsetFromSymbolStart = "204">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c577602"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "498"
-                  endingLineNumber = "498"
-                  offsetFromSymbolStart = "192">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20e2c05"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "498"
-                  endingLineNumber = "498"
-                  offsetFromSymbolStart = "192">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d06ed7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "518"
-                  endingLineNumber = "518"
-                  offsetFromSymbolStart = "199">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c5774f6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "518"
-                  endingLineNumber = "518"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20e2ef1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "518"
-                  endingLineNumber = "518"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d0617a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "523"
-                  endingLineNumber = "523"
-                  offsetFromSymbolStart = "199">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c577b5b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "523"
-                  endingLineNumber = "523"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20e215c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "523"
-                  endingLineNumber = "523"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - a3171208c6d0678a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "571"
-                  endingLineNumber = "571"
-                  offsetFromSymbolStart = "199">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 59eb0ebf8c577dab"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "571"
-                  endingLineNumber = "571"
-                  offsetFromSymbolStart = "146">
-               </Location>
-               <Location
-                  uuid = "D93DB83F-A8EC-45C6-87F2-D93EF83A092B - 804e04b1a20e27ac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoSection) -&gt; Swift.Bool in closure #1 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addSiblingSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "571"
-                  endingLineNumber = "571"
-                  offsetFromSymbolStart = "146">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2328,128 +658,6 @@
             endingLineNumber = "417"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1fc5b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "307"
-                  endingLineNumber = "307"
-                  offsetFromSymbolStart = "1325">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - 65415ac67d635f2f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Kisho.KishoDocumentModel) -&gt; () in Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "307"
-                  endingLineNumber = "307"
-                  offsetFromSymbolStart = "160">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1fc1d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "309"
-                  endingLineNumber = "309"
-                  offsetFromSymbolStart = "1441">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1fc3e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "310"
-                  endingLineNumber = "310"
-                  offsetFromSymbolStart = "1220">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1e3ee"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "358"
-                  endingLineNumber = "358"
-                  offsetFromSymbolStart = "1432">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1e572"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "378"
-                  endingLineNumber = "378"
-                  offsetFromSymbolStart = "1220">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1e6d5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "381"
-                  endingLineNumber = "381"
-                  offsetFromSymbolStart = "1220">
-               </Location>
-               <Location
-                  uuid = "33E0AC27-8358-4B0D-B31A-7192C4D16E6D - bb45b2e293c1ebcb"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "419"
-                  endingLineNumber = "419"
-                  offsetFromSymbolStart = "1220">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2466,113 +674,6 @@
             endingLineNumber = "398"
             landmarkName = "addChildSection(using:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1f937"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "287"
-                  endingLineNumber = "287"
-                  offsetFromSymbolStart = "706">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1f937"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "287"
-                  endingLineNumber = "287"
-                  offsetFromSymbolStart = "696">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1fa2e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "294"
-                  endingLineNumber = "294"
-                  offsetFromSymbolStart = "688">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1e1de"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "342"
-                  endingLineNumber = "342"
-                  offsetFromSymbolStart = "884">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1e362"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "362"
-                  endingLineNumber = "362"
-                  offsetFromSymbolStart = "688">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1e4c5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "365"
-                  endingLineNumber = "365"
-                  offsetFromSymbolStart = "688">
-               </Location>
-               <Location
-                  uuid = "B8691726-D0C3-479F-AFBC-30C4CA925276 - bb45b2e293c1e83b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.addChildSection(using: Swift.Optional&lt;__C.NSUndoManager&gt;) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "403"
-                  endingLineNumber = "403"
-                  offsetFromSymbolStart = "688">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2589,38 +690,6 @@
             endingLineNumber = "132"
             landmarkName = "pdfData(from:pageSize:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "8FBFCA80-BDB8-4E15-A0DC-FFBC24F601AF - 1a55bb1f6e6dcb09"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "133"
-                  endingLineNumber = "133"
-                  offsetFromSymbolStart = "356">
-               </Location>
-               <Location
-                  uuid = "8FBFCA80-BDB8-4E15-A0DC-FFBC24F601AF - 1a55bb1f6e6dcb09"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "133"
-                  endingLineNumber = "133"
-                  offsetFromSymbolStart = "540">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2637,38 +706,6 @@
             endingLineNumber = "191"
             landmarkName = "pdfData(from:pageSize:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "27AC81B6-06C1-4C4B-BE58-B7B954AE9586 - 1a55bb1f6e6dc3b4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "192"
-                  endingLineNumber = "192"
-                  offsetFromSymbolStart = "1776">
-               </Location>
-               <Location
-                  uuid = "27AC81B6-06C1-4C4B-BE58-B7B954AE9586 - 1a55bb1f6e6dc3b4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "192"
-                  endingLineNumber = "192"
-                  offsetFromSymbolStart = "2375">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2685,38 +722,6 @@
             endingLineNumber = "216"
             landmarkName = "pdfData(from:pageSize:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "1FABDD86-75A8-4F72-B8F0-024D89B7428C - 1a55bb1f6e6dc0fd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "2040">
-               </Location>
-               <Location
-                  uuid = "1FABDD86-75A8-4F72-B8F0-024D89B7428C - 1a55bb1f6e6dc0fd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "static Kisho.Exporter.pdfData(from: __C.NSAttributedString, pageSize: __C.CGSize) -&gt; Swift.Optional&lt;Foundation.Data&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Exporter.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "2668">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2733,68 +738,6 @@
             endingLineNumber = "35"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "B704D268-2DCA-40CF-A615-E1D9629DCFC2 - d2473a68dddc2a78"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Foundation.UUID&gt;, Swift.Optional&lt;Foundation.UUID&gt;) -&gt; () in closure #1 (SwiftUI.FileDocumentConfiguration&lt;Kisho.KishoDocument&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: (&#x3c4;_1_0, &#x3c4;_1_0) -&gt; ()) -&gt; some&gt;&gt;.0 in Kisho.KishoApp.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37"
-                  offsetFromSymbolStart = "460">
-               </Location>
-               <Location
-                  uuid = "B704D268-2DCA-40CF-A615-E1D9629DCFC2 - d2473a68dddc2a78"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Foundation.UUID&gt;, Swift.Optional&lt;Foundation.UUID&gt;) -&gt; () in closure #1 (SwiftUI.FileDocumentConfiguration&lt;Kisho.KishoDocument&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: (&#x3c4;_1_0, &#x3c4;_1_0) -&gt; ()) -&gt; some&gt;&gt;.0 in Kisho.KishoApp.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37"
-                  offsetFromSymbolStart = "572">
-               </Location>
-               <Location
-                  uuid = "B704D268-2DCA-40CF-A615-E1D9629DCFC2 - 29dfe2ab9432c094"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (SwiftUI.FileDocumentConfiguration&lt;Kisho.KishoDocument&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.environmentObject&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Combine.ObservableObject&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0 in Kisho.KishoApp.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "44"
-                  endingLineNumber = "44"
-                  offsetFromSymbolStart = "808">
-               </Location>
-               <Location
-                  uuid = "B704D268-2DCA-40CF-A615-E1D9629DCFC2 - 73c05169f5be3126"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (SwiftUI.FileDocumentConfiguration&lt;Kisho.KishoDocument&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.frame(minWidth: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, idealWidth: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, maxWidth: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, minHeight: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, idealHeight: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, maxHeight: Swift.Optional&lt;CoreGraphics.CGFloat&gt;, alignment: SwiftUI.Alignment) -&gt; some&gt;&gt;.0 in Kisho.KishoApp.body.getter : some"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "42"
-                  endingLineNumber = "42"
-                  offsetFromSymbolStart = "900">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2827,38 +770,6 @@
             endingLineNumber = "658"
             landmarkName = "nextSectionID()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "F3BFB01E-BD58-4E3A-BB22-376D616C3DF3 - 6ceac9d08c033285"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.nextSectionID() -&gt; Swift.Optional&lt;Foundation.UUID&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "609"
-                  endingLineNumber = "609"
-                  offsetFromSymbolStart = "245">
-               </Location>
-               <Location
-                  uuid = "F3BFB01E-BD58-4E3A-BB22-376D616C3DF3 - 6ceac9d08c0338b5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.KishoDocumentModel.nextSectionID() -&gt; Swift.Optional&lt;Foundation.UUID&gt;"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/KishoDocumentModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "657"
-                  endingLineNumber = "657"
-                  offsetFromSymbolStart = "245">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2873,40 +784,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "133"
             endingLineNumber = "133"
-            landmarkName = "updateNSView(_:context:)"
+            landmarkName = "makeNSView(context:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "274E3E02-AF76-45DE-B15F-9F73E41EFA2B - db59e2c109963109"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextEditor.RichTextEditor.Coordinator.textViewSelectionDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "133"
-                  endingLineNumber = "133"
-                  offsetFromSymbolStart = "191">
-               </Location>
-               <Location
-                  uuid = "274E3E02-AF76-45DE-B15F-9F73E41EFA2B - ab38573b34778f42"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in RichTextEditor.RichTextEditor.Coordinator.textViewSelectionDidChange(Foundation.Notification) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/Library/Developer/Xcode/DerivedData/Kisho-fueeapnbqzonbtfrcawmvhsgefrt/SourcePackages/checkouts/RichTextEditor/Sources/RichTextEditor/RichTextEditor.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "133"
-                  endingLineNumber = "133"
-                  offsetFromSymbolStart = "22">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2955,38 +834,6 @@
             endingLineNumber = "87"
             landmarkName = "ghostSuffix(with:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "90FD4371-DC74-4103-BC72-7F9A286B84B7 - eac9b59617fc2cc7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swift.String.ghostSuffix(with: Swift.String) -&gt; Swift.String"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "141"
-                  endingLineNumber = "141"
-                  offsetFromSymbolStart = "728">
-               </Location>
-               <Location
-                  uuid = "90FD4371-DC74-4103-BC72-7F9A286B84B7 - eac9b59617fc2cc7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swift.String.ghostSuffix(with: Swift.String) -&gt; Swift.String"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "141"
-                  endingLineNumber = "141"
-                  offsetFromSymbolStart = "195">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3003,53 +850,6 @@
             endingLineNumber = "28"
             landmarkName = "handleKeyDown(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "91"
-                  endingLineNumber = "91"
-                  offsetFromSymbolStart = "123">
-               </Location>
-               <Location
-                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "91"
-                  endingLineNumber = "91"
-                  offsetFromSymbolStart = "242">
-               </Location>
-               <Location
-                  uuid = "963E4A81-74C3-42FB-BCCC-A58786A2ABE1 - 331f697c1d569313"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Kisho.TagSuggestingTextField.Coordinator.handleKeyDown(__C.NSEvent) -&gt; ()"
-                  moduleName = "Kisho"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/petermacdonald/LocalDev/Kisho/Kisho/TagSuggestingTextField.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "91"
-                  endingLineNumber = "91"
-                  offsetFromSymbolStart = "294">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

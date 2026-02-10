@@ -33,6 +33,7 @@ struct SectionRow: View {
                         
                         
                         Spacer()
+                        wordCountLabel()
                         showButton()
                     }
                     .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
@@ -48,6 +49,7 @@ struct SectionRow: View {
                     
                     
                     Spacer()
+                    wordCountLabel()
                     showButton()
                 }
                 .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
@@ -85,6 +87,18 @@ struct SectionRow: View {
         .background(dropPosition == .above || dropPosition == .below ? Color.accentColor.opacity(0.08) : Color.clear)
     }
   
+    @ViewBuilder private func wordCountLabel() -> some View {
+        let count = section.totalWordCount
+        if count > 0 {
+            Text("\(count)")
+                .font(.caption2)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .opacity(0.6)
+                .padding(.trailing, 2)
+        }
+    }
+    
     @ViewBuilder private func showButton() -> some View {
         
         Button("", systemImage: showsSubSections == true ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill") {

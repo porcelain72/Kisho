@@ -17,6 +17,16 @@ import SwiftUI
 struct KishoApp: App {
     @State  var navigationPath : NavigationPath = NavigationPath()
 
+    init() {
+        #if os(macOS)
+        // Configure spell checker to use the language from the user's
+        // system preferences / locale rather than defaulting to en-US.
+        if let preferredLanguage = Locale.preferredLanguages.first {
+            NSSpellChecker.shared.setLanguage(preferredLanguage)
+        }
+        #endif
+    }
+
     var body: some Scene {
         DocumentGroup(newDocument: KishoDocument()) { file in
             

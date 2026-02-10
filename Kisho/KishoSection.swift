@@ -140,6 +140,23 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     }
     
     
+    // MARK: - Word Count
+    
+    /// Word count for this section's own content only.
+    var wordCount: Int {
+        let text = content.attributedString.string
+        var count = 0
+        text.enumerateSubstrings(in: text.startIndex..., options: [.byWords, .substringNotRequired]) { _, _, _, _ in
+            count += 1
+        }
+        return count
+    }
+    
+    /// Aggregate word count: this section's content plus all descendants.
+    var totalWordCount: Int {
+        children.reduce(wordCount) { $0 + $1.totalWordCount }
+    }
+    
     func applyTypographyToSelfAndDescendants(font: NSFont, color: NSColor? = nil) {
         // Apply to this section
         self.content.applyTypography(font: font, color: color)
