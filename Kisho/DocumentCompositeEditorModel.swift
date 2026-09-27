@@ -21,6 +21,10 @@ final class DocumentCompositeEditorModel: ObservableObject {
     private var structureCancellables = Set<AnyCancellable>()
 
     private var ignoreDistributeUntil: Date?
+    /// Incremented on every rebuild so a queued rebuild can tell whether one
+    /// already happened after it was scheduled (and skip, to avoid resetting
+    /// the text view twice for one structural edit).
+    private var rebuildGeneration = 0
 
     /// Called synchronously whenever the composite is rebuilt from the model
     /// (which resets the text view), so the view can ignore the resulting
@@ -37,6 +41,7 @@ final class DocumentCompositeEditorModel: ObservableObject {
     }
 
     func rebuild(ignoringEditsFor hold: TimeInterval = 0) {
+        rebuildGeneration += 1
         isApplyingComposite = true
         compositeContent.attributedString =
             KishoSection.documentCompositeAttributedString(sections: document.sections)
@@ -115,8 +120,11 @@ final class DocumentCompositeEditorModel: ObservableObject {
 
     private func scheduleRebuildIfNeeded() {
         guard !isApplyingComposite, !isDistributing else { return }
+        let generation = rebuildGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, !self.isApplyingComposite, !self.isDistributing else { return }
+            // A structural edit already rebuilt synchronously via afterStructureEdit.
+            guard self.rebuildGeneration == generation else { return }
             self.rebuild()
         }
     }

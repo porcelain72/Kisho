@@ -62,12 +62,17 @@ extension KishoSection {
         para.paragraphSpacing = 0
         #if os(macOS)
         let font = NSFont.systemFont(ofSize: 12)
+        let color = NSColor.labelColor
         #else
         let font = UIFont.systemFont(ofSize: 12)
+        let color = UIColor.label
         #endif
+        // Carries a text colour so anything typed at the end of the document
+        // inherits a visible colour rather than drawing black in dark mode.
         return NSAttributedString(string: "\n", attributes: [
             .paragraphStyle: para,
-            .font: font
+            .font: font,
+            .foregroundColor: color
         ])
     }
 
