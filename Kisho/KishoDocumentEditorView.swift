@@ -264,6 +264,13 @@ struct KishoDocumentEditorView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 isRichTextFocused = true
             }
+            // Place the caret in the selected block on first appearance too;
+            // otherwise it sits at the very end of the document, below the cards.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                if let id = document.selectedSectionID {
+                    scrollProxy.focus(sectionID: id, in: editor.compositeContent.attributedString)
+                }
+            }
         }
         .onChange(of: undoManager) { newValue in
             editor.undoManager = newValue
