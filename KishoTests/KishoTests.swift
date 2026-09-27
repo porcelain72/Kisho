@@ -448,12 +448,23 @@ final class KishoTests: XCTestCase {
         )
     }
 
-    func testCompositeDoesNotEndWithNewline() throws {
+    func testCompositeEndsWithOneUntaggedBreak() throws {
         let s1 = makeSection(title: "One", body: "AAA")
         let s2 = makeSection(title: "Two", body: "")
         let composite = KishoSection.documentCompositeAttributedString(sections: [s1, s2])
-        XCTAssertFalse(composite.string.hasSuffix("\n"))
-        XCTAssertFalse(composite.string.hasSuffix("\r"))
+        XCTAssertTrue(composite.string.hasSuffix("\n"))
+        XCTAssertFalse(composite.string.hasSuffix("\n\n"))
+        let last = composite.length - 1
+        XCTAssertNil(composite.attribute(.kishoSectionID, at: last, effectiveRange: nil), "closing break must not belong to a card")
+        let para = composite.attribute(.paragraphStyle, at: last, effectiveRange: nil) as? NSParagraphStyle
+        XCTAssertTrue(para?.textBlocks.isEmpty ?? true)
+
+        // Round-tripping must not fold the closing break into the last body.
+        KishoSection.applyDocumentComposite(composite, to: [s1, s2])
+        XCTAssertEqual(s1.content.attributedString.string, "AAA")
+        XCTAssertEqual(s2.content.attributedString.string, "")
+        let again = KishoSection.documentCompositeAttributedString(sections: [s1, s2])
+        XCTAssertEqual(again.string, composite.string, "composite must be stable across rebuilds")
     }
 
     // MARK: - Tree operations

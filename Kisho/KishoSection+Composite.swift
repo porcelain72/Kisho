@@ -44,7 +44,31 @@ extension KishoSection {
             section.appendBlock(relativeDepth: 0, to: result)
         }
         trimTrailingParagraphBreaks(result)
+        // End with one plain paragraph break outside any card. TextKit lays out
+        // the empty last line of a document as an "extra line fragment" that no
+        // text block covers; if that line belonged to a card, pressing Return at
+        // the end of the last block put the caret below the wash.
+        result.append(trailingBreak())
         return result
+    }
+
+    /// Untagged single paragraph break used to end the document composite.
+    fileprivate static func trailingBreak() -> NSAttributedString {
+        let para = NSMutableParagraphStyle()
+        para.textBlocks = []
+        para.headIndent = 0
+        para.firstLineHeadIndent = 0
+        para.paragraphSpacingBefore = 4
+        para.paragraphSpacing = 0
+        #if os(macOS)
+        let font = NSFont.systemFont(ofSize: 12)
+        #else
+        let font = UIFont.systemFont(ofSize: 12)
+        #endif
+        return NSAttributedString(string: "\n", attributes: [
+            .paragraphStyle: para,
+            .font: font
+        ])
     }
 
     /// Distributes an edited document composite back into every section.
@@ -614,10 +638,11 @@ extension KishoSection {
                 let onlyWhitespace = substring.string
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                     .isEmpty
-                // Drop whitespace that only separates this block from the next heading.
+                // Drop whitespace that only separates this block from the next heading
+                // or trails the document (the composite's closing paragraph break).
                 // Keep everything else — NSTextView often inserts new paragraphs without
                 // our ownership attributes, and those must remain in the body.
-                if !(onlyWhitespace && next == .title) {
+                if !(onlyWhitespace && (next == .title || next == nil)) {
                     appendContent(lastSectionID, substring)
                 }
             }
