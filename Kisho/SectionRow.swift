@@ -171,13 +171,6 @@ struct CellModifier : ViewModifier {
                     .strokeBorder(selected ? Color.accentColor : Theme.hairline,
                                   lineWidth: selected ? 1.5 : 1)
             )
-            .overlay(alignment: .leading) {
-                // Depth cue: a small hue-shifted tick on the leading edge.
-                Capsule()
-                    .fill(Theme.depthAccent(depth))
-                    .frame(width: 3, height: 12)
-                    .padding(.leading, 5)
-            }
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 6.0)
     }

@@ -159,14 +159,6 @@ private struct SectionCard: View {
                 .strokeBorder(isSelected ? Color.accentColor : Theme.hairline,
                               lineWidth: isSelected ? 1.5 : 1)
         )
-        .overlay(alignment: .leading) {
-            // Thin depth-hued accent on the leading edge, inset from the outline.
-            RoundedRectangle(cornerRadius: 1)
-                .fill(Theme.depthAccent(depth))
-                .frame(width: 2)
-                .padding(.vertical, 10)
-                .padding(.leading, 4)
-        }
         .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
         .onChange(of: section.title) { newValue in
@@ -237,8 +229,8 @@ private struct SectionTagsBar: View {
 // MARK: - Theme
 
 /// Outline-based look built on system semantic colours, so light and dark
-/// mode need no special handling. Depth is indicated by a thin hue-shifted
-/// accent rather than a wash.
+/// mode need no special handling. Nesting is shown by indentation and
+/// heading size alone.
 enum Theme {
     static let cornerRadius: CGFloat = 8
 
@@ -251,20 +243,6 @@ enum Theme {
     /// Editor canvas behind the cards: a step away from the card face so the
     /// outlines have something to sit against in both appearances.
     static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
-
-    static func depthHue(_ depth: Int) -> Double {
-        (0.55 + Double(depth) * 0.08).truncatingRemainder(dividingBy: 1.0)
-    }
-
-    static func depthAccent(_ depth: Int) -> Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            return NSColor(calibratedHue: depthHue(depth),
-                           saturation: dark ? 0.45 : 0.55,
-                           brightness: dark ? 0.75 : 0.55,
-                           alpha: 0.9)
-        })
-    }
 }
 
 // MARK: - Self-sizing text view
