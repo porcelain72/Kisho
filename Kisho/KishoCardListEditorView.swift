@@ -42,6 +42,12 @@ struct KishoCardListEditorView: View {
                         proxy.scrollTo(request.sectionID, anchor: .top)
                     }
                 }
+                .onAppear {
+                    // Otherwise AppKit hands initial key focus to the first title field.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        document.requestFocus(document.selectedSectionID ?? document.sections.first?.id, .body)
+                    }
+                }
             }
 
             if let selected = document.selectedSection {
@@ -77,9 +83,17 @@ private struct SectionCard: View {
     @ObservedObject var section: KishoSection
     let depth: Int
 
-    @State private var draftTitle: String = ""
+    @State private var draftTitle: String
     @FocusState private var isTitleFocused: Bool
     @StateObject private var bodyHandle = CardTextViewHandle()
+
+    init(section: KishoSection, depth: Int) {
+        self.section = section
+        self.depth = depth
+        // Seed from the model so the field never starts out empty (an empty
+        // field that has keyboard focus at launch would write "" back).
+        self._draftTitle = State(initialValue: section.title)
+    }
 
     private var isSelected: Bool { document.selectedSectionID == section.id }
 
@@ -115,6 +129,8 @@ private struct SectionCard: View {
                     document.recordBodyEdit(for: section, from: old, to: new, using: undoManager)
                 }
             )
+            .frame(maxWidth: .infinity)
+            .frame(height: bodyHandle.height)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .background(CardPalette.bodyFill(depth: depth))
@@ -129,8 +145,8 @@ private struct SectionCard: View {
             RoundedRectangle(cornerRadius: 6)
                 .stroke(isSelected ? CardPalette.accent(depth: depth) : Color.clear, lineWidth: 1.5)
         )
+        .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
-        .onAppear { draftTitle = section.title }
         .onChange(of: section.title) { newValue in
             if !isTitleFocused { draftTitle = newValue }
         }
@@ -161,7 +177,11 @@ private struct SectionCard: View {
     }
 
     private func commitTitle() {
-        document.setTitle(draftTitle, for: section, using: undoManager)
+        let trimmed = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty {
+            document.setTitle(trimmed, for: section, using: undoManager)
+        }
+        // A blank field keeps the existing title.
         draftTitle = section.title
     }
 
@@ -224,6 +244,18 @@ private enum CardPalette {
 /// holding AppKit objects directly.
 final class CardTextViewHandle: ObservableObject {
     weak var textView: NSTextView?
+    /// Height the body needs for its text, measured by the text view itself.
+    @Published var height: CGFloat = 24
+
+    func report(height newHeight: CGFloat) {
+        let rounded = ceil(newHeight)
+        guard abs(rounded - height) > 0.5 else { return }
+        // Published from within AppKit layout; defer so SwiftUI isn't mutated mid-update.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, abs(rounded - self.height) > 0.5 else { return }
+            self.height = rounded
+        }
+    }
 
     func focus(atEnd: Bool) {
         guard let textView, let window = textView.window else { return }
@@ -248,7 +280,6 @@ private struct CardTextView: NSViewRepresentable {
     let onChange: (NSAttributedString, NSAttributedString) -> Void
 
     private static let insets = NSSize(width: 4, height: 4)
-    private static let minimumHeight: CGFloat = 22
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -262,13 +293,18 @@ private struct CardTextView: NSViewRepresentable {
         textView.allowsUndo = false
         textView.drawsBackground = false
         textView.textContainerInset = Self.insets
-        textView.isVerticallyResizable = true
+        // SwiftUI owns the frame: width from the card, height from our own
+        // measurement (see CardNSTextView.measure). The container wraps at the
+        // frame width and is unbounded vertically.
+        textView.isVerticallyResizable = false
         textView.isHorizontallyResizable = false
-        textView.autoresizingMask = [.width]
-        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         textView.textContainer?.widthTracksTextView = true
         textView.textContainer?.heightTracksTextView = false
+        textView.textContainer?.containerSize = NSSize(width: 1, height: CGFloat.greatestFiniteMagnitude)
         textView.textContainer?.lineFragmentPadding = 4
+        textView.onHeightChange = { [weak handle] height in
+            handle?.report(height: height)
+        }
         textView.isContinuousSpellCheckingEnabled = true
         textView.isAutomaticSpellingCorrectionEnabled = true
         textView.isAutomaticTextReplacementEnabled = true
@@ -283,6 +319,7 @@ private struct CardTextView: NSViewRepresentable {
         textView.typingAttributes = typingAttributes()
         context.coordinator.textView = textView
         handle.textView = textView
+        textView.measure()
         return textView
     }
 
@@ -302,17 +339,7 @@ private struct CardTextView: NSViewRepresentable {
         if textView.string.isEmpty {
             textView.typingAttributes = typingAttributes()
         }
-    }
-
-    func sizeThatFits(_ proposal: ProposedViewSize, nsView textView: CardNSTextView, context: Context) -> CGSize? {
-        guard let width = proposal.width, width.isFinite, width > 0,
-              let layoutManager = textView.layoutManager,
-              let container = textView.textContainer else { return nil }
-        container.containerSize = NSSize(width: width - Self.insets.width * 2, height: CGFloat.greatestFiniteMagnitude)
-        layoutManager.ensureLayout(for: container)
-        let used = layoutManager.usedRect(for: container)
-        let height = max(used.height, Self.minimumHeight) + Self.insets.height * 2
-        return CGSize(width: width, height: ceil(height))
+        textView.measure()
     }
 
     /// Stored text may carry a baked-in colour from RTF; show it in the
@@ -355,9 +382,13 @@ private struct CardTextView: NSViewRepresentable {
     }
 }
 
-/// NSTextView that reports when it becomes first responder.
+/// NSTextView that reports when it becomes first responder and how tall its
+/// text is (after every edit and every width change).
 final class CardNSTextView: NSTextView {
     var onBecomeFirstResponder: (() -> Void)?
+    var onHeightChange: ((CGFloat) -> Void)?
+
+    private static let minimumTextHeight: CGFloat = 18
 
     override func becomeFirstResponder() -> Bool {
         let ok = super.becomeFirstResponder()
@@ -365,12 +396,29 @@ final class CardNSTextView: NSTextView {
         return ok
     }
 
-    // Keep the card the height of its text; never grow to fill the parent.
-    override var intrinsicContentSize: NSSize {
-        guard let layoutManager, let textContainer else { return super.intrinsicContentSize }
+    override func setFrameSize(_ newSize: NSSize) {
+        let widthChanged = abs(newSize.width - frame.width) > 0.5
+        super.setFrameSize(newSize)
+        if widthChanged { measure() }
+    }
+
+    override func didChangeText() {
+        super.didChangeText()
+        measure()
+    }
+
+    /// Lays out at the current width and reports the height the text needs.
+    func measure() {
+        guard let layoutManager, let textContainer, bounds.width > 0 else { return }
         layoutManager.ensureLayout(for: textContainer)
         let used = layoutManager.usedRect(for: textContainer)
-        return NSSize(width: NSView.noIntrinsicMetric, height: used.height + textContainerInset.height * 2)
+        let height = max(used.height, Self.minimumTextHeight) + textContainerInset.height * 2
+        onHeightChange?(height)
+    }
+
+    // SwiftUI sizes us; never report an intrinsic size that could fight it.
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
     }
 }
 #endif
