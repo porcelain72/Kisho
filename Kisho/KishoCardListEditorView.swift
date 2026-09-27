@@ -34,8 +34,9 @@ struct KishoCardListEditorView: View {
                     }
                     .padding(20)
                 }
-                .background(Color(NSColor.textBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: 25.0))
+                .background(Theme.canvas)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.hairline, lineWidth: 1))
                 .onChange(of: document.focusRequest) { request in
                     guard let request else { return }
                     // A block created by this same edit is not laid out yet;
@@ -111,7 +112,8 @@ private struct SectionCard: View {
             HStack(spacing: 8) {
                 TextField("Untitled", text: $draftTitle)
                     .textFieldStyle(.plain)
-                    .font(.system(size: headingSize, weight: .bold))
+                    .font(.system(size: headingSize, weight: .semibold))
+                    .foregroundStyle(.primary)
                     .focused($isTitleFocused)
                     .onSubmit { commitTitle(); bodyHandle.focus(atEnd: true) }
                     .onExitCommand { draftTitle = section.title; isTitleFocused = false }
@@ -120,12 +122,18 @@ private struct SectionCard: View {
                     Text("\(section.totalWordCount)")
                         .font(.caption2)
                         .monospacedDigit()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(CardPalette.headingFill(depth: depth))
+            .padding(.top, 8)
+            .padding(.bottom, 6)
+
+            // Hairline between heading and body
+            Rectangle()
+                .fill(Theme.hairline)
+                .frame(height: 1)
+                .padding(.horizontal, 12)
 
             // Body
             CardTextView(
@@ -141,18 +149,24 @@ private struct SectionCard: View {
             .frame(height: bodyHandle.height)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-            .background(CardPalette.bodyFill(depth: depth))
         }
-        .overlay(alignment: .leading) {
-            Rectangle()
-                .fill(CardPalette.accent(depth: depth))
-                .frame(width: 4)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(isSelected ? CardPalette.accent(depth: depth) : Color.clear, lineWidth: 1.5)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                .fill(Theme.cardBackground)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                .strokeBorder(isSelected ? Color.accentColor : Theme.hairline,
+                              lineWidth: isSelected ? 1.5 : 1)
+        )
+        .overlay(alignment: .leading) {
+            // Thin depth-hued accent on the leading edge, inset from the outline.
+            RoundedRectangle(cornerRadius: 1)
+                .fill(Theme.depthAccent(depth))
+                .frame(width: 2)
+                .padding(.vertical, 10)
+                .padding(.leading, 4)
+        }
         .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
         .onChange(of: section.title) { newValue in
@@ -220,28 +234,35 @@ private struct SectionTagsBar: View {
     }
 }
 
-// MARK: - Palette
+// MARK: - Theme
 
-private enum CardPalette {
-    private static func hue(_ depth: Int) -> Double {
+/// Outline-based look built on system semantic colours, so light and dark
+/// mode need no special handling. Depth is indicated by a thin hue-shifted
+/// accent rather than a wash.
+enum Theme {
+    static let cornerRadius: CGFloat = 8
+
+    /// Hairline for outlines and dividers.
+    static var hairline: Color { Color(nsColor: .separatorColor) }
+
+    /// Card face: the text background, so cards sit flush with the editor.
+    static var cardBackground: Color { Color(nsColor: .textBackgroundColor) }
+
+    /// Editor canvas behind the cards: a step away from the card face so the
+    /// outlines have something to sit against in both appearances.
+    static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
+
+    static func depthHue(_ depth: Int) -> Double {
         (0.55 + Double(depth) * 0.08).truncatingRemainder(dividingBy: 1.0)
     }
 
-    static func accent(depth: Int) -> Color {
-        Color(hue: hue(depth), saturation: 0.50, brightness: 0.62)
-    }
-
-    static func headingFill(depth: Int) -> Color {
+    static func depthAccent(_ depth: Int) -> Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            return NSColor(calibratedHue: hue(depth), saturation: 0.28, brightness: dark ? 0.34 : 0.86, alpha: 0.88)
-        })
-    }
-
-    static func bodyFill(depth: Int) -> Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            return NSColor(calibratedHue: hue(depth), saturation: 0.10, brightness: dark ? 0.22 : 0.96, alpha: 0.62)
+            return NSColor(calibratedHue: depthHue(depth),
+                           saturation: dark ? 0.45 : 0.55,
+                           brightness: dark ? 0.75 : 0.55,
+                           alpha: 0.9)
         })
     }
 }

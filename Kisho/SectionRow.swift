@@ -158,24 +158,28 @@ struct CellModifier : ViewModifier {
     let selected : Bool
     func body(content: Content) -> some View {
         content
-            .font(.headline) // headline font
+            .font(.headline)
+            .foregroundStyle(.primary)
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 7)
             .background(
                 Capsule()
-                    .fill(capsuleColor.opacity(selected == true ?  0.6 : 0.2))
+                    .fill(selected ? Color.accentColor.opacity(0.14) : Color.clear)
             )
+            .overlay(
+                Capsule()
+                    .strokeBorder(selected ? Color.accentColor : Theme.hairline,
+                                  lineWidth: selected ? 1.5 : 1)
+            )
+            .overlay(alignment: .leading) {
+                // Depth cue: a small hue-shifted tick on the leading edge.
+                Capsule()
+                    .fill(Theme.depthAccent(depth))
+                    .frame(width: 3, height: 12)
+                    .padding(.leading, 5)
+            }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal,6.0)
-    }
-
-    /// Compute a base color that darkens slightly as depth increases
-    private var capsuleColor: Color {
-        // Example: shift hue or adjust brightness by depth
-        let baseHue: Double = 0.55 // roughly teal/blue
-        let depthFactor = Double(self.depth) * 0.08
-        let hue = (baseHue + depthFactor).truncatingRemainder(dividingBy: 1.0)
-        return Color(hue: hue, saturation: 0.4, brightness: 0.9)
+            .padding(.horizontal, 6.0)
     }
 }
 

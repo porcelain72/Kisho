@@ -113,10 +113,7 @@ struct TagPill: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .background(
-            Color.gray.opacity(0.2)
-        )
-        .clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(Theme.hairline, lineWidth: 1))
         .foregroundColor(.primary)
     }
 }
@@ -174,8 +171,8 @@ struct TagInputPill: View {
             }
         }
         .frame(height: 28) // Ensures consistent height in FlowLayout
-        .background(Color.accentColor.opacity(0.2))
-        .clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(isEditing ? Color.accentColor : Theme.hairline, lineWidth: 1))
+        .foregroundColor(isEditing ? .primary : .secondary)
         .animation(.easeInOut(duration: 0.2), value: isEditing)
     }
 
