@@ -395,15 +395,15 @@ extension KishoSection {
         para.maximumLineHeight = 12
         #if os(macOS)
         let font = NSFont.systemFont(ofSize: 6)
-        let color = NSColor.clear
         #else
         let font = UIFont.systemFont(ofSize: 6)
-        let color = UIColor.clear
         #endif
+        // No foreground colour: paragraph breaks draw nothing, and leaving the
+        // attribute out keeps the composite equal to what the text view shows
+        // after its display-colour pass, so rebuilds don't needlessly reset it.
         return NSAttributedString(string: "\n\n", attributes: [
             .paragraphStyle: para,
-            .font: font,
-            .foregroundColor: color
+            .font: font
         ])
     }
 
@@ -688,11 +688,12 @@ extension KishoSection {
                     .joined(separator: "\n")
 
                 if !firstLine.isEmpty {
-                    section.title = firstLine
+                    if section.title != firstLine { section.title = firstLine }
                 } else if let content = contentParts[section.id], content.length > 0 {
                     let model = RichTextModel()
                     model.attributedString = KishoSection.stripOwnershipAttributes(from: content)
-                    section.title = model.defaultTitle
+                    let derived = model.defaultTitle
+                    if section.title != derived { section.title = derived }
                 }
             }
 

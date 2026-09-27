@@ -14,27 +14,33 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     // MARK: - Published properties (for SwiftUI bindings)
     @Published var title: String
     @Published var content: RichTextModel      // RTF‐encoded text
-    @Published var children: [KishoSection] // nested sections
+    /// Nested sections. Parent pointers are maintained automatically whenever
+    /// this array is mutated, so callers never need to fix them up by hand.
+    @Published var children: [KishoSection] {
+        didSet { relinkChildren() }
+    }
     @Published var tags : [String]
     // NOTE: We do not store `parent` in the file; we rebuild it after decoding
     @Published var inspectorVersion : UUID = UUID()
-    
+
     weak var parent: KishoSection?
-    
+
     let id: UUID
     let createdAt: Date
     @Published var modifiedAt: Date
+
+    static let defaultTitle = "Untitled"
 
     // MARK: - CodingKeys for Codable
     enum CodingKeys: String, CodingKey {
         case id, title, content, children, tags, createdAt, modifiedAt
     }
-    
+
     // MARK: - Initializers
     init(
         id: UUID = UUID(),
         title: String,
-        content: RichTextModel = RichTextModel(rtfData: NSAttributedString(string: "").rtfData()) ,
+        content: RichTextModel = RichTextModel(),
         children: [KishoSection] = [],
         tags: [String] = [],
         parent: KishoSection? = nil,
@@ -49,13 +55,11 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         self.parent = parent
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
-        
-        // Hook each child’s parent pointer
-        for child in children {
-            child.parent = self
-        }
+
+        // didSet does not fire from an initializer.
+        relinkChildren()
     }
-    
+
     // MARK: - Codable (encode/decode)
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -64,26 +68,14 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         content = try container.decode(RichTextModel.self,  forKey: .content)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         modifiedAt = try container.decode(Date.self, forKey: .modifiedAt)
-        // First decode children as an array of KishoSection
-        let decodedChildren = try container.decode([KishoSection].self, forKey: .children)
-        
-        // Now set published children and re‐establish parent links
-        children = decodedChildren
-        self.tags = try container.decode([String].self, forKey: .tags)      // ← decode tags
+        // Each child's own decoder init has already linked *its* children, so
+        // only one level needs linking here.
+        children = try container.decode([KishoSection].self, forKey: .children)
+        tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
 
-        for child in children {
-             child.parent = self
-             // Also recursively fix up the grandchildren
-             func fixDescendants(of node: KishoSection) {
-                 for sub in node.children {
-                     sub.parent = node
-                     fixDescendants(of: sub)
-                 }
-             }
-             fixDescendants(of: child)
-         }
+        relinkChildren()
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id,       forKey: .id)
@@ -94,8 +86,13 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         try container.encode(children,  forKey: .children)
         try container.encode(tags, forKey: .tags)
     }
-    
-    
+
+    private func relinkChildren() {
+        for child in children where child.parent !== self {
+            child.parent = self
+        }
+    }
+
     /// First line of `title` (section headings are a single line). Extra lines are
     /// treated as body text that was typed into the heading in the composite editor.
     var titleFirstLine: String {
@@ -104,15 +101,63 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
             .trimmingCharacters(in: .whitespaces) ?? title
     }
 
+    /// Title to show in lists and headings: the first title line, or a title
+    /// derived from the content when the section has no title of its own.
+    var displayTitle: String {
+        let first = titleFirstLine
+        if !first.isEmpty { return first }
+        return content.defaultTitle
+    }
+
+    /// Whether `other` is this section or one of its descendants.
+    func contains(sectionID other: UUID) -> Bool {
+        if id == other { return true }
+        return children.contains { $0.contains(sectionID: other) }
+    }
+
+    /// Pre-order list of this section and all of its descendants.
+    var subtree: [KishoSection] {
+        var result = [self]
+        for child in children {
+            result.append(contentsOf: child.subtree)
+        }
+        return result
+    }
+
+    /// Splits this section's body (or its live composite body, when given) into
+    /// one new section per paragraph. Each new section is named after the
+    /// paragraph's first sentence and carries the full paragraph, with its
+    /// formatting, as its body.
     func asSections(fromComposite composite: NSAttributedString? = nil) -> [KishoSection] {
         KishoSection.paragraphModelsForSplit(section: self, composite: composite)
             .map { paragraph in
-                let title = paragraph.attributedString.string
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                return KishoSection(title: title)
+                let body = RichTextModel()
+                body.attributedString = KishoSection.trimmedParagraph(paragraph.attributedString)
+                return KishoSection(title: body.defaultTitle, content: body)
             }
     }
- 
+
+    /// Removes leading/trailing whitespace and paragraph breaks from a paragraph
+    /// while keeping its attributes.
+    static func trimmedParagraph(_ source: NSAttributedString) -> NSAttributedString {
+        let ns = source.string as NSString
+        var start = 0
+        var end = ns.length
+        let ws = CharacterSet.whitespacesAndNewlines
+        while start < end,
+              let scalar = Unicode.Scalar(ns.character(at: start)),
+              ws.contains(scalar) {
+            start += 1
+        }
+        while end > start,
+              let scalar = Unicode.Scalar(ns.character(at: end - 1)),
+              ws.contains(scalar) {
+            end -= 1
+        }
+        guard end > start else { return NSAttributedString() }
+        return source.attributedSubstring(from: NSRange(location: start, length: end - start))
+    }
+
     func copyDeep(parent: KishoSection? = nil) -> KishoSection {
         let sectionCopy = KishoSection(
             id: self.id,
@@ -132,18 +177,19 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
 
         return sectionCopy
     }
-    
+
+    /// This section's body followed by the bodies of every descendant, in
+    /// reading order, separated by paragraph breaks. Empty bodies are skipped.
     func joinedChildrenContent() -> RichTextModel {
-        
-        
-      //  var childContent = KishoRichText.fromSections(self.children)
-        var childContent = KishoSection.combinedRichText(from: self.children)
-        return RichTextModel.joined([self.content, childContent])
+        let parts = subtree
+            .map { $0.content }
+            .filter { !$0.attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        return RichTextModel.joined(parts)
     }
-    
-    
+
+
     // MARK: - Word Count
-    
+
     /// Word count for this section's own content only.
     var wordCount: Int {
         let text = content.attributedString.string
@@ -153,25 +199,25 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         }
         return count
     }
-    
+
     /// Aggregate word count: this section's content plus all descendants.
     var totalWordCount: Int {
         children.reduce(wordCount) { $0 + $1.totalWordCount }
     }
-    
+
     func applyTypographyToSelfAndDescendants(font: NSFont, color: NSColor? = nil) {
         // Apply to this section
         self.content.applyTypography(font: font, color: color)
-        
+
         // Recursively apply to children
         for child in children {
             child.applyTypographyToSelfAndDescendants(font: font, color: color)
         }
-        
+
         // Trigger UI updates if needed
         self.inspectorVersion = UUID()
     }
-    
+
 }
 
 extension KishoSection {
@@ -180,10 +226,3 @@ extension KishoSection {
         return RichTextModel.joined(richParts)
     }
 }
-
-
-
-
-
-
-

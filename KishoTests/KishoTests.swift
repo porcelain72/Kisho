@@ -215,9 +215,11 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(root.children.count, 2)
         XCTAssertEqual(root.children[0].title, "First paragraph.")
         XCTAssertEqual(root.children[1].title, "Second paragraph.")
-        XCTAssertEqual(root.children[0].content.attributedString.string, "")
-        XCTAssertEqual(root.children[1].content.attributedString.string, "")
+        // The paragraph itself becomes the new section's body.
+        XCTAssertEqual(root.children[0].content.attributedString.string, "First paragraph.")
+        XCTAssertEqual(root.children[1].content.attributedString.string, "Second paragraph.")
         XCTAssertEqual(document.selectedSectionID, root.children[0].id)
+        XCTAssertTrue(root.children.allSatisfy { $0.parent === root })
     }
 
     func testMakeChildrenSplitsExtraTitleLines() throws {
@@ -231,8 +233,8 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(root.children.count, 2)
         XCTAssertEqual(root.children[0].title, "Alpha paragraph")
         XCTAssertEqual(root.children[1].title, "Bravo paragraph")
-        XCTAssertEqual(root.children[0].content.attributedString.string, "")
-        XCTAssertEqual(root.children[1].content.attributedString.string, "")
+        XCTAssertEqual(root.children[0].content.attributedString.string, "Alpha paragraph")
+        XCTAssertEqual(root.children[1].content.attributedString.string, "Bravo paragraph")
     }
 
     func testMakeChildrenSplitsSingleNewlines() throws {
@@ -409,5 +411,369 @@ final class KishoTests: XCTestCase {
         let composite = KishoSection.documentCompositeAttributedString(sections: [s1, s2])
         XCTAssertFalse(composite.string.hasSuffix("\n"))
         XCTAssertFalse(composite.string.hasSuffix("\r"))
+    }
+
+    // MARK: - Tree operations
+
+    private func makeDocument() -> (KishoDocumentModel, KishoSection, KishoSection, KishoSection, KishoSection) {
+        // A
+        //   A1
+        //   A2
+        // B
+        let a1 = makeSection(title: "A1", body: "a1")
+        let a2 = makeSection(title: "A2", body: "a2")
+        let a = makeSection(title: "A", body: "a", children: [a1, a2])
+        let b = makeSection(title: "B", body: "b")
+        let document = KishoDocumentModel(sections: [a, b])
+        return (document, a, a1, a2, b)
+    }
+
+    private func titles(_ document: KishoDocumentModel) -> [String] {
+        document.orderedSections.map { $0.title }
+    }
+
+    func testSplitTitleUsesFirstSentenceAndKeepsFormatting() throws {
+        let body = NSMutableAttributedString(string: "Short one. And the rest of it.")
+        body.addAttribute(.font, value: NSFont.boldSystemFont(ofSize: 14), range: NSRange(location: 0, length: 5))
+        let model = RichTextModel()
+        model.attributedString = body
+        let root = KishoSection(title: "Root", content: model)
+        let document = KishoDocumentModel(sections: [root])
+
+        document.makeChildren()
+
+        XCTAssertEqual(root.children.count, 1)
+        XCTAssertEqual(root.children[0].title, "Short one.")
+        XCTAssertEqual(root.children[0].content.attributedString.string, "Short one. And the rest of it.")
+        let font = root.children[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertTrue(font?.fontDescriptor.symbolicTraits.contains(.bold) ?? false, "formatting must survive a split")
+    }
+
+    func testSplitInsertsParagraphsBeforeExistingChildren() throws {
+        let existing = makeSection(title: "Existing child", body: "x")
+        let root = makeSection(title: "Root", body: "P1\nP2", children: [existing])
+        let document = KishoDocumentModel(sections: [root])
+
+        document.makeChildren()
+
+        XCTAssertEqual(root.children.map { $0.title }, ["P1", "P2", "Existing child"])
+    }
+
+    func testSplitThenGatherRoundTripsText() throws {
+        let root = makeSection(title: "Root", body: "First paragraph.\nSecond paragraph.")
+        let document = KishoDocumentModel(sections: [root])
+
+        document.makeChildren()
+        document.selectedSectionID = root.id
+        document.gather()
+
+        XCTAssertTrue(root.children.isEmpty)
+        XCTAssertEqual(root.content.attributedString.string, "First paragraph.\nSecond paragraph.")
+    }
+
+    func testGatherIncludesGrandchildrenInReadingOrder() throws {
+        let grandchild = makeSection(title: "GC", body: "gc")
+        let child = makeSection(title: "C", body: "c", children: [grandchild])
+        let root = makeSection(title: "Root", body: "r", children: [child])
+        let document = KishoDocumentModel(sections: [root])
+
+        document.gather()
+
+        XCTAssertEqual(root.content.attributedString.string, "r\nc\ngc")
+    }
+
+    func testAddSiblingInsertsDirectlyAfterSelection() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        document.selectedSectionID = a1.id
+
+        document.addSiblingSection()
+
+        XCTAssertEqual(a.children.count, 3)
+        XCTAssertEqual(a.children[1].id, document.selectedSectionID)
+        XCTAssertTrue(a.children[1].parent === a)
+        XCTAssertEqual(document.pendingTitleEditID, document.selectedSectionID)
+    }
+
+    func testAddSiblingAtTopLevelInsertsAfterSelection() throws {
+        let (document, a, _, _, b) = makeDocument()
+        document.selectedSectionID = a.id
+
+        document.addSiblingSection()
+
+        XCTAssertEqual(document.sections.count, 3)
+        XCTAssertEqual(document.sections[1].id, document.selectedSectionID)
+        XCTAssertEqual(document.sections[2].id, b.id)
+        XCTAssertNil(document.sections[1].parent)
+    }
+
+    func testAddChildAppendsToSelection() throws {
+        let (document, a, _, a2, _) = makeDocument()
+        document.selectedSectionID = a.id
+
+        document.addChildSection()
+
+        XCTAssertEqual(a.children.count, 3)
+        XCTAssertEqual(a.children[2].id, document.selectedSectionID)
+        XCTAssertEqual(a.children[1].id, a2.id)
+    }
+
+    func testDeleteLastTopLevelSectionSelectsRemainingOne() throws {
+        let (document, a, _, _, b) = makeDocument()
+        document.selectedSectionID = b.id
+
+        document.deleteSelectedSection()
+
+        XCTAssertEqual(document.sections.map { $0.id }, [a.id])
+        XCTAssertEqual(document.selectedSectionID, a.id)
+    }
+
+    func testDeleteFirstChildSelectsNextSibling() throws {
+        let (document, a, a1, a2, _) = makeDocument()
+        document.selectedSectionID = a1.id
+
+        document.deleteSelectedSection()
+
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id])
+        XCTAssertEqual(document.selectedSectionID, a2.id)
+    }
+
+    func testDeleteOnlyChildSelectsParent() throws {
+        let only = makeSection(title: "Only", body: "")
+        let root = makeSection(title: "Root", body: "", children: [only])
+        let document = KishoDocumentModel(sections: [root])
+        document.selectedSectionID = only.id
+
+        document.deleteSelectedSection()
+
+        XCTAssertEqual(document.selectedSectionID, root.id)
+    }
+
+    func testMoveToTopLevelDoesNotLoseSection() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+
+        document.move(sectionID: a1.id, to: .before(b.id))
+
+        XCTAssertEqual(document.sections.map { $0.id }, [a.id, a1.id, b.id])
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id])
+        XCTAssertNil(a1.parent)
+        XCTAssertEqual(document.orderedSections.count, 4, "no section may vanish in a move")
+    }
+
+    func testMoveAfterLastTopLevelSection() throws {
+        let (document, a, a1, _, b) = makeDocument()
+
+        document.move(sectionID: a1.id, to: .after(b.id))
+
+        XCTAssertEqual(document.sections.map { $0.id }, [a.id, b.id, a1.id])
+    }
+
+    func testMoveIntoOwnDescendantIsIgnored() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        let before = titles(document)
+
+        document.move(sectionID: a.id, to: .into(a1.id))
+        document.move(sectionID: a.id, to: .before(a1.id))
+        document.move(sectionID: a.id, to: .after(a1.id))
+        document.move(sectionID: a.id, to: .into(a.id))
+
+        XCTAssertEqual(titles(document), before, "moving a section into its own subtree must be a no-op")
+        XCTAssertEqual(document.orderedSections.count, 4)
+    }
+
+    func testMoveIntoSectionAppendsAsLastChildAndUpdatesParent() throws {
+        let (document, a, _, _, b) = makeDocument()
+
+        document.move(sectionID: b.id, to: .into(a.id))
+
+        XCTAssertEqual(document.sections.map { $0.id }, [a.id])
+        XCTAssertEqual(a.children.last?.id, b.id)
+        XCTAssertTrue(b.parent === a)
+        XCTAssertEqual(document.selectedSectionID, b.id)
+    }
+
+    func testMoveWithinSameParentDownwards() throws {
+        let (document, a, a1, a2, _) = makeDocument()
+
+        document.move(sectionID: a1.id, to: .after(a2.id))
+
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id, a1.id])
+    }
+
+    func testMoveUndoRestoresOriginalPlace() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+
+        undo.beginUndoGrouping()
+        document.move(sectionID: a1.id, to: .into(b.id), using: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(b.children.map { $0.id }, [a1.id])
+
+        undo.undo()
+        XCTAssertEqual(a.children.map { $0.id }, [a1.id, a2.id])
+        XCTAssertTrue(b.children.isEmpty)
+        XCTAssertTrue(a1.parent === a)
+
+        XCTAssertTrue(undo.canRedo)
+        undo.redo()
+        XCTAssertEqual(b.children.map { $0.id }, [a1.id])
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id])
+    }
+
+    func testDeleteUndoRedoAreSymmetric() throws {
+        let (document, a, a1, a2, _) = makeDocument()
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+        document.selectedSectionID = a1.id
+
+        undo.beginUndoGrouping()
+        document.deleteSelectedSection(using: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id])
+
+        undo.undo()
+        XCTAssertEqual(a.children.map { $0.id }, [a1.id, a2.id])
+        XCTAssertEqual(document.selectedSectionID, a1.id)
+
+        XCTAssertTrue(undo.canRedo)
+        undo.redo()
+        XCTAssertEqual(a.children.map { $0.id }, [a2.id])
+
+        XCTAssertTrue(undo.canUndo)
+        undo.undo()
+        XCTAssertEqual(a.children.map { $0.id }, [a1.id, a2.id])
+    }
+
+    func testSplitUndoRestoresEverything() throws {
+        let root = makeSection(title: "Root", body: "P1\nP2")
+        let document = KishoDocumentModel(sections: [root])
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+
+        undo.beginUndoGrouping()
+        document.makeChildren(undoManager: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(root.children.count, 2)
+
+        undo.undo()
+        XCTAssertTrue(root.children.isEmpty)
+        XCTAssertEqual(root.content.attributedString.string, "P1\nP2")
+        XCTAssertEqual(document.selectedSectionID, root.id)
+
+        undo.redo()
+        XCTAssertEqual(root.children.count, 2)
+        XCTAssertEqual(root.content.attributedString.string, "")
+    }
+
+    func testStructureHooksFireOncePerOperation() throws {
+        let (document, _, a1, _, b) = makeDocument()
+        var before = 0
+        var after = 0
+        document.beforeStructureEdit = { before += 1 }
+        document.afterStructureEdit = { after += 1 }
+
+        document.move(sectionID: a1.id, to: .into(b.id))
+
+        XCTAssertEqual(before, 1)
+        XCTAssertEqual(after, 1)
+    }
+
+    func testNextAndPreviousFollowReadingOrder() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        document.selectedSectionID = a.id
+
+        document.selectNext()
+        XCTAssertEqual(document.selectedSectionID, a1.id)
+        document.selectNext()
+        XCTAssertEqual(document.selectedSectionID, a2.id)
+        document.selectNext()
+        XCTAssertEqual(document.selectedSectionID, b.id)
+        document.selectNext()
+        XCTAssertEqual(document.selectedSectionID, b.id, "stays on the last section")
+
+        document.selectPrevious()
+        XCTAssertEqual(document.selectedSectionID, a2.id)
+        document.selectUp()
+        XCTAssertEqual(document.selectedSectionID, a.id)
+        document.selectDown()
+        XCTAssertEqual(document.selectedSectionID, a1.id)
+    }
+
+    func testLevelUpWorksAfterMove() throws {
+        let (document, _, a1, _, b) = makeDocument()
+        document.move(sectionID: a1.id, to: .into(b.id))
+        document.selectedSectionID = a1.id
+
+        document.selectUp()
+
+        XCTAssertEqual(document.selectedSectionID, b.id)
+    }
+
+    func testDocumentWithNoSelectionCanBeReopened() throws {
+        let root = makeSection(title: "Root", body: "body")
+        let document = KishoDocumentModel(sections: [root])
+        document.selectedSectionID = nil
+
+        let data = try JSONEncoder().encode(document)
+        let reopened = try JSONDecoder().decode(KishoDocumentModel.self, from: data)
+
+        XCTAssertEqual(reopened.sections.count, 1)
+        XCTAssertEqual(reopened.selectedSectionID, reopened.sections.first?.id, "falls back to the first section")
+    }
+
+    func testReopenedDocumentHasParentPointers() throws {
+        let (document, _, _, _, _) = makeDocument()
+        let data = try JSONEncoder().encode(document)
+        let reopened = try JSONDecoder().decode(KishoDocumentModel.self, from: data)
+
+        let a = reopened.sections[0]
+        XCTAssertNil(a.parent)
+        XCTAssertTrue(a.children.allSatisfy { $0.parent === a })
+    }
+
+    func testSetTagsRegistersUndo() throws {
+        let (document, a, _, _, _) = makeDocument()
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+
+        undo.beginUndoGrouping()
+        document.setTags([" draft ", "", "idea"], for: a, using: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(a.tags, ["draft", "idea"])
+        XCTAssertTrue(undo.canUndo)
+
+        undo.undo()
+        XCTAssertEqual(a.tags, [])
+    }
+
+    func testTypographyUndoRestoresFonts() throws {
+        let root = makeSection(title: "Root", body: "Hello")
+        let document = KishoDocumentModel(sections: [root])
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+        var settings = document.typography
+        settings.fontSize = 30
+
+        undo.beginUndoGrouping()
+        document.setTypography(settings, undoManager: undo)
+        undo.endUndoGrouping()
+        let big = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertEqual(big?.pointSize, 30)
+
+        undo.undo()
+        let restored = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertNotEqual(restored?.pointSize, 30)
+        XCTAssertEqual(document.typography.fontSize, 12, "undo restores the previous settings too")
+    }
+
+    func testExportedAttributedTextIsBlack() throws {
+        let root = makeSection(title: "Root", body: "Hello")
+        root.content.applyTypography(font: NSFont.systemFont(ofSize: 12), color: NSColor.labelColor)
+        let exported = Exporter.attributedText(from: [root])
+        var allBlack = true
+        exported.enumerateAttribute(.foregroundColor, in: NSRange(location: 0, length: exported.length)) { value, _, _ in
+            if (value as? NSColor) != NSColor.black { allBlack = false }
+        }
+        XCTAssertTrue(allBlack, "export must not carry the appearance-adaptive label colour")
     }
 }

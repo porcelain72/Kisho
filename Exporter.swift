@@ -27,7 +27,7 @@ struct Exporter {
         var result = ""
         for section in sections {
             // 1) Section Title
-            result += section.title + "\n\n"
+            result += section.displayTitle + "\n\n"
 
             // 2) Section Body (strip all attributes)
             let body = section.content.attributedString.string.trimmingCharacters(in: .newlines)
@@ -81,7 +81,7 @@ struct Exporter {
         func appendSections(_ list: [KishoSection], indentLevel: Int = 0) {
             for section in list {
                 // 1) Title
-                let titleString = section.title + "\n"
+                let titleString = section.displayTitle + "\n"
                 let indentedTitle = String(repeating: "    ", count: indentLevel) + titleString
                 let titleAttrString = NSAttributedString(string: indentedTitle, attributes: titleAttrs)
                 output.append(titleAttrString)
@@ -114,6 +114,16 @@ struct Exporter {
         }
 
         appendSections(sections)
+
+        // Exports are for paper/other apps, so bake in a real black rather than
+        // the appearance-adaptive label colour, which renders white when the
+        // app is in dark mode.
+        #if os(macOS)
+        let exportColor = NSColor.black
+        #else
+        let exportColor = UIColor.black
+        #endif
+        output.addAttribute(.foregroundColor, value: exportColor, range: NSRange(location: 0, length: output.length))
         return output
     }
 
@@ -151,9 +161,11 @@ struct Exporter {
                 let finalGlyphRange = layoutManager.glyphRange(for: textContainer)
                 pageGlyphRanges.append(finalGlyphRange)
 
-                print(finalGlyphRange)
-                // If that range reaches the end of the document’s glyphs, stop
-                if NSMaxRange(finalGlyphRange) >= layoutManager.numberOfGlyphs {
+                // If that range reaches the end of the document’s glyphs, stop.
+                // Also stop if a page took no glyphs at all (e.g. an oversized
+                // attachment), otherwise this would loop forever.
+                if NSMaxRange(finalGlyphRange) >= layoutManager.numberOfGlyphs
+                    || finalGlyphRange.length == 0 {
                     break
                 }
                 // Otherwise, loop again to add another page/container
@@ -231,18 +243,18 @@ struct Exporter {
 extension Exporter {
     static func htmlString(from sections: [KishoSection]) -> String {
         var html = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body>\n"
-        func recurse(_ list: [KishoSection]) {
+        func recurse(_ list: [KishoSection], level: Int) {
+            let tag = "h\(min(level, 6))"
             for section in list {
-                html += "<h1>\(section.title.htmlEscaped())</h1>\n"
-                // Assuming your content is a simple RTF → NSAttributedString
+                html += "<\(tag)>\(section.displayTitle.htmlEscaped())</\(tag)>\n"
                 let bodyHTML = rtfToHTML(section.content.attributedString)
                 html += bodyHTML + "\n"
                 if !section.children.isEmpty {
-                    recurse(section.children)
+                    recurse(section.children, level: level + 1)
                 }
             }
         }
-        recurse(sections)
+        recurse(sections, level: 1)
         html += "</body></html>"
         return html
     }

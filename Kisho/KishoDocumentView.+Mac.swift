@@ -16,15 +16,9 @@ struct KishoDocumentView: View {
 
     @EnvironmentObject var document : KishoDocumentModel
 
-    @State private var focusTitle: Bool = false
     // Track whether to show the export‐choice sheet:
     @State private var showingExportOptions = false
     
-    @State private var fontFamilies: [String] = []
-    @State private var selectedFontFamily: String = NSFont.systemFont(ofSize: 12).familyName ?? "System"
-    @State private var fontSize: Double = 12
-    @State private var isBold: Bool = false
-    @State private var isItalic: Bool = false
 
     
     let fileURL : URL?
@@ -47,8 +41,7 @@ struct KishoDocumentView: View {
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                 .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-    
-            .frame(minWidth: 220)
+                .frame(minWidth: 220)
     
         } detail: {
             KishoDocumentEditorView(document: document)
@@ -62,84 +55,71 @@ struct KishoDocumentView: View {
                 ToolbarTypographyControlsView()
           
                 Button {
-                    //showingExportOptions = true
                     document.makeChildren(undoManager: undoManager)
                 } label: {
-                    Label("Split…", systemImage: "square.fill.text.grid.1x2")
+                    Label("Split", systemImage: "square.fill.text.grid.1x2")
                 }
-                .keyboardShortcut("p", modifiers: .command)
-
-                .help("Create new subsections from paragraphs")
+                .keyboardShortcut("p", modifiers: [.command, .option])
+                .disabled(document.selectedSection == nil)
+                .help("Split the selected section's paragraphs into sub-sections (⌥⌘P)")
                 
-          
                 Button {
-                    //showingExportOptions = true
                     document.gather(undoManager: undoManager)
                 } label: {
-                    Label("Gather…", systemImage: "rectangle.compress.vertical")
+                    Label("Gather", systemImage: "rectangle.compress.vertical")
                 }
-                .keyboardShortcut("o", modifiers: [.command])
-
-                .help("Gather all child content into section")
+                .keyboardShortcut("g", modifiers: [.command, .option])
+                .disabled(document.selectedSection?.children.isEmpty ?? true)
+                .help("Gather all sub-section text back into the selected section (⌥⌘G)")
                 
-  
                 Button {
                     showingExportOptions = true
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
                 }
-                .help("Export document as Plaintext or pdf")
+                .help("Export document as plain text, PDF or HTML")
          
-              Button {
-                undoManager?.undo()
-              } label: {
-                Label("Undo", systemImage: "arrow.uturn.left")
-              }
-              .keyboardShortcut("z", modifiers: .command)
-              .disabled(!(undoManager?.canUndo ?? false))
-         
+                Button {
+                    undoManager?.undo()
+                } label: {
+                    Label("Undo", systemImage: "arrow.uturn.left")
+                }
+                .disabled(!(undoManager?.canUndo ?? false))
+                .help("Undo")
                  
-              Button {
-                undoManager?.redo()
-              } label: {
-                Label("Redo", systemImage: "arrow.uturn.right")
-              }
-              .keyboardShortcut("z", modifiers: [.command, .shift])
-              .disabled(!(undoManager?.canRedo ?? false))
+                Button {
+                    undoManager?.redo()
+                } label: {
+                    Label("Redo", systemImage: "arrow.uturn.right")
+                }
+                .disabled(!(undoManager?.canRedo ?? false))
+                .help("Redo")
            
                 Button {
                     document.addSiblingSection(using: undoManager)
-                    focusTitle = true
-
                 } label: {
-                
-                    Label("Add Child", systemImage: "plus")
+                    Label("Add Sibling", systemImage: "plus")
                 }
-                 .keyboardShortcut("=", modifiers: [.command])
-                .help("Add section at same level as selected")
+                .keyboardShortcut("=", modifiers: [.command])
+                .help("Add a section after the selected one, at the same level (⌘=)")
 
                 Button {
                     document.addChildSection(using: undoManager)
-                    focusTitle = true
-
                 } label: {
-                    Label("Add Sibling", systemImage: "plus.square.on.square")
+                    Label("Add Child", systemImage: "plus.square.on.square")
                 }
-                .keyboardShortcut("+", modifiers: [.command, .shift])
+                .keyboardShortcut("=", modifiers: [.command, .shift])
                 .disabled(document.selectedSection == nil)
-                .help("Add child section")
+                .help("Add a sub-section inside the selected section (⇧⌘=)")
 
-         
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
                     Label("Delete Section", systemImage: "trash")
                 }
                 .disabled(document.selectedSection == nil)
+                .help("Delete the selected section and its sub-sections (⇧⌘⌫)")
             }
-      
-            
-            
         }
         .confirmationDialog(
             "Choose Export Format",
@@ -239,45 +219,4 @@ struct KishoDocumentView: View {
     }
     #endif
     
-    // Anywhere in your code (e.g. in DocumentView.swift)
-
-    /// Walks the entire hierarchy and returns the KishoSection whose `id` matches.
-    func findSection(
-        with targetID: UUID,
-        in sections: [KishoSection]
-    ) -> KishoSection? {
-        for s in sections {
-            if s.id == targetID { return s }
-            if let childMatch = findSection(with: targetID, in: s.children) {
-                return childMatch
-            }
-        }
-        return nil
-    }
-
 }
-
-
-
-
-// Helper for deep bindings
-extension Array where Element: Identifiable {
-    var binding: Binding<[Element]> {
-        .constant(self)
-    }
-}
-
-struct SectionEditor: View {
-    @Binding var section: KishoSection
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            TextField("Title", text: $section.title)
-                .font(.title)
-            // Add more section editing UI here
-        }
-        .padding()
-    }
-}
-
-

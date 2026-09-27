@@ -9,7 +9,10 @@ import SwiftUI
 import RichTextEditor
 
 final class KishoDocumentModel: ObservableObject, Codable {
-    @Published var sections: [KishoSection]
+    /// Top-level sections. Their `parent` is always nil.
+    @Published var sections: [KishoSection] {
+        didSet { sections.forEach { $0.parent = nil } }
+    }
     @Published var selectedSectionID : UUID? = nil
     @Published var typography: TypographySettings = TypographySettings(
         fontFamily: NSFont.systemFont(ofSize: 12).familyName ?? "System",
@@ -18,741 +21,518 @@ final class KishoDocumentModel: ObservableObject, Codable {
         isItalic: false,
         color: .primary
     )
-    
 
+    /// A section that was just created and whose heading should be selected
+    /// in the editor so the user can type its name straight away. Consumed by
+    /// the editor view; deliberately not published (it always accompanies a
+    /// `selectedSectionID` change).
+    var pendingTitleEditID: UUID?
 
     /// Latest editor composite, used so Split/Gather see typing that has not
     /// yet been distributed back into `section.content`.
     var liveCompositeProvider: (() -> NSAttributedString)?
     /// Flush live editor text into the section tree before a structural edit.
     var beforeStructureEdit: (() -> Void)?
-    /// Rebuild the editor after Split/Gather and ignore stale text-view writebacks.
+    /// Rebuild the editor after a structural edit and ignore stale text-view writebacks.
     var afterStructureEdit: (() -> Void)?
 
+    private var structureEditDepth = 0
+
     enum CodingKeys: String, CodingKey { case sections, typography, selectedSectionID }
-    
+
     var selectedSection : KishoSection? {
-        get {
-            guard let id = self.selectedSectionID else { return nil}
-            return self.section(withID: id, inSections: self.sections)
-        }
+        guard let id = self.selectedSectionID else { return nil }
+        return self.section(withID: id, inSections: self.sections)
     }
-    init(sections: [KishoSection] = [KishoSection(title: "Untitled Section")]) {
+
+    init(sections: [KishoSection] = [KishoSection(title: KishoSection.defaultTitle)]) {
         self.sections = sections
         self.selectedSectionID = sections.first?.id
+        sections.forEach { $0.parent = nil }
     }
-    
+
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let decoded = try container.decode([KishoSection].self, forKey: .sections)
         typography = try container.decodeIfPresent(TypographySettings.self, forKey: .typography) ?? TypographySettings()
+        sections = decoded
+        decoded.forEach { $0.parent = nil }
 
-        self.sections = decoded
-       
-        let selected = try container.decode(UUID.self, forKey: .selectedSectionID)
-        self.selectedSectionID = selected
-
-        // Fix parent pointers
-        func fixParents(_ list: [KishoSection]) {
-            for s in list {
-                for child in s.children {
-                    child.parent = s
-                    fixParents([child])
-                }
-            }
-        }
-        fixParents(self.sections)
-    }
-    
-    func makeChildren(undoManager: UndoManager? = nil) {
-        beforeStructureEdit?()
-
-        guard let section = self.selectedSection else { return }
-        let newSections = section.asSections(fromComposite: liveCompositeProvider?())
-        guard !newSections.isEmpty else { return }
-
-        let sectionID = section.id
-        let originalTitle = section.title
-        let originalContent = section.content.copy()
-        let originalChildren = section.children
-
-        section.title = section.titleFirstLine
-        newSections.forEach { $0.parent = section }
-        section.children.append(contentsOf: newSections)
-        section.content.flushContent()
-        self.selectedSectionID = newSections.first?.id
-        
-        undoManager?.registerUndo(withTarget: self, handler: { target in
-            if let section = target.section(withID: sectionID, inSections: target.sections) {
-                section.title = originalTitle
-                section.content = originalContent
-                section.children = originalChildren
-                target.selectedSectionID = sectionID
-            }
-        })
-        undoManager?.setActionName("Split Paragraphs")
-        afterStructureEdit?()
-    }
-    
-    func gather(undoManager: UndoManager? = nil) {
-        beforeStructureEdit?()
-        guard let section = self.selectedSection  else { return }
-
-        let currentContent = section.content
-        let currentChildren = section.children
-        let newContent = section.joinedChildrenContent()
-        
-        section.content = newContent
-        section.children = []
-        
-        undoManager?.registerUndo(withTarget: self, handler: { target in
-            
-                section.content = currentContent
-                section.children = currentChildren
-            
-        })
-        afterStructureEdit?()
-    }
-    
-    /// Applies the given typography to all sections and their descendants,
-    /// and registers an undo operation if an `UndoManager` is provided.
-    func applyTypographyToEntireDocument(undoManager: UndoManager? = nil) {
-        let settings = self.typography
-
-        var descriptor = NSFontDescriptor(fontAttributes: [.family: settings.fontFamily])
-        var traits = NSFontDescriptor.SymbolicTraits()
-        if settings.isBold { traits.insert(.bold) }
-        if settings.isItalic { traits.insert(.italic) }
-        descriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
-
-        let font = NSFont(descriptor: descriptor, size: CGFloat(settings.fontSize))
-            ?? NSFont.systemFont(ofSize: CGFloat(settings.fontSize))
-
-       // let nsColor = NSColor(settings.color)
-        // Use the appearance-adaptive label color so text follows light/dark mode
-        // instead of baking a static black into the rich text.
-        let nsColor = NSColor.labelColor
-
-        // Apply to all sections
-        for section in sections {
-            section.applyTypographyToSelfAndDescendants(font: font, color: nsColor)
-        }
-
-        // Undo
-        undoManager?.registerUndo(withTarget: self) { target in
-            // Your undo logic (e.g., previous settings and section copies)
-        }
-    }
-
-    
-    func select(section: KishoSection) {
-        DispatchQueue.main.async{
-            print("Selecting\(section.title)")
-            self.selectedSectionID = section.id
-        }
-    }
-    func selectUp(){
-        DispatchQueue.main.async{
-            self.self.selectedSectionID = self.upSectionID()
-        }
-    } 
-    func selectDown(){
-        DispatchQueue.main.async{
-            self.self.selectedSectionID = self.dowmSectionID()
-        }
-    }
-    func selectNext(){
-        DispatchQueue.main.async{
-            self.self.selectedSectionID = self.nextSectionID()
-        }
-    }
-    
-    func selectPrevious(){
-        DispatchQueue.main.async{
-            self.self.selectedSectionID = self.previousSectionID()
-        }
-    }
-    
-    func section(withID id: UUID, inSections: [KishoSection]) -> KishoSection? {
-      for s in inSections {
-        if s.id == id { return s }
-        if let found = section(withID: id, inSections: s.children) {
-          return found
-        }
-      }
-      return nil
-    }
-    
- 
-    
-    // MARK: –– Undo‐aware move (as sibling)
-    func moveAsSibling(draggedID: UUID, destinationID: UUID, insertBefore: Bool, using undoManager: UndoManager? = nil) {
-      // Locate the “dragged” section and remove it
-      guard let dragged = removeSection(withID: draggedID),
-            let destParent = parent(forSectionID: destinationID, inSections: sections)
-      else {
-        // Could be moving at top level
-        // Similar logic would go here…
-        return
-      }
-      // Compute “undo” by remembering old parent and index
-      let originalParentID = parent(forSectionID: draggedID, inSections: sections)?.id
-      let originalIndex: Int
-      if let pID = originalParentID,
-         let p = section(withID: pID, inSections: sections),
-         let i = p.children.firstIndex(where: { $0.id == draggedID })
-      {
-        originalIndex = i
-      } else if let i = sections.firstIndex(where: { $0.id == draggedID }) {
-        originalIndex = i
-      } else {
-        originalIndex = 0
-      }
-
-      // Register undo: move back to original parent/index
-      undoManager?.registerUndo(withTarget: self) { target in
-        if let origParentID = originalParentID {
-          if let origParent = target.section(withID: origParentID, inSections: target.sections) {
-            origParent.children.insert(dragged, at: originalIndex)
-            target.selectedSectionID = draggedID
-          }
+        // A document saved with nothing selected stores `null`; that must not
+        // stop the file from opening. Fall back to the first section, and
+        // ignore a selection that no longer exists.
+        let selected = try container.decodeIfPresent(UUID.self, forKey: .selectedSectionID)
+        if let selected, section(withID: selected, inSections: decoded) != nil {
+            selectedSectionID = selected
         } else {
-          target.sections.insert(dragged, at: originalIndex)
-          target.selectedSectionID = draggedID
-        }
-      }
-      undoManager?.setActionName("Move Section")
-
-      // Now insert under the new parent
-      if destParent.id == dragged.id {
-        // If dragging a parent onto itself, ignore
-        return
-      }
-      if let idx = destParent.children.firstIndex(where: { $0.id == destinationID }) {
-        destParent.children.insert(dragged, at: insertBefore ? idx : idx + 1)
-        self.selectedSectionID = draggedID
-      }
-    }
-    
-    /*
-    
-    // Move as sibling (above/below)
-     func moveAsSibling(draggedID: UUID, destinationID: UUID, insertBefore: Bool) {
-
-         if let parent = self.parent(forSectionID: destinationID, inSections: self.sections)
-         {
-             guard  draggedID != parent.id else { return }
-
-             if let draggingSection = self.removeSection(withID: draggedID),
-                  let idx = parent.children.firstIndex(where: { $0.id == destinationID }) {
-                     
-                     parent.children.insert(draggingSection, at: insertBefore ? idx : idx + 1)
-                 }
-             
-         } else {
-             
-             if let draggingSection = self.removeSection(withID: draggedID),
-                let idx = self.sections.firstIndex(where: { $0.id == destinationID }) {
-                
-                 self.sections.insert(draggingSection, at: insertBefore ? idx : idx + 1)
-             }
-         }
-         
-
-        
-    }
-*/
-    // Move as child (on)
-    /*
-     func moveAsChild(draggedID: UUID, destinationID: UUID) {
-        
-        if let dragged = removeSection(withID: draggedID),
-           let parent = self.section(withID: destinationID, inSections: self.sections),
-           dragged.id != parent.id
-        {
-            parent.children.append(dragged)
+            selectedSectionID = decoded.first?.id
         }
     }
-    */
-    /*
-    func deleteSection()  {
-        guard let selected = self.self.selectedSectionID else { return }
-        
-        if var parent = self.parent(forSectionID: selected, inSections: self.sections),
-        let sIndex = parent
-            .children.firstIndex(where: {$0.id == selected}){
-            
-            DispatchQueue.main.async{
-                parent.children.remove(at: sIndex)
-             
-            }
-        } else {
-            if let sIndex = self.sections.firstIndex(where: {$0.id == selected}){
-                
-                DispatchQueue.main.async{
-                    self.sections.remove(at: sIndex)
-                    
-                }
-                
-            }
-            self.selectedSectionID = nil
-        }
-      
-        return
-        }
-*/
-    // MARK: –– Undo‐aware deletion of the selected section
-    func deleteSelectedSection(using undoManager: UndoManager? = nil) {
-      guard let idToDelete = selectedSectionID else { return }
-      // First, capture a deep copy of the section being deleted (so we can re‐insert it on undo)
-      guard let toDelete = section(withID: idToDelete, inSections: sections) else {
-        return
-      }
-      // Find its parent (if any) and index
-      if let parent = parent(forSectionID: idToDelete, inSections: sections),
-         let idx = parent.children.firstIndex(where: { $0.id == idToDelete })
-      {
-        // Register undo to re‐insert this child at the same index
-        undoManager?.registerUndo(withTarget: self) { target in
-          if let p = target.section(withID: parent.id, inSections: target.sections) {
-            p.children.insert(toDelete, at: idx)
-            target.selectedSectionID = toDelete.id
-          }
-        }
-        undoManager?.setActionName("Delete Section")
 
-        // Perform delete
-          parent.children.remove(at: idx)
-
-              if idx>0{
-                  self.selectedSectionID = parent.children[idx-1].id
-              } else {
-                  self.selectedSectionID = parent.children.first?.id ?? parent.id
-              }
-        
-      } else if let idx = sections.firstIndex(where: { $0.id == idToDelete }) {
-        // Top‐level section
-        undoManager?.registerUndo(withTarget: self) { target in
-          target.sections.insert(toDelete, at: idx)
-          target.selectedSectionID = toDelete.id
-        }
-        undoManager?.setActionName("Delete Section")
-
-          sections.remove(at: idx)
-
-          if idx<sections.count{
-              if idx>0{
-                  self.selectedSectionID = sections[idx-1].id
-              } else {
-                  self.selectedSectionID = sections.first?.id
-              }
-          }else{
-              self.selectedSectionID = nil
-          }
-      }
-    }
-    
-    public func depth(forSection: KishoSection) -> Int {
-        var depth = 0
-   
-        var parent  = self.parent(forSectionID: forSection.id, inSections: self.sections)
-        
-        while let pa = parent{
-            depth = depth + 1
-            parent = self.parent(forSectionID: pa.id, inSections: self.sections)
-        }
-        
-        return depth
-    }
-    
-
-    /*
-    func addChildSection() {
-        if let selectedID = selectedSectionID,
-           let selected = self.section(withID: selectedID, inSections: self.sections){
-            let title = String(selected.children.count+1)
-            let new = KishoSection(title: title)
-
-            selected.children.append(new)
-            self.selectedSectionID = new.id
-        } else {
-            let title = String(self.sections.count+1)
-            let new = KishoSection(title: title)
-
-            self.sections.append(new)
-            self.selectedSectionID = new.id
-
-            
-        }
-        
-        
-    }
-    */
-    // MARK: –– Undo‐aware insertion of a child
-    func addChildSection(using undoManager: UndoManager? = nil) {
-      guard let parentID = selectedSectionID,
-            let parent = section(withID: parentID, inSections: sections)
-      else {
-        // No selection—just append a top‐level section
-        let newTitle = String(self.sections.count + 1)
-        let newSection = KishoSection(title: newTitle)
-        // Register undo to remove the last element
-        undoManager?.registerUndo(withTarget: self) { target in
-          // Undoing: remove that last element
-          target.removeSection(withID: newSection.id, using: undoManager)
-        }
-        undoManager?.setActionName("Add Section")
-
-        // Perform the actual insertion
-        self.sections.append(newSection)
-        self.selectedSectionID = newSection.id
-        return
-      }
-
-     //   let formatAttrs = parent.content.attributedString.defaultAttributes()
-
-    //    var copyString = parent.content.attributedString.mutableCopy()
-        
-                // 3) Build an initial attributed string for the new section.
-                //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
-                let initialText = ""  // or "\n" if you want an empty line
-                let newAttrString = NSAttributedString(string: initialText)
-                let newRichText = RichTextModel()
-                newRichText.attributedString = newAttrString
-
-                // 4) Create the new KishoSection using that as its content
-                let newTitle = String(parent.children.count + 1)
-                let newSection = KishoSection(
-                    title: newTitle,
-                    content: newRichText   // assign our newly‐formatted rich text
-                )
-
-                //
-    
-
-      // Register undo: re‐remove that child from parent
-      undoManager?.registerUndo(withTarget: self) { target in
-        // On undo, remove the child from parent
-        if let p = target.section(withID: parentID, inSections: target.sections),
-           let idx = p.children.firstIndex(where: { $0.id == newSection.id })
-        {
-          p.children.remove(at: idx)
-          target.selectedSectionID = parentID
-        }
-      }
-      undoManager?.setActionName("Add Child Section")
-
-      // Perform the insertion
-        newSection.parent = parent
-      parent.children.append(newSection)
-      self.selectedSectionID = newSection.id
-    }
-
-
-    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sections, forKey: .sections)
         try container.encode(selectedSectionID, forKey: .selectedSectionID)
         try container.encode(typography, forKey: .typography)
-
-    }
-    
-    var allTags: [String] {
-       return Set(sections.flatMap { collectTags(from: $0) }).sorted()
-        
-        func collectTags(from section: KishoSection) -> [String] {
-            section.tags + section.children.flatMap { collectTags(from: $0) }
-        }
     }
 
+    // MARK: - Lookup
 
-}
-
-extension KishoDocumentModel {
-    /// Removes the section with the given ID from the tree (either from a parent’s `children` array or `sections` at top level),
-    /// registers an undo to re‐insert it back where it came from, and returns the removed section.
-    @discardableResult
-    func removeSection(
-        withID id: UUID,
-        using undoManager: UndoManager? = nil
-    ) -> KishoSection? {
-        // Step 1: Find the section and its current parent/index
-        guard let toRemove = section(withID: id, inSections: sections) else {
-            return nil
+    func section(withID id: UUID, inSections: [KishoSection]) -> KishoSection? {
+        for s in inSections {
+            if s.id == id { return s }
+            if let found = section(withID: id, inSections: s.children) {
+                return found
+            }
         }
-        
-        // Determine original parent (nil if top‐level) and original index
-        let originalParent: KishoSection?
-        let originalIndex: Int
+        return nil
+    }
+
+    func section(withID id: UUID) -> KishoSection? {
+        section(withID: id, inSections: sections)
+    }
+
+    /// Parent of the section with the given ID, or nil for a top-level section
+    /// (and for an unknown ID). Found by search, so it never relies on cached
+    /// pointers.
+    func parent(forSectionID id: UUID, inSections: [KishoSection]) -> KishoSection? {
+        for s in inSections {
+            if s.children.contains(where: { $0.id == id }) {
+                return s
+            }
+            if let sub = parent(forSectionID: id, inSections: s.children) {
+                return sub
+            }
+        }
+        return nil
+    }
+
+    /// Where a section currently lives: its parent (nil at top level) and its
+    /// index in that parent's list.
+    func location(ofSectionID id: UUID) -> (parent: KishoSection?, index: Int)? {
         if let parent = parent(forSectionID: id, inSections: sections),
            let idx = parent.children.firstIndex(where: { $0.id == id }) {
-            originalParent = parent
-            originalIndex = idx
-        } else if let idx = sections.firstIndex(where: { $0.id == id }) {
-            originalParent = nil
-            originalIndex = idx
-        } else {
-            // Should never happen: we already found `toRemove` above
-            return nil
+            return (parent, idx)
         }
-        
-        // Step 2: Register undo—how to re‐insert `toRemove` back to its original spot
-        undoManager?.registerUndo(withTarget: self) { target in
-            if let parent = originalParent {
-                parent.children.insert(toRemove, at: originalIndex)
-                target.selectedSectionID = toRemove.id
-            } else {
-                target.sections.insert(toRemove, at: originalIndex)
-                target.selectedSectionID = toRemove.id
-            }
+        if let idx = sections.firstIndex(where: { $0.id == id }) {
+            return (nil, idx)
         }
-        undoManager?.setActionName("Delete Section")
-        
-        // Step 3: Perform the actual removal
-        if let parent = originalParent {
-            _ = parent.children.remove(at: originalIndex)
-        } else {
-            _ = sections.remove(at: originalIndex)
-        }
-        
-        // Clear selection if we just removed the selected section
-        if selectedSectionID == id {
-            selectedSectionID = nil
-        }
-        
-        return toRemove
+        return nil
     }
-}
-extension KishoDocumentModel {
-    /// Move the section with `draggedID` to become a child of `destinationID`.
-    /// Registers an undo that moves it back to its original parent and index.
-    func moveAsChild(
-        draggedID: UUID,
-        destinationID: UUID,
-        using undoManager: UndoManager? = nil
-    ) {
-        // 1) Locate the “dragged” section and remove it from its old parent or the top level
-        guard let draggedSection = removeSection(withID: draggedID) else { return }
 
-        // Capture original parent and index for undo
-        let originalParent: KishoSection?
-        let originalIndex: Int
-        if let parent = parent(forSectionID: draggedID, inSections: sections) {
-            originalParent = parent
-            originalIndex = parent.children.firstIndex(where: { $0.id == draggedID }) ?? parent.children.count
-        } else {
-            originalParent = nil
-            originalIndex = sections.firstIndex(where: { $0.id == draggedID }) ?? sections.count
+    /// Every section in reading (pre-order) order: a section, then its
+    /// descendants, then its next sibling.
+    var orderedSections: [KishoSection] {
+        KishoSection.allSections(in: sections)
+    }
+
+    public func depth(forSection: KishoSection) -> Int {
+        var depth = 0
+        var parent = self.parent(forSectionID: forSection.id, inSections: self.sections)
+        while let pa = parent {
+            depth += 1
+            parent = self.parent(forSectionID: pa.id, inSections: self.sections)
         }
+        return depth
+    }
 
-        // 2) Locate the new parent to which we’ll append
-        guard let newParent = section(withID: destinationID, inSections: sections) else {
-            // If destination parent cannot be found, reinsert to original place
-            if let origParent = originalParent {
-                origParent.children.insert(draggedSection, at: originalIndex)
-            } else {
-                sections.insert(draggedSection, at: originalIndex)
-            }
+    var allTags: [String] {
+        Set(orderedSections.flatMap { $0.tags }).sorted()
+    }
+
+    // MARK: - Selection & navigation
+
+    func select(section: KishoSection) {
+        selectedSectionID = section.id
+    }
+
+    /// Next section in reading order (into children first).
+    func selectNext() {
+        let all = orderedSections
+        guard !all.isEmpty else { return }
+        guard let current = selectedSectionID,
+              let idx = all.firstIndex(where: { $0.id == current }) else {
+            selectedSectionID = all.first?.id
             return
         }
-
-        // Register undo BEFORE performing the insertion:
-        undoManager?.registerUndo(withTarget: self) { target in
-            // Undo: remove from newParent.children, then reinsert into originalParent at originalIndex
-            if let idxNew = newParent.children.firstIndex(where: { $0.id == draggedSection.id }) {
-                _ = newParent.children.remove(at: idxNew)
-            }
-            if let origParent = originalParent {
-                origParent.children.insert(draggedSection, at: originalIndex)
-                target.selectedSectionID = draggedSection.id
-            } else {
-                target.sections.insert(draggedSection, at: originalIndex)
-                target.selectedSectionID = nil
-            }
-        }
-        undoManager?.setActionName("Move Section")
-
-        // 3) Perform the insertion as a child of newParent
-        newParent.children.append(draggedSection)
-        selectedSectionID = draggedSection.id
+        selectedSectionID = all[min(idx + 1, all.count - 1)].id
     }
-}
-extension KishoDocumentModel {
-    /// Insert a new section as a sibling of the currently‐selected section (or at top level if none).
-    /// Registers an undo to remove exactly that new section.
+
+    /// Previous section in reading order.
+    func selectPrevious() {
+        let all = orderedSections
+        guard !all.isEmpty else { return }
+        guard let current = selectedSectionID,
+              let idx = all.firstIndex(where: { $0.id == current }) else {
+            selectedSectionID = all.first?.id
+            return
+        }
+        selectedSectionID = all[max(idx - 1, 0)].id
+    }
+
+    /// First child of the selected section, or the next section if it has none.
+    func selectDown() {
+        if let selected = selectedSection, let first = selected.children.first {
+            selectedSectionID = first.id
+        } else {
+            selectNext()
+        }
+    }
+
+    /// Parent of the selected section, or the previous section at top level.
+    func selectUp() {
+        if let selected = selectedSection,
+           let parent = parent(forSectionID: selected.id, inSections: sections) {
+            selectedSectionID = parent.id
+        } else {
+            selectPrevious()
+        }
+    }
+
+    // MARK: - Structural edits (all undoable, all symmetric undo/redo)
+
+    /// Runs a structural change with the editor flush/rebuild hooks around it.
+    /// Nested calls (e.g. a move = remove + insert, or an undo that calls back
+    /// into these helpers) only fire the hooks once, at the outermost level.
+    private func withStructureEdit(_ body: () -> Void) {
+        if structureEditDepth == 0 { beforeStructureEdit?() }
+        structureEditDepth += 1
+        body()
+        structureEditDepth -= 1
+        if structureEditDepth == 0 { afterStructureEdit?() }
+    }
+
+    /// Performs `forward` now and registers `inverse` as its undo. Undoing
+    /// registers `forward` again as the redo, so every operation is fully
+    /// reversible in both directions.
+    private func perform(
+        _ name: String,
+        using undoManager: UndoManager?,
+        forward: @escaping (KishoDocumentModel) -> Void,
+        inverse: @escaping (KishoDocumentModel) -> Void
+    ) {
+        withStructureEdit { forward(self) }
+        registerReversible(undoManager, name: name, undo: inverse, redo: forward)
+    }
+
+    private func registerReversible(
+        _ undoManager: UndoManager?,
+        name: String,
+        undo: @escaping (KishoDocumentModel) -> Void,
+        redo: @escaping (KishoDocumentModel) -> Void
+    ) {
+        guard let undoManager else { return }
+        undoManager.registerUndo(withTarget: self) { [weak undoManager] target in
+            target.withStructureEdit { undo(target) }
+            target.registerReversible(undoManager, name: name, undo: redo, redo: undo)
+        }
+        undoManager.setActionName(name)
+    }
+
+    // Raw tree mutations: no undo, no hooks. Parent pointers are kept in sync
+    // by the `children` / `sections` property observers.
+
+    private func rawInsert(_ section: KishoSection, into parent: KishoSection?, at index: Int) {
+        if let parent {
+            let idx = max(0, min(index, parent.children.count))
+            parent.children.insert(section, at: idx)
+        } else {
+            let idx = max(0, min(index, sections.count))
+            sections.insert(section, at: idx)
+        }
+    }
+
+    @discardableResult
+    private func rawRemove(_ section: KishoSection) -> (parent: KishoSection?, index: Int)? {
+        guard let loc = location(ofSectionID: section.id) else { return nil }
+        if let parent = loc.parent {
+            parent.children.remove(at: loc.index)
+        } else {
+            sections.remove(at: loc.index)
+        }
+        section.parent = nil
+        return loc
+    }
+
+    /// The section to select once `section` (at `parent`/`index`) is gone:
+    /// the previous sibling, else the sibling that takes its place, else the
+    /// parent, else the first section in the document.
+    private func selectionAfterRemoving(parent: KishoSection?, index: Int) -> UUID? {
+        let siblings = parent?.children ?? sections
+        if index > 0, index - 1 < siblings.count { return siblings[index - 1].id }
+        if index < siblings.count { return siblings[index].id }
+        return parent?.id ?? sections.first?.id
+    }
+
+    // MARK: Add
+
+    /// Inserts a new section immediately after the selected one, at the same
+    /// level. With nothing selected it goes at the end of the top level.
     func addSiblingSection(using undoManager: UndoManager? = nil) {
-        // Determine where the new section will go
-        let newSection: KishoSection
-        let parentOfSelection: KishoSection?
-        let insertIndex: Int
-
-        if let selectedID = selectedSectionID,
-           let parent = parent(forSectionID: selectedID, inSections: sections)
-        {
-            // Inserting into `parent.children`
-          //  let formatAttrs = self.selectedSection?.content.attributedString.defaultAttributes() ?? parent.content.attributedString.defaultAttributes()
-
-                    // 3) Build an initial attributed string for the new section.
-                    //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
-                    let initialText = ""  // or "\n" if you want an empty line
-                    let newAttrString = NSAttributedString(string: initialText)
-                    let newRichText = RichTextModel()
-                    newRichText.attributedString = newAttrString
-
-                    // 4) Create the new KishoSection using that as its content
-                    let newTitle = String(parent.children.count + 1)
-                     newSection = KishoSection(
-                        title: newTitle,
-                        content: newRichText   // assign our newly‐formatted rich text
-                    )
-
-            newSection.parent = parent
-            parent.children.append(newSection)
-            parentOfSelection = parent
-            insertIndex = parent.children.count - 1
+        let parent: KishoSection?
+        let index: Int
+        if let selectedID = selectedSectionID, let loc = location(ofSectionID: selectedID) {
+            parent = loc.parent
+            index = loc.index + 1
         } else {
-            // No selection or top‐level insertion
-            let title = String(sections.count + 1)
-            newSection = KishoSection(title: title)
-            sections.append(newSection)
-            parentOfSelection = nil
-            insertIndex = sections.count - 1
+            parent = nil
+            index = sections.count
         }
-
-        // Mark new section as selected
-        selectedSectionID = newSection.id
-
-        // Register undo: remove the newly added section
-        undoManager?.registerUndo(withTarget: self) { target in
-            if let parent = parentOfSelection {
-                // Undo: remove from parent.children
-                if let idx = parent.children.firstIndex(where: { $0.id == newSection.id }) {
-                    parent.children.remove(at: idx)
-                    target.selectedSectionID = parent.id
-                }
-            } else {
-                // Undo: remove from top‐level `sections`
-                if let idx = target.sections.firstIndex(where: { $0.id == newSection.id }) {
-                    target.sections.remove(at: idx)
-                    target.selectedSectionID = nil
-                }
-            }
-        }
-        undoManager?.setActionName("Add Sibling Section")
+        insertNewSection(into: parent, at: index, name: "Add Section", using: undoManager)
     }
-   
-  
-}
 
-private extension KishoDocumentModel {
-    func dowmSectionID() -> UUID? {
-        
+    /// Appends a new section as the last child of the selected one. With
+    /// nothing selected it goes at the end of the top level.
+    func addChildSection(using undoManager: UndoManager? = nil) {
         if let selected = selectedSection {
-            return selected.children.first?.id ?? nextSectionID()
-            }
-        
-            return nextSectionID()
+            insertNewSection(into: selected, at: selected.children.count, name: "Add Child Section", using: undoManager)
+        } else {
+            insertNewSection(into: nil, at: sections.count, name: "Add Section", using: undoManager)
         }
-    
-    
-    func upSectionID() -> UUID? {
+    }
 
-        if let selected = selectedSection{
-            
-            return selected.parent?.id ?? previousSectionID()
-               
-        } else {
-            
-            return previousSectionID()
-        }
+    private func insertNewSection(into parent: KishoSection?, at index: Int, name: String, using undoManager: UndoManager?) {
+        let newSection = KishoSection(title: KishoSection.defaultTitle)
+        let previousSelection = selectedSectionID
+        perform(name, using: undoManager, forward: { target in
+            target.rawInsert(newSection, into: parent, at: index)
+            target.pendingTitleEditID = newSection.id
+            target.selectedSectionID = newSection.id
+        }, inverse: { target in
+            target.rawRemove(newSection)
+            target.pendingTitleEditID = nil
+            target.selectedSectionID = previousSelection.flatMap { target.section(withID: $0) }?.id
+                ?? target.selectionAfterRemoving(parent: parent, index: index)
+        })
     }
-    
-    func nextSectionID() -> UUID? {
-        var nextSection = self.sections.first
-        
-        if let selectedID = selectedSectionID,
-           let siblings = siblings(forID: selectedID, inSections: self.sections),
-           let index = siblings.firstIndex(where: {$0.id == selectedID}){
-            if index<(siblings.count-1) {
-                nextSection = siblings[index+1]
-            } else {
-                nextSection = siblings[index].children.first ?? siblings[index]
+
+    // MARK: Delete
+
+    func deleteSelectedSection(using undoManager: UndoManager? = nil) {
+        guard let id = selectedSectionID else { return }
+        deleteSection(withID: id, using: undoManager)
+    }
+
+    func deleteSection(withID id: UUID, using undoManager: UndoManager? = nil) {
+        guard let section = section(withID: id), let loc = location(ofSectionID: id) else { return }
+        let parent = loc.parent
+        let index = loc.index
+        let previousSelection = selectedSectionID
+        perform("Delete Section", using: undoManager, forward: { target in
+            target.rawRemove(section)
+            if target.selectedSectionID == id || target.selectedSectionID.map({ section.contains(sectionID: $0) }) == true {
+                target.selectedSectionID = target.selectionAfterRemoving(parent: parent, index: index)
+            }
+        }, inverse: { target in
+            target.rawInsert(section, into: parent, at: index)
+            target.selectedSectionID = previousSelection ?? section.id
+        })
+    }
+
+    // MARK: Move
+
+    enum MoveDestination {
+        case before(UUID)
+        case after(UUID)
+        case into(UUID)
+
+        var targetID: UUID {
+            switch self {
+            case .before(let id), .after(let id), .into(let id): return id
             }
         }
-        
-        return nextSection?.id
     }
-    
-    func previousSectionID() -> UUID? {
-        var nextSection = self.sections.first
-        
-        if let selected = selectedSectionID,
-           let siblings = siblings(forID: selected, inSections: self.sections),
-           let index = siblings.firstIndex(where: {$0.id == selected}){
-            if index>0 {
-                nextSection = siblings[index-1]
-            } else {
-                nextSection = siblings[index].parent ?? siblings[index]
+
+    /// Whether a section may be moved to the destination: never onto itself
+    /// or into its own subtree.
+    func canMove(sectionID draggedID: UUID, to destination: MoveDestination) -> Bool {
+        guard draggedID != destination.targetID,
+              let dragged = section(withID: draggedID),
+              section(withID: destination.targetID) != nil else { return false }
+        return !dragged.contains(sectionID: destination.targetID)
+    }
+
+    /// Moves a section before/after another section or into it as its last
+    /// child. Invalid moves (onto itself, into its own subtree, unknown IDs)
+    /// are ignored and the tree is left untouched.
+    func move(sectionID draggedID: UUID, to destination: MoveDestination, using undoManager: UndoManager? = nil) {
+        guard canMove(sectionID: draggedID, to: destination),
+              let dragged = section(withID: draggedID),
+              let origin = location(ofSectionID: draggedID) else { return }
+
+        // Work out the target slot with the dragged section already removed,
+        // so indices are right even when moving within the same parent.
+        rawRemove(dragged)
+        var targetParent: KishoSection? = nil
+        var targetIndex: Int? = nil
+        switch destination {
+        case .before(let id):
+            if let loc = location(ofSectionID: id) {
+                targetParent = loc.parent
+                targetIndex = loc.index
+            }
+        case .after(let id):
+            if let loc = location(ofSectionID: id) {
+                targetParent = loc.parent
+                targetIndex = loc.index + 1
+            }
+        case .into(let id):
+            if let newParent = section(withID: id) {
+                targetParent = newParent
+                targetIndex = newParent.children.count
             }
         }
-        return nextSection?.id
+        // Put it back before doing the real, undoable move.
+        rawInsert(dragged, into: origin.parent, at: origin.index)
+        guard let targetIndex else { return }
+        let target = (parent: targetParent, index: targetIndex)
+
+        // No-op if it would land exactly where it already is.
+        if target.parent === origin.parent, target.index == origin.index { return }
+
+        let previousSelection = selectedSectionID
+        perform("Move Section", using: undoManager, forward: { t in
+            t.rawRemove(dragged)
+            t.rawInsert(dragged, into: target.parent, at: target.index)
+            t.selectedSectionID = dragged.id
+        }, inverse: { t in
+            t.rawRemove(dragged)
+            t.rawInsert(dragged, into: origin.parent, at: origin.index)
+            t.selectedSectionID = previousSelection
+        })
     }
-    // Remove section and return it
-    func removeSection(withID id: UUID) -> KishoSection? {
-        
-        if let parent = self.parent(forSectionID: id, inSections: self.sections) ,
-           let idx = parent.children.firstIndex(where: {$0.id == id}){
-            
-           return parent.children.remove(at: idx)
-        } else {
-            if let idx = self.sections.firstIndex(where: {$0.id == id}){
-                return self.sections.remove(at: idx)
-            }
-        }
-        
-      
-        return nil
+
+    // Compatibility wrappers for existing call sites.
+    func moveAsSibling(draggedID: UUID, destinationID: UUID, insertBefore: Bool, using undoManager: UndoManager? = nil) {
+        move(sectionID: draggedID, to: insertBefore ? .before(destinationID) : .after(destinationID), using: undoManager)
     }
-    
-  
-    
-    func parent(forSectionID id: UUID, inSections: [KishoSection]) -> KishoSection? {
-      for s in inSections {
-        if s.children.contains(where: { $0.id == id }) {
-          return s
-        }
-        if let sub = parent(forSectionID: id, inSections: s.children) {
-          return sub
-        }
-      }
-      return nil
+
+    func moveAsChild(draggedID: UUID, destinationID: UUID, using undoManager: UndoManager? = nil) {
+        move(sectionID: draggedID, to: .into(destinationID), using: undoManager)
     }
-    
-    
-    func siblings(forID: UUID, inSections: [KishoSection]) -> [KishoSection]? {
-        
-        for idx in inSections.indices {
-             let sect = inSections[idx]
-              if sect.id == forID {
-                return inSections
-            }
-        }
-        
-        for idx in inSections.indices {
-            if let returnSections = self.siblings(forID: forID, inSections: inSections[idx].children) {
-                return returnSections
-            }
-        }
-        
-        return nil
-    
+
+    // MARK: Split / Gather
+
+    /// Turns each paragraph of the selected section's body into a new child
+    /// section (inserted before any existing children, since the paragraphs
+    /// precede them in reading order) and empties the body.
+    func makeChildren(undoManager: UndoManager? = nil) {
+        // Flush live typing first so the split sees it.
+        beforeStructureEdit?()
+
+        guard let section = selectedSection else { return }
+        let newSections = section.asSections(fromComposite: liveCompositeProvider?())
+        guard !newSections.isEmpty else { return }
+
+        let originalTitle = section.title
+        let originalContent = NSAttributedString(attributedString: section.content.attributedString)
+        let originalChildren = section.children
+        let previousSelection = selectedSectionID
+
+        let newTitle = section.titleFirstLine
+        let newChildren = newSections + originalChildren
+
+        perform("Split Paragraphs", using: undoManager, forward: { target in
+            section.title = newTitle
+            section.content.attributedString = NSAttributedString(string: "")
+            section.children = newChildren
+            section.modifiedAt = Date()
+            target.selectedSectionID = newSections.first?.id
+        }, inverse: { target in
+            section.title = originalTitle
+            section.content.attributedString = originalContent
+            section.children = originalChildren
+            section.modifiedAt = Date()
+            target.selectedSectionID = previousSelection
+        })
     }
-    
-    
+
+    /// Merges the bodies of all descendants (in reading order) into the
+    /// selected section's body and removes them.
+    func gather(undoManager: UndoManager? = nil) {
+        beforeStructureEdit?()
+
+        guard let section = selectedSection, !section.children.isEmpty else { return }
+
+        let originalContent = NSAttributedString(attributedString: section.content.attributedString)
+        let originalChildren = section.children
+        let gathered = section.joinedChildrenContent().attributedString
+        let previousSelection = selectedSectionID
+
+        perform("Gather Sections", using: undoManager, forward: { target in
+            section.content.attributedString = gathered
+            section.children = []
+            section.modifiedAt = Date()
+            target.selectedSectionID = section.id
+        }, inverse: { target in
+            section.content.attributedString = originalContent
+            section.children = originalChildren
+            section.modifiedAt = Date()
+            target.selectedSectionID = previousSelection
+        })
+    }
+
+    // MARK: Tags
+
+    /// Replaces a section's tags, registering the change with the undo
+    /// manager (which is also what marks the document as needing a save).
+    func setTags(_ tags: [String], for section: KishoSection, using undoManager: UndoManager? = nil) {
+        let cleaned = tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        guard cleaned != section.tags else { return }
+        let old = section.tags
+        section.tags = cleaned
+        registerReversible(undoManager, name: "Edit Tags",
+                           undo: { _ in section.tags = old },
+                           redo: { _ in section.tags = cleaned })
+    }
+
+    // MARK: Typography
+
+    /// Changes the document typography and applies it to every section, as one
+    /// undoable step that also restores the previous settings.
+    func setTypography(_ settings: TypographySettings, undoManager: UndoManager? = nil) {
+        guard settings != typography else { return }
+        let previous = typography
+        typography = settings
+        applyTypographyToEntireDocument(previousSettings: previous, undoManager: undoManager)
+    }
+
+    /// Applies the current typography settings to every section, undoably.
+    func applyTypographyToEntireDocument(previousSettings: TypographySettings? = nil, undoManager: UndoManager? = nil) {
+        let settings = self.typography
+        let previousSettings = previousSettings ?? settings
+
+        var descriptor = NSFontDescriptor(fontAttributes: [.family: settings.fontFamily])
+        var traits = NSFontDescriptor.SymbolicTraits()
+        if settings.isBold { traits.insert(.bold) }
+        if settings.isItalic { traits.insert(.italic) }
+        descriptor = descriptor.withSymbolicTraits(traits)
+
+        let font = NSFont(descriptor: descriptor, size: CGFloat(settings.fontSize))
+            ?? NSFont.systemFont(ofSize: CGFloat(settings.fontSize))
+
+        // Use the appearance-adaptive label color so text follows light/dark mode
+        // instead of baking a static black into the rich text.
+        let nsColor = NSColor.labelColor
+
+        let before = KishoSection.documentSnapshot(of: sections)
+
+        for section in sections {
+            section.applyTypographyToSelfAndDescendants(font: font, color: nsColor)
+        }
+
+        let after = KishoSection.documentSnapshot(of: sections)
+        registerReversible(undoManager, name: "Change Typography", undo: { target in
+            target.typography = previousSettings
+            KishoSection.applyDocumentSnapshot(before, to: target.sections)
+            target.sections.forEach { $0.inspectorVersion = UUID() }
+        }, redo: { target in
+            target.typography = settings
+            KishoSection.applyDocumentSnapshot(after, to: target.sections)
+            target.sections.forEach { $0.inspectorVersion = UUID() }
+        })
+    }
 }
-
-
 
 extension FocusedValues {
     // 1) A key for passing the document model down the responder chain
@@ -772,8 +552,8 @@ extension FocusedValues {
         get { self[SelectedSectionIDKey.self] }
         set { self[SelectedSectionIDKey.self] = newValue }
     }
-    
-    // 2) A key for passing the selected‐section ID (a Binding<UUID?>)
+
+    // 3) A key for showing the delete confirmation
     private struct ShowDeleteAlertKey: FocusedValueKey {
         typealias Value = Binding<Bool>
     }
@@ -781,18 +561,14 @@ extension FocusedValues {
         get { self[ShowDeleteAlertKey.self] }
         set { self[ShowDeleteAlertKey.self] = newValue }
     }
+
 }
-
-
 
 extension NSAttributedString {
     /// Return the attribute dictionary at character index 0,
     /// or if that fails, return a default [font: systemFont(12), color: labelColor].
     func defaultAttributes() -> [NSAttributedString.Key: Any] {
-        guard
-              let attrs = self.attributes(at: 0, effectiveRange: nil) as? [NSAttributedString.Key: Any]
-        else {
-            // Fallback: 12 pt system font & default label color
+        guard length > 0 else {
             #if os(macOS)
             let fallbackFont = NSFont.systemFont(ofSize: 12)
             let fallbackColor = NSColor.labelColor
@@ -805,9 +581,6 @@ extension NSAttributedString {
                 .foregroundColor: fallbackColor
             ]
         }
-        return attrs
+        return attributes(at: 0, effectiveRange: nil)
     }
 }
-
-
-

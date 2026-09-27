@@ -14,12 +14,11 @@ struct ToolbarTypographyControlsView: View {
     @State private var fontFamilies: [String] = []
 
     var body: some View {
+        // Every change goes through the model so it is applied once and is
+        // undoable (settings and fonts together).
         let binding = Binding<TypographySettings>(
             get: { document.typography },
-            set: {
-                document.typography = $0
-                applyTypography()
-            }
+            set: { document.setTypography($0, undoManager: undoManager) }
         )
 
         HStack(spacing: 8) {
@@ -35,14 +34,11 @@ struct ToolbarTypographyControlsView: View {
             .help("Font Family")
 
             // Font Size Picker with Chevrons
-            FontSizePicker(fontSize: binding.fontSize) {
-                applyTypography()
-            }
+            FontSizePicker(fontSize: binding.fontSize) { }
 
             // Bold Button
             Button(action: {
                 binding.wrappedValue.isBold.toggle()
-                applyTypography()
             }) {
                 Image(systemName: "bold")
             }
@@ -53,7 +49,6 @@ struct ToolbarTypographyControlsView: View {
             // Italic Button
             Button(action: {
                 binding.wrappedValue.isItalic.toggle()
-                applyTypography()
             }) {
                 Image(systemName: "italic")
             }
@@ -66,7 +61,4 @@ struct ToolbarTypographyControlsView: View {
         }
     }
 
-    private func applyTypography() {
-        document.applyTypographyToEntireDocument(undoManager: undoManager)
-    }
 }

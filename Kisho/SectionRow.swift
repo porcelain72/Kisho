@@ -10,83 +10,69 @@ import UniformTypeIdentifiers
 
 struct SectionRow: View {
     @EnvironmentObject var document : KishoDocumentModel
+    @Environment(\.undoManager) private var undoManager
 
     @ObservedObject var section: KishoSection
-   
+
     @State private var dropPosition: DropPosition?
 
-  //  @Binding var showDeleteAlert : Bool
     let depth : Int
     @State private var showsSubSections = true
-    
+
     enum DropPosition { case above, on, below }
 
     var body: some View {
         VStack(spacing: 0) {
             // Drop above
             dropTargetView(position: .above)
-            Group{
-#if os(iOS)
-           
-                    HStack {
-                        Text(section.title)
-                        
-                        
-                        Spacer()
-                        wordCountLabel()
-                        showButton()
-                    }
-                    .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
-                    
 
-                
-                
-#else
-                // The row content
-                
-                HStack {
-                    Text(section.title)
-                    
-                    
-                    Spacer()
-                    wordCountLabel()
+            // The row content
+            HStack {
+                Text(section.displayTitle)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Spacer()
+                wordCountLabel()
+                if !section.children.isEmpty {
                     showButton()
                 }
-                .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
-#endif
             }
-.onTapGesture {self.document.select(section: section)}
-            
-            //.background(dropPosition == .on ? Color.accentColor.opacity(0.12) : Color.clear)
+            .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+            .contentShape(Rectangle())
+            .onTapGesture { self.document.select(section: section) }
+            .overlay(
+                Capsule()
+                    .stroke(Color.accentColor, lineWidth: dropPosition == .on ? 2 : 0)
+                    .padding(.horizontal, 6.0)
+            )
             .onDrag {
                 NSItemProvider(object: section.id.uuidString as NSString)
             }
-            .onDrop(of: [UTType.text], isTargeted: Binding(get: { dropPosition == .on }, set: { _ in }),
-                    perform: { providers in handleDrop(providers: providers, position: .on) })
+            .onDrop(
+                of: [UTType.text],
+                isTargeted: Binding(
+                    get: { dropPosition == .on },
+                    set: { isOver in dropPosition = isOver ? .on : (dropPosition == .on ? nil : dropPosition) }
+                ),
+                perform: { providers in handleDrop(providers: providers, position: .on) }
+            )
 
             // Drop below
             dropTargetView(position: .below)
 
             // Children, indented
-            if !section.children.isEmpty,
-            showsSubSections == true {
+            if !section.children.isEmpty, showsSubSections {
                 VStack(spacing: 0) {
                     ForEach(section.children) { child in
                         SectionRow(section: child, depth: self.depth + 1)
-                            .padding(.leading, (depth<4 ? 20 : 0))
+                            .padding(.leading, (depth < 4 ? 20 : 0))
                     }
                 }
-              //  .transition(.opacity.combined(with: .scale))
-                
-                
             }
         }
-    // .animation(.easeInOut,value: showsSubSections)
-      
-
-        .background(dropPosition == .above || dropPosition == .below ? Color.accentColor.opacity(0.08) : Color.clear)
+        .id(section.id)
     }
-  
+
     @ViewBuilder private func wordCountLabel() -> some View {
         let count = section.totalWordCount
         if count > 0 {
@@ -98,124 +84,97 @@ struct SectionRow: View {
                 .padding(.trailing, 2)
         }
     }
-    
+
     @ViewBuilder private func showButton() -> some View {
-        
-        Button("", systemImage: showsSubSections == true ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill") {
-            
-            let anim = Animation.easeInOut(duration: 0.1)
-          //  withAnimation {
-                showsSubSections.toggle()
-         //
-       //3 }
-          
+        Button("", systemImage: showsSubSections ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill") {
+            showsSubSections.toggle()
         }
-       // .rotationEffect((showsSubSections == true ? .zero : Angle(degrees: -90)))
         .buttonStyle(.plain)
         .opacity(0.4)
         .frame(width: 24.0, height: 24.0)
-    }
-    
-    private var labelBackground: some View {
-        let base = Color.accentColor
-        let depthHueShift = CGFloat(depth) * 0.08  // shifts ~29° per level
-        let shiftedColor = base.shiftedHue(by: depthHueShift)
-        let depthOpacity = min(0.6 + Double(depth) * 0.08, 1.0)
-
-        return Capsule()
-            .fill(shiftedColor.opacity(depthOpacity))
-            .overlay(
-                Capsule().stroke(shiftedColor.opacity(0.4), lineWidth: 1)
-            )
+        .help(showsSubSections ? "Hide sub-sections" : "Show sub-sections")
     }
 
-
-    
     // Drop target for above/below sibling insert
     @ViewBuilder
     private func dropTargetView(position: DropPosition) -> some View {
         Rectangle()
             .frame(height: 10)
-            .foregroundColor(dropPosition == position ? Color.accentColor.opacity(0.22) : Color.clear)
+            .foregroundColor(dropPosition == position ? Color.accentColor.opacity(0.5) : Color.clear)
             .onDrop(of: [UTType.text], isTargeted: Binding(
-                get: { dropPosition == position }, set: { isOver in if !isOver { dropPosition = nil } }
+                get: { dropPosition == position },
+                set: { isOver in
+                    if isOver {
+                        dropPosition = position
+                    } else if dropPosition == position {
+                        dropPosition = nil
+                    }
+                }
             ), perform: { providers in handleDrop(providers: providers, position: position) })
     }
 
     // Drop handling for all three positions
     private func handleDrop(providers: [NSItemProvider], position: DropPosition) -> Bool {
-        dropPosition = position // highlight
-        guard let provider = providers.first else { return false }
+        guard let provider = providers.first,
+              provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) else {
+            dropPosition = nil
+            return false
+        }
+        let destinationID = section.id
+        let undoManager = self.undoManager
         provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { item, _ in
             var idStr: String?
             if let data = item as? Data, let s = String(data: data, encoding: .utf8) { idStr = s }
             else if let s = item as? String { idStr = s }
-            guard let idStr, let draggedID = UUID(uuidString: idStr), draggedID != section.id else { return }
-            
+            else if let s = item as? NSString { idStr = s as String }
+
             DispatchQueue.main.async {
-                withAnimation{
-                    switch position {
-                    case .on:
-                        self.document.moveAsChild(draggedID: draggedID, destinationID: self.section.id)
-                    case .above:
-                        self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id, insertBefore: true)
-                    case .below:
-                        self.document.moveAsSibling(draggedID: draggedID, destinationID: self.section.id,  insertBefore: false)
-                    }
-                    dropPosition = nil
+                defer { dropPosition = nil }
+                guard let idStr = idStr?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      let draggedID = UUID(uuidString: idStr) else { return }
+                let destination: KishoDocumentModel.MoveDestination
+                switch position {
+                case .on:    destination = .into(destinationID)
+                case .above: destination = .before(destinationID)
+                case .below: destination = .after(destinationID)
+                }
+                guard document.canMove(sectionID: draggedID, to: destination) else { return }
+                withAnimation {
+                    document.move(sectionID: draggedID, to: destination, using: undoManager)
                 }
             }
         }
         return true
     }
-
-
-    
-
-
-
-    // Recursively get binding to target section or its children array
-    private func binding(for target: KishoSection, in sections: Binding<[KishoSection]>) -> Binding<KishoSection>? {
-        for idx in sections.wrappedValue.indices {
-            if sections.wrappedValue[idx].id == target.id {
-                return sections[idx]
-            }
-            if let child = binding(for: target, in: sections[idx].children) {
-                return child
-            }
-        }
-        return nil
-    }
 }
 
 
-
 struct CellModifier : ViewModifier {
-    
+
     let depth : Int
-    
+
     let selected : Bool
     func body(content: Content) -> some View {
         content
             .font(.headline) // headline font
-                               .padding(.horizontal, 12)
-                               .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
-             Capsule()
-                .fill(capsuleColor.opacity(selected == true ?  0.6 : 0.2))
+                Capsule()
+                    .fill(capsuleColor.opacity(selected == true ?  0.6 : 0.2))
             )
             .frame(maxWidth: .infinity)
             .padding(.horizontal,6.0)
     }
-    
+
     /// Compute a base color that darkens slightly as depth increases
-      private var capsuleColor: Color {
-          // Example: shift hue or adjust brightness by depth
-          let baseHue: Double = 0.55 // roughly teal/blue
-          let depthFactor = Double(self.depth) * 0.08
-          let hue = (baseHue + depthFactor).truncatingRemainder(dividingBy: 1.0)
-          return Color(hue: hue, saturation: 0.4, brightness: 0.9)
-      }
+    private var capsuleColor: Color {
+        // Example: shift hue or adjust brightness by depth
+        let baseHue: Double = 0.55 // roughly teal/blue
+        let depthFactor = Double(self.depth) * 0.08
+        let hue = (baseHue + depthFactor).truncatingRemainder(dividingBy: 1.0)
+        return Color(hue: hue, saturation: 0.4, brightness: 0.9)
+    }
 }
 
 extension Color {

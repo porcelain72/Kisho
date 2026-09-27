@@ -41,6 +41,12 @@ struct TagEditorView: View {
         .onAppear {
             updateSuggestion()
         }
+        .onChange(of: tagInput) { _ in
+            updateSuggestion()
+        }
+        .onChange(of: tags) { _ in
+            updateSuggestion()
+        }
     }
 
     // MARK: - Logic

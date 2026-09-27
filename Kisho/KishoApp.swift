@@ -8,10 +8,10 @@
 import SwiftUI
 
 
-  enum NavDestination : Hashable {
-     case section(UUID)
- }
- 
+enum NavDestination : Hashable {
+    case section(UUID)
+}
+
 
 @main
 struct KishoApp: App {
@@ -28,99 +28,100 @@ struct KishoApp: App {
     }
 
     var body: some Scene {
-        DocumentGroup(newDocument: KishoDocument()) { file in
-            
-              
+        DocumentGroup(newDocument: { KishoDocument() }) { file in
 #if os(macOS)
-                
-                KishoDocumentView(fileURL: file.fileURL)
-                    .environmentObject(file.document.model)
-                    .frame(minWidth: 1200, idealWidth: 1800, minHeight: 800, idealHeight: 1200)
-                
+            KishoDocumentView(fileURL: file.fileURL)
+                .environmentObject(file.document.model)
+                .frame(minWidth: 1200, idealWidth: 1800, minHeight: 800, idealHeight: 1200)
 #else
-                KishoDocumentView(fileURL: file.fileURL)
-                    .environmentObject(file.document.model)
-            /*
-            .onChange(of: file.document.model.selectedSectionID, { oldValue, newValue in
-                if let sectionObjectID = newValue {
-                    self.navigationPath.append(NavDestination.section(sectionObjectID))
-                }
-            })
-             */
+            KishoDocumentView(fileURL: file.fileURL)
+                .environmentObject(file.document.model)
 #endif
-            
         }
         #if os(macOS)
         .commands {
             SectionEditCommands()
         }
         #endif
-  
     }
 }
 
 #if os(macOS)
-let undoManager = NSApp.keyWindow?.undoManager
-
 /// A `Commands` block that injects into the Edit menu right after Paste/Cut/Copy.
 struct SectionEditCommands: Commands {
     // 1) Grab the document model from FocusedValues:
     @FocusedValue(\.kishoDocumentModel) private var documentModel
     // 2) Grab the selected section ID binding (in order to enable/disable):
     @FocusedBinding(\.selectedSectionID) private var selectedSectionID
-    
+
     @FocusedBinding(\.showDeleteAlert) private var showDelete
-    
+
+    /// The undo manager of the document window the user is working in, looked
+    /// up when a command runs (never cached: a cached one would belong to
+    /// whichever window happened to be key first, or be nil at launch).
+    private var activeUndoManager: UndoManager? {
+        NSApp.keyWindow?.undoManager
+    }
+
     var body: some Commands {
         CommandGroup(after: .pasteboard) {
-            
-            Button("Next") {
+
+            Button("Next Section") {
                 documentModel?.selectNext()
             }
-            .keyboardShortcut(.downArrow, modifiers: [.command])
+            .keyboardShortcut(.downArrow, modifiers: [.command, .control])
+            .disabled(documentModel == nil)
 
-            Button("Previous") {
+            Button("Previous Section") {
                 documentModel?.selectPrevious()
             }
-            .keyboardShortcut(.upArrow, modifiers: [.command])
-            
-            Button("Level down") {
+            .keyboardShortcut(.upArrow, modifiers: [.command, .control])
+            .disabled(documentModel == nil)
+
+            Button("Level Down") {
                 documentModel?.selectDown()
             }
-            .keyboardShortcut(.rightArrow, modifiers: [.command])
-            
-            Button("Level up") {
+            .keyboardShortcut(.rightArrow, modifiers: [.command, .control])
+            .disabled(documentModel == nil)
+
+            Button("Level Up") {
                 documentModel?.selectUp()
             }
-            .keyboardShortcut(.leftArrow, modifiers: [.command])
-            
-            // Add Sibling Section  ⌘.
-            Button("Add Sibling Section") {
-                guard let man = undoManager else { fatalError()}
-                documentModel?.addSiblingSection(using: undoManager)
-            }
-           // .keyboardShortcut("=", modifiers: [.command])
-           // .disabled(selectedSectionID == nil)
-            
-            // Add Child Section  ⇧⌘.
-            Button("Add Child Section") {
-                guard let man = undoManager else { fatalError()}
+            .keyboardShortcut(.leftArrow, modifiers: [.command, .control])
+            .disabled(documentModel == nil)
 
-                documentModel?.addChildSection(using: undoManager)
-            }
-           // .keyboardShortcut("+", modifiers: [.command, .shift])
-           // .disabled(selectedSectionID == nil)
-            
             Divider()
-            
-            // Delete Section  ⌘⌫
-            Button("Delete Section") {
-                showDelete?.toggle()
+
+            // Toolbar buttons carry the ⌘= / ⇧⌘= shortcuts.
+            Button("Add Sibling Section") {
+                documentModel?.addSiblingSection(using: activeUndoManager)
             }
-            .keyboardShortcut(.delete, modifiers: .command)
-          //  .disabled(selectedSectionID == nil)
+            .disabled(documentModel == nil)
+
+            Button("Add Child Section") {
+                documentModel?.addChildSection(using: activeUndoManager)
+            }
+            .disabled(selectedSectionID == nil)
+
+            Button("Split Paragraphs into Sections") {
+                documentModel?.makeChildren(undoManager: activeUndoManager)
+            }
+            .disabled(selectedSectionID == nil)
+
+            Button("Gather Sub-sections") {
+                documentModel?.gather(undoManager: activeUndoManager)
+            }
+            .disabled(selectedSectionID == nil)
+
+            Divider()
+
+            // ⇧⌘⌫ — plain ⌘⌫ is "delete to beginning of line" in the text editor.
+            Button("Delete Section…") {
+                showDelete = true
+            }
+            .keyboardShortcut(.delete, modifiers: [.command, .shift])
+            .disabled(selectedSectionID == nil)
         }
     }
 }
 #endif
-

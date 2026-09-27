@@ -9,28 +9,120 @@ import RichTextEditor
 #if os(macOS)
 import AppKit
 
-/// Locates the composite editor's NSTextView within its window and scrolls a
-/// section's heading to the top when requested.
+/// Locates the composite editor's NSTextView within its window, scrolls a
+/// section's heading into view when requested, and reports which section the
+/// caret is in when the user moves it.
 final class EditorScrollProxy: ObservableObject {
     weak var anchorView: NSView?
+
+    /// Set just before the proxy changes the document selection because the
+    /// caret moved, so the view's selection handler knows not to move the
+    /// caret back.
+    var isSyncingFromCaret = false
+
+    /// Selection changes before this instant are treated as programmatic
+    /// (the text view was just reset by a rebuild) and not synced.
+    var suppressSyncUntil: Date = .distantPast
+
+    /// Called on the main thread with the ID of the section the caret moved
+    /// into (user-driven moves only).
+    var onCaretSectionChange: ((UUID) -> Void)?
+
+    private var selectionObserver: NSObjectProtocol?
+
+    init() {
+        selectionObserver = NotificationCenter.default.addObserver(
+            forName: NSTextView.didChangeSelectionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.handleSelectionChange(notification)
+        }
+    }
+
+    deinit {
+        if let selectionObserver {
+            NotificationCenter.default.removeObserver(selectionObserver)
+        }
+    }
 
     func currentAttributedString() -> NSAttributedString? {
         locateTextView()?.attributedString()
     }
 
+    /// Places the caret at the end of the section's own content and keeps its
+    /// heading in view.
     func focus(sectionID id: UUID, in composite: NSAttributedString) {
         guard let textView = locateTextView() else { return }
 
-        // Place the caret at the end of the selected section's own content.
         if let caret = KishoSection.compositeCaretIndex(forSectionID: id, in: composite) {
             let clamped = min(max(0, caret), textView.string.utf16.count)
             textView.window?.makeFirstResponder(textView)
             textView.setSelectedRange(NSRange(location: clamped, length: 0))
         }
 
-        // Keep the section's heading in view (after the caret move so it wins).
         scroll(toSectionID: id, in: composite, textView: textView)
     }
+
+    /// Selects the section's heading text so that typing renames it.
+    func selectHeading(sectionID id: UUID, in composite: NSAttributedString) {
+        guard let textView = locateTextView(),
+              let range = KishoSection.compositeRange(forSectionID: id, in: composite) else {
+            focus(sectionID: id, in: composite)
+            return
+        }
+        // The heading run ends with its paragraph break; don't select that.
+        var headingRange = range
+        let ns = textView.string as NSString
+        while headingRange.length > 0,
+              NSMaxRange(headingRange) <= ns.length,
+              ["\n", "\r"].contains(ns.substring(with: NSRange(location: NSMaxRange(headingRange) - 1, length: 1))) {
+            headingRange.length -= 1
+        }
+        guard NSMaxRange(headingRange) <= ns.length else { return }
+        textView.window?.makeFirstResponder(textView)
+        textView.setSelectedRange(headingRange)
+        scroll(toSectionID: id, in: composite, textView: textView)
+    }
+
+    // MARK: - Caret → section
+
+    private func handleSelectionChange(_ notification: Notification) {
+        guard let textView = notification.object as? NSTextView,
+              !textView.isFieldEditor,
+              let window = anchorView?.window,
+              textView.window === window,
+              Date() >= suppressSyncUntil,
+              isUserDrivenSelectionChange(in: textView),
+              let storage = textView.textStorage,
+              storage.length > 0 else { return }
+
+        let location = textView.selectedRange().location
+        // Look at the character under the caret, or just before it at the end.
+        let probe = min(max(0, location), storage.length - 1)
+        guard let idString = storage.attribute(.kishoSectionID, at: probe, effectiveRange: nil) as? String,
+              let id = UUID(uuidString: idString) else { return }
+        onCaretSectionChange?(id)
+    }
+
+    /// Only mouse clicks/drags inside the text view and key presses while it
+    /// is first responder count as the user moving the caret. Programmatic
+    /// resets (rebuilds, focus) must not change the document selection.
+    private func isUserDrivenSelectionChange(in textView: NSTextView) -> Bool {
+        guard let event = NSApp.currentEvent else { return false }
+        switch event.type {
+        case .leftMouseDown, .leftMouseUp, .leftMouseDragged:
+            guard event.window === textView.window else { return false }
+            let point = textView.convert(event.locationInWindow, from: nil)
+            return textView.bounds.contains(point)
+        case .keyDown:
+            return textView.window?.firstResponder === textView
+        default:
+            return false
+        }
+    }
+
+    // MARK: - Scrolling
 
     private func scroll(toSectionID id: UUID, in composite: NSAttributedString, textView: NSTextView) {
         guard let range = KishoSection.compositeRange(forSectionID: id, in: composite) else { return }
@@ -61,13 +153,15 @@ final class EditorScrollProxy: ObservableObject {
 
     private func locateTextView() -> NSTextView? {
         guard let root = anchorView?.window?.contentView else { return nil }
-        return Self.firstTextView(in: root)
+        return Self.firstEditorTextView(in: root)
     }
 
-    private static func firstTextView(in view: NSView) -> NSTextView? {
-        if let textView = view as? NSTextView { return textView }
+    /// The editor's own text view — never a field editor, which is what an
+    /// active NSTextField (e.g. the tag input) temporarily installs.
+    private static func firstEditorTextView(in view: NSView) -> NSTextView? {
+        if let textView = view as? NSTextView, !textView.isFieldEditor { return textView }
         for subview in view.subviews {
-            if let found = firstTextView(in: subview) { return found }
+            if let found = firstEditorTextView(in: subview) { return found }
         }
         return nil
     }
@@ -129,10 +223,11 @@ struct KishoDocumentEditorView: View {
                 TagEditorView(
                     tags: Binding(
                         get: { selected.tags },
-                        set: { selected.tags = $0 }
+                        set: { document.setTags($0, for: selected, using: undoManager) }
                     ),
                     allAvailableTags: document.allTags
                 )
+                .id(selected.id)
             }
         }
         .padding()
@@ -141,14 +236,38 @@ struct KishoDocumentEditorView: View {
             document.beforeStructureEdit = { [weak editor, weak scrollProxy] in
                 editor?.flushLiveEdits(from: scrollProxy?.currentAttributedString())
             }
+            editor.onRebuild = { [weak scrollProxy] in
+                scrollProxy?.suppressSyncUntil = Date().addingTimeInterval(0.4)
+            }
+            scrollProxy.onCaretSectionChange = { [weak document, weak scrollProxy] id in
+                guard let document, document.selectedSectionID != id,
+                      document.section(withID: id) != nil else { return }
+                scrollProxy?.isSyncingFromCaret = true
+                document.selectedSectionID = id
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 isRichTextFocused = true
             }
         }
+        .onChange(of: undoManager) { newValue in
+            editor.undoManager = newValue
+        }
         .onChange(of: document.selectedSectionID) { newID in
             guard let newID else { return }
+            // The caret is already there; don't move it back.
+            if scrollProxy.isSyncingFromCaret {
+                scrollProxy.isSyncingFromCaret = false
+                return
+            }
+            let wantsTitleEdit = document.pendingTitleEditID == newID
+            document.pendingTitleEditID = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                scrollProxy.focus(sectionID: newID, in: editor.compositeContent.attributedString)
+                let composite = editor.compositeContent.attributedString
+                if wantsTitleEdit {
+                    scrollProxy.selectHeading(sectionID: newID, in: composite)
+                } else {
+                    scrollProxy.focus(sectionID: newID, in: composite)
+                }
             }
         }
     }

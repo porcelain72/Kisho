@@ -22,6 +22,11 @@ final class DocumentCompositeEditorModel: ObservableObject {
 
     private var ignoreDistributeUntil: Date?
 
+    /// Called synchronously whenever the composite is rebuilt from the model
+    /// (which resets the text view), so the view can ignore the resulting
+    /// selection change.
+    var onRebuild: (() -> Void)?
+
     init(document: KishoDocumentModel) {
         self.document = document
         self.compositeContent = RichTextModel()
@@ -40,6 +45,7 @@ final class DocumentCompositeEditorModel: ObservableObject {
             ignoreDistributeUntil = Date().addingTimeInterval(hold)
         }
         observeStructureChanges()
+        onRebuild?()
     }
 
     /// Copies the latest editor text into each section so Split/Gather see it.
@@ -79,17 +85,29 @@ final class DocumentCompositeEditorModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    /// Rebuild the composite when the document structure changes from elsewhere
-    /// (Split, Gather, add/remove section, etc.) — but not from our own edits.
+    /// Rebuild the composite when the document *structure* changes from
+    /// elsewhere (add/remove/move, undo, typography) — but not from our own
+    /// edits, and not for selection or tag changes, which don't affect the
+    /// text. Every rebuild resets the text view, so this is kept narrow.
     private func observeStructureChanges() {
         structureCancellables.removeAll()
 
-        document.objectWillChange
+        document.$sections
+            .dropFirst()
             .sink { [weak self] _ in self?.scheduleRebuildIfNeeded() }
             .store(in: &structureCancellables)
 
         for section in KishoSection.allSections(in: document.sections) {
-            section.objectWillChange
+            section.$children
+                .dropFirst()
+                .sink { [weak self] _ in self?.scheduleRebuildIfNeeded() }
+                .store(in: &structureCancellables)
+            section.$title
+                .dropFirst()
+                .sink { [weak self] _ in self?.scheduleRebuildIfNeeded() }
+                .store(in: &structureCancellables)
+            section.$inspectorVersion
+                .dropFirst()
                 .sink { [weak self] _ in self?.scheduleRebuildIfNeeded() }
                 .store(in: &structureCancellables)
         }
@@ -104,18 +122,26 @@ final class DocumentCompositeEditorModel: ObservableObject {
     }
 
     private func distribute(_ composite: NSAttributedString) {
-        let snapshot = KishoSection.documentSnapshot(of: document.sections)
+        let before = KishoSection.documentSnapshot(of: document.sections)
 
         isDistributing = true
         KishoSection.applyDocumentComposite(composite, to: document.sections)
         isDistributing = false
 
-        undoManager?.registerUndo(withTarget: self) { target in
+        let after = KishoSection.documentSnapshot(of: document.sections)
+        registerTextUndo(undoManager, restore: before, reapply: after)
+    }
+
+    /// Undo restores `restore`; undoing that restores `reapply` (redo), and so on.
+    private func registerTextUndo(_ undoManager: UndoManager?, restore: SubtreeSnapshot, reapply: SubtreeSnapshot) {
+        guard let undoManager else { return }
+        undoManager.registerUndo(withTarget: self) { [weak undoManager] target in
             target.isDistributing = true
-            KishoSection.applyDocumentSnapshot(snapshot, to: target.document.sections)
+            KishoSection.applyDocumentSnapshot(restore, to: target.document.sections)
             target.isDistributing = false
-            target.rebuild()
+            target.rebuild(ignoringEditsFor: 0.25)
+            target.registerTextUndo(undoManager, restore: reapply, reapply: restore)
         }
-        undoManager?.setActionName("Edit Text")
+        undoManager.setActionName("Edit Text")
     }
 }
