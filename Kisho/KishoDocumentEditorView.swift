@@ -98,10 +98,14 @@ final class EditorScrollProxy: ObservableObject {
               storage.length > 0 else { return }
 
         let location = textView.selectedRange().location
-        // Look at the character under the caret, or just before it at the end.
+        // Look at the character under the caret; at the end of a body (just
+        // before an untagged section break) fall back to the one before it.
         let probe = min(max(0, location), storage.length - 1)
-        guard let idString = storage.attribute(.kishoSectionID, at: probe, effectiveRange: nil) as? String,
-              let id = UUID(uuidString: idString) else { return }
+        var idString = storage.attribute(.kishoSectionID, at: probe, effectiveRange: nil) as? String
+        if idString == nil, probe > 0 {
+            idString = storage.attribute(.kishoSectionID, at: probe - 1, effectiveRange: nil) as? String
+        }
+        guard let idString, let id = UUID(uuidString: idString) else { return }
         onCaretSectionChange?(id)
     }
 
@@ -182,6 +186,24 @@ private struct WindowAnchor: NSViewRepresentable {
     }
 }
 
+/// Tag editor for one section. Observes the section itself so removals and
+/// undo/redo of tag edits refresh the pills.
+private struct SectionTagsEditor: View {
+    @EnvironmentObject var document: KishoDocumentModel
+    @Environment(\.undoManager) private var undoManager
+    @ObservedObject var section: KishoSection
+
+    var body: some View {
+        TagEditorView(
+            tags: Binding(
+                get: { section.tags },
+                set: { document.setTags($0, for: section, using: undoManager) }
+            ),
+            allAvailableTags: document.allTags
+        )
+    }
+}
+
 /// Shows the entire document — every top-level section and its descendants —
 /// as one editable rich-text composite with section titles as inline headings.
 struct KishoDocumentEditorView: View {
@@ -220,14 +242,8 @@ struct KishoDocumentEditorView: View {
             .background(WindowAnchor(proxy: scrollProxy))
 
             if let selected = document.selectedSection {
-                TagEditorView(
-                    tags: Binding(
-                        get: { selected.tags },
-                        set: { document.setTags($0, for: selected, using: undoManager) }
-                    ),
-                    allAvailableTags: document.allTags
-                )
-                .id(selected.id)
+                SectionTagsEditor(section: selected)
+                    .id(selected.id)
             }
         }
         .padding()

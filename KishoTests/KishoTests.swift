@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import AppKit
 import RichTextEditor
 @testable import Kisho
 
@@ -673,7 +674,19 @@ final class KishoTests: XCTestCase {
         document.afterStructureEdit = { after += 1 }
 
         document.move(sectionID: a1.id, to: .into(b.id))
+        XCTAssertEqual(before, 1)
+        XCTAssertEqual(after, 1)
 
+        before = 0; after = 0
+        b.content.attributedString = NSAttributedString(string: "P1\nP2")
+        document.selectedSectionID = b.id
+        document.makeChildren()
+        XCTAssertEqual(before, 1, "split must flush the editor exactly once")
+        XCTAssertEqual(after, 1)
+
+        before = 0; after = 0
+        document.selectedSectionID = b.id
+        document.gather()
         XCTAssertEqual(before, 1)
         XCTAssertEqual(after, 1)
     }

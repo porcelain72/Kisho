@@ -86,8 +86,10 @@ struct SectionRow: View {
     }
 
     @ViewBuilder private func showButton() -> some View {
-        Button("", systemImage: showsSubSections ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill") {
+        Button {
             showsSubSections.toggle()
+        } label: {
+            Image(systemName: showsSubSections ? "arrowtriangle.down.fill" : "arrowtriangle.right.fill")
         }
         .buttonStyle(.plain)
         .opacity(0.4)

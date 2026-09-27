@@ -417,59 +417,60 @@ final class KishoDocumentModel: ObservableObject, Codable {
     /// section (inserted before any existing children, since the paragraphs
     /// precede them in reading order) and empties the body.
     func makeChildren(undoManager: UndoManager? = nil) {
-        // Flush live typing first so the split sees it.
-        beforeStructureEdit?()
+        // withStructureEdit flushes live typing first so the split sees it;
+        // the nested perform() then fires no further hooks.
+        withStructureEdit {
+            guard let section = selectedSection else { return }
+            let newSections = section.asSections(fromComposite: liveCompositeProvider?())
+            guard !newSections.isEmpty else { return }
 
-        guard let section = selectedSection else { return }
-        let newSections = section.asSections(fromComposite: liveCompositeProvider?())
-        guard !newSections.isEmpty else { return }
+            let originalTitle = section.title
+            let originalContent = NSAttributedString(attributedString: section.content.attributedString)
+            let originalChildren = section.children
+            let previousSelection = selectedSectionID
 
-        let originalTitle = section.title
-        let originalContent = NSAttributedString(attributedString: section.content.attributedString)
-        let originalChildren = section.children
-        let previousSelection = selectedSectionID
+            let newTitle = section.titleFirstLine
+            let newChildren = newSections + originalChildren
 
-        let newTitle = section.titleFirstLine
-        let newChildren = newSections + originalChildren
-
-        perform("Split Paragraphs", using: undoManager, forward: { target in
-            section.title = newTitle
-            section.content.attributedString = NSAttributedString(string: "")
-            section.children = newChildren
-            section.modifiedAt = Date()
-            target.selectedSectionID = newSections.first?.id
-        }, inverse: { target in
-            section.title = originalTitle
-            section.content.attributedString = originalContent
-            section.children = originalChildren
-            section.modifiedAt = Date()
-            target.selectedSectionID = previousSelection
-        })
+            perform("Split Paragraphs", using: undoManager, forward: { target in
+                section.title = newTitle
+                section.content.attributedString = NSAttributedString(string: "")
+                section.children = newChildren
+                section.modifiedAt = Date()
+                target.selectedSectionID = newSections.first?.id
+            }, inverse: { target in
+                section.title = originalTitle
+                section.content.attributedString = originalContent
+                section.children = originalChildren
+                section.modifiedAt = Date()
+                target.selectedSectionID = previousSelection
+            })
+        }
     }
 
     /// Merges the bodies of all descendants (in reading order) into the
     /// selected section's body and removes them.
     func gather(undoManager: UndoManager? = nil) {
-        beforeStructureEdit?()
+        withStructureEdit {
+            guard let section = selectedSection, !section.children.isEmpty else { return }
 
-        guard let section = selectedSection, !section.children.isEmpty else { return }
+            let originalContent = NSAttributedString(attributedString: section.content.attributedString)
+            let originalChildren = section.children
+            let gathered = section.joinedChildrenContent().attributedString
+            let previousSelection = selectedSectionID
 
-        let originalContent = NSAttributedString(attributedString: section.content.attributedString)
-        let originalChildren = section.children
-        let gathered = section.joinedChildrenContent().attributedString
-        let previousSelection = selectedSectionID
-
-        perform("Gather Sections", using: undoManager, forward: { target in
-            section.content.attributedString = gathered
-            section.children = []
-            section.modifiedAt = Date()
-            target.selectedSectionID = section.id
-        }, inverse: { target in
-            section.content.attributedString = originalContent
-            section.children = originalChildren
-            section.modifiedAt = Date()
-            target.selectedSectionID = previousSelection
-        })
+            perform("Gather Sections", using: undoManager, forward: { target in
+                section.content.attributedString = gathered
+                section.children = []
+                section.modifiedAt = Date()
+                target.selectedSectionID = section.id
+            }, inverse: { target in
+                section.content.attributedString = originalContent
+                section.children = originalChildren
+                section.modifiedAt = Date()
+                target.selectedSectionID = previousSelection
+            })
+        }
     }
 
     // MARK: Tags
@@ -480,10 +481,11 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let cleaned = tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         guard cleaned != section.tags else { return }
         let old = section.tags
+        objectWillChange.send()
         section.tags = cleaned
         registerReversible(undoManager, name: "Edit Tags",
-                           undo: { _ in section.tags = old },
-                           redo: { _ in section.tags = cleaned })
+                           undo: { target in target.objectWillChange.send(); section.tags = old },
+                           redo: { target in target.objectWillChange.send(); section.tags = cleaned })
     }
 
     // MARK: Typography
@@ -515,22 +517,23 @@ final class KishoDocumentModel: ObservableObject, Codable {
         // instead of baking a static black into the rich text.
         let nsColor = NSColor.labelColor
 
-        let before = KishoSection.documentSnapshot(of: sections)
+        // Flush live typing first so the snapshot (and the fonts) include it.
+        withStructureEdit {
+            let before = KishoSection.documentSnapshot(of: sections)
 
-        for section in sections {
-            section.applyTypographyToSelfAndDescendants(font: font, color: nsColor)
+            for section in sections {
+                section.applyTypographyToSelfAndDescendants(font: font, color: nsColor)
+            }
+
+            let after = KishoSection.documentSnapshot(of: sections)
+            registerReversible(undoManager, name: "Change Typography", undo: { target in
+                target.typography = previousSettings
+                KishoSection.applyDocumentSnapshot(before, to: target.sections)
+            }, redo: { target in
+                target.typography = settings
+                KishoSection.applyDocumentSnapshot(after, to: target.sections)
+            })
         }
-
-        let after = KishoSection.documentSnapshot(of: sections)
-        registerReversible(undoManager, name: "Change Typography", undo: { target in
-            target.typography = previousSettings
-            KishoSection.applyDocumentSnapshot(before, to: target.sections)
-            target.sections.forEach { $0.inspectorVersion = UUID() }
-        }, redo: { target in
-            target.typography = settings
-            KishoSection.applyDocumentSnapshot(after, to: target.sections)
-            target.sections.forEach { $0.inspectorVersion = UUID() }
-        })
     }
 }
 

@@ -83,14 +83,20 @@ extension KishoSection {
     /// Character range of a section's heading within a composite, used for scrolling.
     static func compositeRange(forSectionID id: UUID, in composite: NSAttributedString) -> NSRange? {
         let target = id.uuidString
-        var found: NSRange?
-        composite.enumerateAttribute(.kishoSectionID, in: NSRange(location: 0, length: composite.length)) { value, range, stop in
-            if let value = value as? String, value == target {
-                found = range
-                stop.pointee = true
+        var index = 0
+        while index < composite.length {
+            var effectiveRange = NSRange(location: 0, length: 0)
+            let attrs = composite.attributes(at: index, effectiveRange: &effectiveRange)
+            // Title run only: enumerating the ID attribute alone would merge the
+            // heading with the body run that follows it (same ID value).
+            if let value = attrs[.kishoSectionID] as? String, value == target,
+               let role = attrs[.kishoSectionRole] as? String,
+               role == KishoSectionRole.title.rawValue {
+                return effectiveRange
             }
+            index = effectiveRange.location + effectiveRange.length
         }
-        return found
+        return nil
     }
 
     /// Caret position at the end of a section's own content (after its body, before

@@ -18,6 +18,9 @@ struct KishoDocumentView: View {
 
     // Track whether to show the export‐choice sheet:
     @State private var showingExportOptions = false
+    /// Bumped on every undo-manager checkpoint so the Undo/Redo toolbar
+    /// buttons re-evaluate `canUndo`/`canRedo`.
+    @State private var undoCheckpoint = 0
     
 
     
@@ -84,7 +87,7 @@ struct KishoDocumentView: View {
                 } label: {
                     Label("Undo", systemImage: "arrow.uturn.left")
                 }
-                .disabled(!(undoManager?.canUndo ?? false))
+                .disabled(!(undoManager?.canUndo ?? false) || undoCheckpoint < 0)
                 .help("Undo")
                  
                 Button {
@@ -92,7 +95,7 @@ struct KishoDocumentView: View {
                 } label: {
                     Label("Redo", systemImage: "arrow.uturn.right")
                 }
-                .disabled(!(undoManager?.canRedo ?? false))
+                .disabled(!(undoManager?.canRedo ?? false) || undoCheckpoint < 0)
                 .help("Redo")
            
                 Button {
@@ -119,6 +122,11 @@ struct KishoDocumentView: View {
                 }
                 .disabled(document.selectedSection == nil)
                 .help("Delete the selected section and its sub-sections (⇧⌘⌫)")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)) { note in
+            if let manager = undoManager, (note.object as AnyObject?) === manager {
+                undoCheckpoint &+= 1
             }
         }
         .confirmationDialog(

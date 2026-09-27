@@ -57,7 +57,13 @@ struct ToolbarTypographyControlsView: View {
             .keyboardShortcut("i", modifiers: .command)
         }
         .onAppear {
-            fontFamilies = NSFontManager.shared.availableFontFamilies.sorted()
+            var families = NSFontManager.shared.availableFontFamilies.sorted()
+            // The system font's family name (".AppleSystemUIFont") is not in the
+            // list; keep the current choice selectable rather than showing blank.
+            if !families.contains(document.typography.fontFamily) {
+                families.insert(document.typography.fontFamily, at: 0)
+            }
+            fontFamilies = families
         }
     }
 
