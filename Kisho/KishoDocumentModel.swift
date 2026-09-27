@@ -21,6 +21,14 @@ final class KishoDocumentModel: ObservableObject, Codable {
     
 
 
+    /// Latest editor composite, used so Split/Gather see typing that has not
+    /// yet been distributed back into `section.content`.
+    var liveCompositeProvider: (() -> NSAttributedString)?
+    /// Flush live editor text into the section tree before a structural edit.
+    var beforeStructureEdit: (() -> Void)?
+    /// Rebuild the editor after Split/Gather and ignore stale text-view writebacks.
+    var afterStructureEdit: (() -> Void)?
+
     enum CodingKeys: String, CodingKey { case sections, typography, selectedSectionID }
     
     var selectedSection : KishoSection? {
@@ -57,31 +65,37 @@ final class KishoDocumentModel: ObservableObject, Codable {
     }
     
     func makeChildren(undoManager: UndoManager? = nil) {
-        
+        beforeStructureEdit?()
+
         guard let section = self.selectedSection else { return }
-        // Split section content
-        let newSections = section.asSections()
+        let newSections = section.asSections(fromComposite: liveCompositeProvider?())
+        guard !newSections.isEmpty else { return }
+
         let sectionID = section.id
-        // Move it into section's children
-        // IF children !empty create intermediate empty section else provide section as parent
-        newSections.forEach { sect in
-            sect.parent = section
-            section.children.append(sect)
-        }
-        // Clear sectino contents
+        let originalTitle = section.title
+        let originalContent = section.content.copy()
+        let originalChildren = section.children
+
+        section.title = section.titleFirstLine
+        newSections.forEach { $0.parent = section }
+        section.children.append(contentsOf: newSections)
         section.content.flushContent()
         self.selectedSectionID = newSections.first?.id
         
         undoManager?.registerUndo(withTarget: self, handler: { target in
             if let section = target.section(withID: sectionID, inSections: target.sections) {
-                let newContent = section.joinedChildrenContent()
-                section.content = newContent
-                section.children = []
+                section.title = originalTitle
+                section.content = originalContent
+                section.children = originalChildren
+                target.selectedSectionID = sectionID
             }
         })
+        undoManager?.setActionName("Split Paragraphs")
+        afterStructureEdit?()
     }
     
     func gather(undoManager: UndoManager? = nil) {
+        beforeStructureEdit?()
         guard let section = self.selectedSection  else { return }
 
         let currentContent = section.content
@@ -97,9 +111,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 section.children = currentChildren
             
         })
-        
-        
-        
+        afterStructureEdit?()
     }
     
     /// Applies the given typography to all sections and their descendants,
@@ -117,7 +129,9 @@ final class KishoDocumentModel: ObservableObject, Codable {
             ?? NSFont.systemFont(ofSize: CGFloat(settings.fontSize))
 
        // let nsColor = NSColor(settings.color)
-        let nsColor = NSColor.black
+        // Use the appearance-adaptive label color so text follows light/dark mode
+        // instead of baking a static black into the rich text.
+        let nsColor = NSColor.labelColor
 
         // Apply to all sections
         for section in sections {
@@ -401,7 +415,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         
                 // 3) Build an initial attributed string for the new section.
                 //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
-                let initialText = "new"  // or "\n" if you want an empty line
+                let initialText = ""  // or "\n" if you want an empty line
                 let newAttrString = NSAttributedString(string: initialText)
                 let newRichText = RichTextModel()
                 newRichText.attributedString = newAttrString
@@ -581,7 +595,7 @@ extension KishoDocumentModel {
 
                     // 3) Build an initial attributed string for the new section.
                     //    It can be an empty paragraph, or a single newline so the user sees a cursor line:
-                    let initialText = "New"  // or "\n" if you want an empty line
+                    let initialText = ""  // or "\n" if you want an empty line
                     let newAttrString = NSAttributedString(string: initialText)
                     let newRichText = RichTextModel()
                     newRichText.attributedString = newAttrString

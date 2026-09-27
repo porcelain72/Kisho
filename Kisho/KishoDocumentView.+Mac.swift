@@ -51,23 +51,11 @@ struct KishoDocumentView: View {
             .frame(minWidth: 220)
     
         } detail: {
-            if let sectionObject = document.selectedSection {
-                KishoSectionEditorView(section: sectionObject, focusTitle: $focusTitle)
-                  //  .frame(minWidth: 600)
-                    .environmentObject(self.document)
-                    .focusedValue(\.kishoDocumentModel, document)
-                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                   .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-
-            }else {
-                Text("Select a section")
-                    .foregroundStyle(.secondary)
-                //    .focusedValue(\.kishoDocumentModel, document)
-                 //   .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                //    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-
-            }
-            
+            KishoDocumentEditorView(document: document)
+                .environmentObject(self.document)
+                .focusedValue(\.kishoDocumentModel, document)
+                .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                .focusedValue(\.showDeleteAlert , $showDeleteAlert)
         }
         .toolbar {
             ToolbarItemGroup {

@@ -11,14 +11,19 @@ import RichTextEditor
 
 struct KishoSectionEditorView: View {
     @EnvironmentObject var document : KishoDocumentModel
+    @Environment(\.undoManager) private var undoManager
 
     @ObservedObject var section: KishoSection
- //   @Binding var focusTitle: Bool
 
-    // ← FocusState for the title field
-     @FocusState private var isTitleFocused: Bool
-     // ← FocusState for the rich‐text editor
+    @StateObject private var subtreeEditor: SectionSubtreeEditorModel
+
+    @FocusState private var isTitleFocused: Bool
     @FocusState private var isRichTextFocused: Bool
+
+    init(section: KishoSection) {
+        self.section = section
+        self._subtreeEditor = StateObject(wrappedValue: SectionSubtreeEditorModel(section: section))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20.0) {
@@ -39,7 +44,10 @@ struct KishoSectionEditorView: View {
                     .focused($isRichTextFocused)
                     */
                     
-                    RichTextEditor(attributedText: $section.content.attributedString, inspector: $section.inspectorVersion)
+                    RichTextEditor(
+                        attributedText: $subtreeEditor.compositeContent.attributedString,
+                        inspector: $section.inspectorVersion
+                    )
                      
                     .frame(minHeight: 200)
                 //    .focused($isRichTextFocused)
@@ -85,6 +93,13 @@ struct KishoSectionEditorView: View {
             }
         }
          */
+        .onAppear {
+            subtreeEditor.undoManager = undoManager
+        }
+        .onChange(of: section.id) { _ in
+            subtreeEditor.updateRoot(section)
+            subtreeEditor.undoManager = undoManager
+        }
         .id(section.id)
 
         

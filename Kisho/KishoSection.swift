@@ -96,19 +96,21 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     }
     
     
-    func asSections() -> [KishoSection] {
-        
-        var secs : [KishoSection]  = []
-        
-        let paras = self.content.paragraphs()
-        
-        paras.forEach { paragraph in
-            let newSection = KishoSection(title: paragraph.defaultTitle, content: paragraph)
-            secs.append(newSection)
-        }
-        
-        return secs
-        
+    /// First line of `title` (section headings are a single line). Extra lines are
+    /// treated as body text that was typed into the heading in the composite editor.
+    var titleFirstLine: String {
+        title.components(separatedBy: .newlines)
+            .first?
+            .trimmingCharacters(in: .whitespaces) ?? title
+    }
+
+    func asSections(fromComposite composite: NSAttributedString? = nil) -> [KishoSection] {
+        KishoSection.paragraphModelsForSplit(section: self, composite: composite)
+            .map { paragraph in
+                let title = paragraph.attributedString.string
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                return KishoSection(title: title)
+            }
     }
  
     func copyDeep(parent: KishoSection? = nil) -> KishoSection {
