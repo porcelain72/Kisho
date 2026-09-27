@@ -38,8 +38,16 @@ struct KishoCardListEditorView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 25.0))
                 .onChange(of: document.focusRequest) { request in
                     guard let request else { return }
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        proxy.scrollTo(request.sectionID, anchor: .top)
+                    // A block created by this same edit is not laid out yet;
+                    // scroll once the card exists, and again once it has its
+                    // measured height.
+                    for delay in [0.05, 0.25] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            guard document.focusRequest == request else { return }
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                proxy.scrollTo(request.sectionID, anchor: .center)
+                            }
+                        }
                     }
                 }
                 .onAppear {
