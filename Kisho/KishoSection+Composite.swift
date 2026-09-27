@@ -399,10 +399,13 @@ extension KishoSection {
         para.paragraphSpacing = 4
         para.minimumLineHeight = 10
         para.maximumLineHeight = 12
+        // Line height is pinned by the paragraph style, so a normal-size font
+        // keeps the gap the same but stops text accidentally typed into the gap
+        // from appearing microscopic.
         #if os(macOS)
-        let font = NSFont.systemFont(ofSize: 6)
+        let font = NSFont.systemFont(ofSize: 12)
         #else
-        let font = UIFont.systemFont(ofSize: 6)
+        let font = UIFont.systemFont(ofSize: 12)
         #endif
         // No foreground colour: paragraph breaks draw nothing, and leaving the
         // attribute out keeps the composite equal to what the text view shows
@@ -495,65 +498,22 @@ extension KishoSection {
         return para
     }
 
-    /// Nested cards are inset with a gutter column so the wash moves with the
-    /// card. A 100% content-width NSTextBlock ignores left margin and only
-    /// indents the text, which is why margin-on-NSTextBlock was not enough.
+    /// One plain NSTextBlock per paragraph: a left margin insets nested cards.
+    /// (An earlier version nested two cells of the same NSTextTable inside each
+    /// other to fake a gutter; TextKit cannot lay that out and stopped drawing
+    /// at the first nested section.) No explicit width is set, so the block
+    /// fills the container minus its margins.
     fileprivate static func sectionTextBlocks(relativeDepth: Int, isTitle: Bool) -> [NSTextBlock] {
-        let indent = CGFloat(relativeDepth) * sectionIndentStep
-        let table = NSTextTable()
-        table.collapsesBorders = true
-        table.hidesEmptyCells = false
-
-        if indent > 0 {
-            table.numberOfColumns = 2
-            let gutter = NSTextTableBlock(
-                table: table,
-                startingRow: 0,
-                rowSpan: 1,
-                startingColumn: 0,
-                columnSpan: 1
-            )
-            gutter.setValue(indent, type: .absoluteValueType, for: .width)
-            gutter.setValue(indent, type: .absoluteValueType, for: .minimumWidth)
-            gutter.setValue(indent, type: .absoluteValueType, for: .maximumWidth)
-            #if os(macOS)
-            gutter.backgroundColor = .clear
-            #else
-            gutter.backgroundColor = .clear
-            #endif
-
-            let card = sectionCardBlock(
-                table: table,
-                column: 1,
-                relativeDepth: relativeDepth,
-                isTitle: isTitle
-            )
-            return [gutter, card]
-        }
-
-        table.numberOfColumns = 1
-        return [sectionCardBlock(
-            table: table,
-            column: 0,
-            relativeDepth: relativeDepth,
-            isTitle: isTitle
-        )]
+        [sectionCardBlock(relativeDepth: relativeDepth, isTitle: isTitle)]
     }
 
-    fileprivate static func sectionCardBlock(
-        table: NSTextTable,
-        column: Int,
-        relativeDepth: Int,
-        isTitle: Bool
-    ) -> NSTextTableBlock {
-        let card = NSTextTableBlock(
-            table: table,
-            startingRow: 0,
-            rowSpan: 1,
-            startingColumn: column,
-            columnSpan: 1
-        )
-        card.setValue(100, type: .percentageValueType, for: .width)
+    fileprivate static func sectionCardBlock(relativeDepth: Int, isTitle: Bool) -> NSTextBlock {
+        let indent = CGFloat(relativeDepth) * sectionIndentStep
+        let card = NSTextBlock()
+        card.setWidth(indent, type: .absoluteValueType, for: .margin, edge: .minX)
+        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .maxX)
+        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .minY)
+        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .maxY)
         card.setWidth(10, type: .absoluteValueType, for: .padding, edge: .minX)
         card.setWidth(10, type: .absoluteValueType, for: .padding, edge: .maxX)
         card.setWidth(isTitle ? 7 : 8, type: .absoluteValueType, for: .padding, edge: .minY)

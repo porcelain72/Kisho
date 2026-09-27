@@ -341,24 +341,18 @@ final class KishoTests: XCTestCase {
         let composite = KishoSection.documentCompositeAttributedString(sections: [root])
         let plain = composite.string as NSString
 
-        func cardGutterWidth(at location: Int) -> CGFloat {
+        func leftMargin(at location: Int) -> CGFloat {
             let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            let blocks = para?.textBlocks ?? []
-            guard blocks.count >= 2,
-                  let gutter = blocks[0] as? NSTextTableBlock,
-                  gutter.startingColumn == 0 else {
-                return 0
-            }
-            return gutter.value(for: .width)
+            guard let block = para?.textBlocks.first else { return -1 }
+            return block.width(for: .margin, edge: .minX)
         }
 
         let rootLoc = plain.range(of: "Root").location
         let childLoc = plain.range(of: "Child").location
         XCTAssertNotEqual(rootLoc, NSNotFound)
         XCTAssertNotEqual(childLoc, NSNotFound)
-        XCTAssertEqual(cardGutterWidth(at: rootLoc), 0)
-        XCTAssertEqual(cardGutterWidth(at: childLoc), 20)
-        XCTAssertGreaterThan(cardGutterWidth(at: childLoc), cardGutterWidth(at: rootLoc))
+        XCTAssertEqual(leftMargin(at: rootLoc), 0)
+        XCTAssertEqual(leftMargin(at: childLoc), 20)
 
         func headIndent(at location: Int) -> CGFloat {
             let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
@@ -366,6 +360,46 @@ final class KishoTests: XCTestCase {
         }
         XCTAssertEqual(headIndent(at: rootLoc), 0)
         XCTAssertEqual(headIndent(at: childLoc), 0)
+    }
+
+    /// Runs a real layout pass over a nested composite. TextKit used to stop
+    /// laying out at the first nested card, leaving everything after it
+    /// undrawn (and un-clickable), so this checks every glyph gets placed and
+    /// that later blocks sit below earlier ones.
+    func testNestedCompositeLaysOutCompletely() throws {
+        let grandchild = makeSection(title: "Gamma", body: "gamma body")
+        let child = makeSection(title: "Beta", body: "beta body", children: [grandchild])
+        let root = makeSection(title: "Root", body: "root body", children: [child])
+        let tail = makeSection(title: "Tail", body: "tail body")
+        let composite = KishoSection.documentCompositeAttributedString(sections: [root, tail])
+
+        let storage = NSTextStorage(attributedString: composite)
+        let layoutManager = NSLayoutManager()
+        storage.addLayoutManager(layoutManager)
+        let container = NSTextContainer(size: CGSize(width: 600, height: 100_000))
+        layoutManager.addTextContainer(container)
+        layoutManager.ensureLayout(for: container)
+
+        let laidOut = layoutManager.glyphRange(for: container)
+        XCTAssertEqual(NSMaxRange(laidOut), layoutManager.numberOfGlyphs, "layout stopped early")
+
+        let plain = composite.string as NSString
+        func top(of token: String) -> CGFloat {
+            let charRange = plain.range(of: token)
+            XCTAssertNotEqual(charRange.location, NSNotFound, token)
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: charRange, actualCharacterRange: nil)
+            return layoutManager.boundingRect(forGlyphRange: glyphRange, in: container).minY
+        }
+        XCTAssertLessThan(top(of: "Root"), top(of: "Beta"))
+        XCTAssertLessThan(top(of: "Beta"), top(of: "Gamma"))
+        XCTAssertLessThan(top(of: "Gamma"), top(of: "Tail"))
+
+        func left(of token: String) -> CGFloat {
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: plain.range(of: token), actualCharacterRange: nil)
+            return layoutManager.boundingRect(forGlyphRange: glyphRange, in: container).minX
+        }
+        XCTAssertLessThan(left(of: "Root"), left(of: "Beta"), "nested cards should be inset")
+        XCTAssertLessThan(left(of: "Beta"), left(of: "Gamma"))
     }
 
     func testDistributeStripsSectionChrome() throws {
