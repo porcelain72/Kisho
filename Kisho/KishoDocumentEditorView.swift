@@ -29,7 +29,6 @@ final class EditorScrollProxy: ObservableObject {
     var onCaretSectionChange: ((UUID) -> Void)?
 
     private var selectionObserver: NSObjectProtocol?
-    private var isRelocatingCaret = false
 
     init() {
         selectionObserver = NotificationCenter.default.addObserver(
@@ -57,13 +56,7 @@ final class EditorScrollProxy: ObservableObject {
         guard let textView = locateTextView() else { return }
 
         if let caret = KishoSection.compositeCaretIndex(forSectionID: id, in: composite) {
-            let length = textView.string.utf16.count
-            // Never past the closing paragraph break.
-            let limit = (textView.string as NSString).hasSuffix("\n") ? max(0, length - 1) : length
-            let clamped = min(max(0, caret), limit)
-            if let layoutManager = textView.layoutManager, let container = textView.textContainer {
-                layoutManager.ensureLayout(for: container)
-            }
+            let clamped = min(max(0, caret), textView.string.utf16.count)
             textView.window?.makeFirstResponder(textView)
             textView.setSelectedRange(NSRange(location: clamped, length: 0))
         }
@@ -99,24 +92,10 @@ final class EditorScrollProxy: ObservableObject {
               !textView.isFieldEditor,
               let window = anchorView?.window,
               textView.window === window,
+              Date() >= suppressSyncUntil,
+              isUserDrivenSelectionChange(in: textView),
               let storage = textView.textStorage,
               storage.length > 0 else { return }
-
-        // The document ends with a plain paragraph break outside any card. A
-        // caret parked after it (where resets and clicks below the last card
-        // put it) is moved to the end of the last block's body instead, so
-        // typing always lands inside a block.
-        let selection = textView.selectedRange()
-        if !isRelocatingCaret, selection.length == 0, selection.location >= storage.length,
-           (storage.string as NSString).hasSuffix("\n") {
-            isRelocatingCaret = true
-            textView.setSelectedRange(NSRange(location: storage.length - 1, length: 0))
-            isRelocatingCaret = false
-            return
-        }
-
-        guard Date() >= suppressSyncUntil,
-              isUserDrivenSelectionChange(in: textView) else { return }
 
         let location = textView.selectedRange().location
         // Look at the character under the caret; at the end of a body (just
