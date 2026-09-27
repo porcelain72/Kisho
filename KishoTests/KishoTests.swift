@@ -341,18 +341,26 @@ final class KishoTests: XCTestCase {
         let composite = KishoSection.documentCompositeAttributedString(sections: [root])
         let plain = composite.string as NSString
 
-        func leftMargin(at location: Int) -> CGFloat {
+        func gutterWidth(at location: Int) -> CGFloat {
             let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            guard let block = para?.textBlocks.first else { return -1 }
-            return block.width(for: .margin, edge: .minX)
+            let blocks = para?.textBlocks ?? []
+            guard blocks.count >= 2 else { return 0 }
+            return blocks[0].width(for: .padding, edge: .minX)
+        }
+
+        func nestedTablesAreDistinct(at location: Int) -> Bool {
+            let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
+            let tables = (para?.textBlocks ?? []).compactMap { ($0 as? NSTextTableBlock)?.table }
+            return Set(tables.map { ObjectIdentifier($0) }).count == tables.count
         }
 
         let rootLoc = plain.range(of: "Root").location
         let childLoc = plain.range(of: "Child").location
         XCTAssertNotEqual(rootLoc, NSNotFound)
         XCTAssertNotEqual(childLoc, NSNotFound)
-        XCTAssertEqual(leftMargin(at: rootLoc), 0)
-        XCTAssertEqual(leftMargin(at: childLoc), 20)
+        XCTAssertEqual(gutterWidth(at: rootLoc), 0)
+        XCTAssertEqual(gutterWidth(at: childLoc), 20)
+        XCTAssertTrue(nestedTablesAreDistinct(at: childLoc), "nested blocks must belong to different tables")
 
         func headIndent(at location: Int) -> CGFloat {
             let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle

@@ -498,22 +498,39 @@ extension KishoSection {
         return para
     }
 
-    /// One plain NSTextBlock per paragraph: a left margin insets nested cards.
-    /// (An earlier version nested two cells of the same NSTextTable inside each
-    /// other to fake a gutter; TextKit cannot lay that out and stopped drawing
-    /// at the first nested section.) No explicit width is set, so the block
-    /// fills the container minus its margins.
+    /// Top-level cards are a single 1-cell table. Nested cards sit inside an
+    /// outer 1-cell table whose left padding acts as the gutter, with the card
+    /// itself a *separate* table nested in that cell — genuinely nested tables,
+    /// which TextKit lays out. (Two cells of the same table listed as nested in
+    /// the paragraph style is not a structure TextKit can lay out, and stopped
+    /// drawing at the first nested section; a plain NSTextBlock without a
+    /// width collapses to one character per line.)
     fileprivate static func sectionTextBlocks(relativeDepth: Int, isTitle: Bool) -> [NSTextBlock] {
-        [sectionCardBlock(relativeDepth: relativeDepth, isTitle: isTitle)]
+        let indent = CGFloat(relativeDepth) * sectionIndentStep
+        let card = sectionCardBlock(relativeDepth: relativeDepth, isTitle: isTitle)
+        guard indent > 0 else { return [card] }
+
+        let outerTable = NSTextTable()
+        outerTable.numberOfColumns = 1
+        outerTable.collapsesBorders = true
+        outerTable.hidesEmptyCells = false
+        let gutter = NSTextTableBlock(table: outerTable, startingRow: 0, rowSpan: 1, startingColumn: 0, columnSpan: 1)
+        gutter.setValue(100, type: .percentageValueType, for: .width)
+        gutter.setWidth(indent, type: .absoluteValueType, for: .padding, edge: .minX)
+        gutter.setWidth(0, type: .absoluteValueType, for: .padding, edge: .maxX)
+        gutter.setWidth(0, type: .absoluteValueType, for: .padding, edge: .minY)
+        gutter.setWidth(0, type: .absoluteValueType, for: .padding, edge: .maxY)
+        gutter.backgroundColor = .clear
+        return [gutter, card]
     }
 
-    fileprivate static func sectionCardBlock(relativeDepth: Int, isTitle: Bool) -> NSTextBlock {
-        let indent = CGFloat(relativeDepth) * sectionIndentStep
-        let card = NSTextBlock()
-        card.setWidth(indent, type: .absoluteValueType, for: .margin, edge: .minX)
-        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .maxX)
-        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .minY)
-        card.setWidth(0, type: .absoluteValueType, for: .margin, edge: .maxY)
+    fileprivate static func sectionCardBlock(relativeDepth: Int, isTitle: Bool) -> NSTextTableBlock {
+        let table = NSTextTable()
+        table.numberOfColumns = 1
+        table.collapsesBorders = true
+        table.hidesEmptyCells = false
+        let card = NSTextTableBlock(table: table, startingRow: 0, rowSpan: 1, startingColumn: 0, columnSpan: 1)
+        card.setValue(100, type: .percentageValueType, for: .width)
         card.setWidth(10, type: .absoluteValueType, for: .padding, edge: .minX)
         card.setWidth(10, type: .absoluteValueType, for: .padding, edge: .maxX)
         card.setWidth(isTitle ? 7 : 8, type: .absoluteValueType, for: .padding, edge: .minY)
