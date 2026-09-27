@@ -37,6 +37,7 @@
 		A1B2C3D42F00000400KISHO01 /* SectionSubtreeEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */; };
 		A1B2C3D42F00000600KISHO01 /* DocumentCompositeEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000500KISHO01 /* DocumentCompositeEditorModel.swift */; };
 		A1B2C3D42F00000800KISHO01 /* KishoDocumentEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000700KISHO01 /* KishoDocumentEditorView.swift */; };
+		A1B2C3D42F00000A00KISHO01 /* KishoCardListEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */; platformFilters = (macos, ); };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 		A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SectionSubtreeEditorModel.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00000500KISHO01 /* DocumentCompositeEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentCompositeEditorModel.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00000700KISHO01 /* KishoDocumentEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentEditorView.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoCardListEditorView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +157,7 @@
 				98EA654D2DEF5BAF00B4AEFE /* KishoDocumentModel.swift */,
 				98B23B392DE9C0A200888A7C /* KishoSection.swift */,
 				A1B2C3D42F00000700KISHO01 /* KishoDocumentEditorView.swift */,
+				A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */,
 				A1B2C3D42F00000500KISHO01 /* DocumentCompositeEditorModel.swift */,
 				A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */,
 				A1B2C3D42F00000100KISHO01 /* KishoSection+Composite.swift */,
@@ -340,6 +343,7 @@
 				9855A7BC2E31A23B00493ECB /* TagEditorView.swift in Sources */,
 				98B23B3A2DE9C0A200888A7C /* KishoSection.swift in Sources */,
 				A1B2C3D42F00000800KISHO01 /* KishoDocumentEditorView.swift in Sources */,
+				A1B2C3D42F00000A00KISHO01 /* KishoCardListEditorView.swift in Sources */,
 				A1B2C3D42F00000600KISHO01 /* DocumentCompositeEditorModel.swift in Sources */,
 				A1B2C3D42F00000400KISHO01 /* SectionSubtreeEditorModel.swift in Sources */,
 				A1B2C3D42F00000200KISHO01 /* KishoSection+Composite.swift in Sources */,

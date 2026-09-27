@@ -44,7 +44,7 @@ struct KishoDocumentView: View {
                 .frame(minWidth: 220)
     
         } detail: {
-            KishoDocumentEditorView(document: document)
+            KishoCardListEditorView()
                 .environmentObject(self.document)
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)

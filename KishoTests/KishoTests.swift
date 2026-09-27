@@ -842,4 +842,70 @@ final class KishoTests: XCTestCase {
         }
         XCTAssertTrue(allBlack, "export must not carry the appearance-adaptive label colour")
     }
+
+    // MARK: - Card editor model support
+
+    func testSetTitleIsUndoableAndTrims() throws {
+        let (document, a, _, _, _) = makeDocument()
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+
+        undo.beginUndoGrouping()
+        document.setTitle("  Chapter One  ", for: a, using: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(a.title, "Chapter One")
+
+        undo.undo()
+        XCTAssertEqual(a.title, "A")
+        undo.redo()
+        XCTAssertEqual(a.title, "Chapter One")
+    }
+
+    func testBodyEditsCoalesceIntoOneUndoStep() throws {
+        let (document, a, _, _, _) = makeDocument()
+        let undo = UndoManager()
+        undo.groupsByEvent = false
+
+        // Simulate the editor applying three quick keystrokes.
+        let steps = ["ab", "abc", "abcd"].map { NSAttributedString(string: $0) }
+        var previous = a.content.attributedString
+        for step in steps {
+            a.content.attributedString = step
+            undo.beginUndoGrouping()
+            document.recordBodyEdit(for: a, from: previous, to: step, using: undo)
+            undo.endUndoGrouping()
+            previous = step
+        }
+        XCTAssertEqual(a.content.attributedString.string, "abcd")
+
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "a", "one undo takes back the whole burst")
+        XCTAssertFalse(undo.canUndo, "the burst registered a single undo step")
+
+        undo.redo()
+        XCTAssertEqual(a.content.attributedString.string, "abcd")
+    }
+
+    func testSidebarSelectionRequestsBodyFocusButEditorClickDoesNot() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        document.focusRequest = nil
+
+        document.select(section: a1)
+        XCTAssertEqual(document.selectedSectionID, a1.id)
+        XCTAssertEqual(document.focusRequest?.sectionID, a1.id)
+        XCTAssertEqual(document.focusRequest?.field, .body)
+
+        // The editor sets the selection directly when the caret moves.
+        document.focusRequest = nil
+        document.selectedSectionID = a.id
+        XCTAssertNil(document.focusRequest)
+    }
+
+    func testAddSectionRequestsTitleFocus() throws {
+        let (document, a, _, _, _) = makeDocument()
+        document.selectedSectionID = a.id
+        document.addSiblingSection()
+        XCTAssertEqual(document.focusRequest?.sectionID, document.selectedSectionID)
+        XCTAssertEqual(document.focusRequest?.field, .title)
+    }
 }

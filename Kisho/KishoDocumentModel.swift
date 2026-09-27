@@ -28,6 +28,17 @@ final class KishoDocumentModel: ObservableObject, Codable {
     /// `selectedSectionID` change).
     var pendingTitleEditID: UUID?
 
+    /// Asks the editor to scroll to a block and put the keyboard focus in its
+    /// title or body. Set by the sidebar, navigation and structural edits;
+    /// *not* set when the selection changes because the user clicked into a
+    /// block in the editor (their caret is already where they want it).
+    @Published var focusRequest: EditorFocusRequest?
+
+    func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field) {
+        guard let sectionID else { return }
+        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field)
+    }
+
     /// Latest editor composite, used so Split/Gather see typing that has not
     /// yet been distributed back into `section.content`.
     var liveCompositeProvider: (() -> NSAttributedString)?
@@ -144,6 +155,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     func select(section: KishoSection) {
         selectedSectionID = section.id
+        requestFocus(section.id, .body)
     }
 
     /// Next section in reading order (into children first).
@@ -156,6 +168,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             return
         }
         selectedSectionID = all[min(idx + 1, all.count - 1)].id
+        requestFocus(selectedSectionID, .body)
     }
 
     /// Previous section in reading order.
@@ -168,12 +181,14 @@ final class KishoDocumentModel: ObservableObject, Codable {
             return
         }
         selectedSectionID = all[max(idx - 1, 0)].id
+        requestFocus(selectedSectionID, .body)
     }
 
     /// First child of the selected section, or the next section if it has none.
     func selectDown() {
         if let selected = selectedSection, let first = selected.children.first {
             selectedSectionID = first.id
+            requestFocus(first.id, .body)
         } else {
             selectNext()
         }
@@ -184,6 +199,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         if let selected = selectedSection,
            let parent = parent(forSectionID: selected.id, inSections: sections) {
             selectedSectionID = parent.id
+            requestFocus(parent.id, .body)
         } else {
             selectPrevious()
         }
@@ -298,6 +314,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             target.rawInsert(newSection, into: parent, at: index)
             target.pendingTitleEditID = newSection.id
             target.selectedSectionID = newSection.id
+            target.requestFocus(newSection.id, .title)
         }, inverse: { target in
             target.rawRemove(newSection)
             target.pendingTitleEditID = nil
@@ -322,6 +339,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             target.rawRemove(section)
             if target.selectedSectionID == id || target.selectedSectionID.map({ section.contains(sectionID: $0) }) == true {
                 target.selectedSectionID = target.selectionAfterRemoving(parent: parent, index: index)
+                target.requestFocus(target.selectedSectionID, .body)
             }
         }, inverse: { target in
             target.rawInsert(section, into: parent, at: index)
@@ -395,6 +413,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: target.parent, at: target.index)
             t.selectedSectionID = dragged.id
+            t.requestFocus(dragged.id, .body)
         }, inverse: { t in
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: origin.parent, at: origin.index)
@@ -438,6 +457,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 section.children = newChildren
                 section.modifiedAt = Date()
                 target.selectedSectionID = newSections.first?.id
+                target.requestFocus(newSections.first?.id, .body)
             }, inverse: { target in
                 section.title = originalTitle
                 section.content.attributedString = originalContent
@@ -464,6 +484,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 section.children = []
                 section.modifiedAt = Date()
                 target.selectedSectionID = section.id
+                target.requestFocus(section.id, .body)
             }, inverse: { target in
                 section.content.attributedString = originalContent
                 section.children = originalChildren
@@ -471,6 +492,57 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 target.selectedSectionID = previousSelection
             })
         }
+    }
+
+    // MARK: Title / body edits (card editor)
+
+    /// Renames a section, undoably. Whitespace-only titles are cleared so the
+    /// display falls back to a title derived from the content.
+    func setTitle(_ title: String, for section: KishoSection, using undoManager: UndoManager? = nil) {
+        let cleaned = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard cleaned != section.title else { return }
+        let old = section.title
+        section.title = cleaned
+        section.modifiedAt = Date()
+        registerReversible(undoManager, name: "Rename Section",
+                           undo: { _ in section.title = old },
+                           redo: { _ in section.title = cleaned })
+    }
+
+    private var bodyEditBursts: [UUID: (start: NSAttributedString, lastEdit: Date)] = [:]
+    private static let bodyEditBurstInterval: TimeInterval = 1.0
+
+    /// Registers undo for a body edit the editor has already applied to the
+    /// model. Edits within a second of each other coalesce into one undo step,
+    /// so ⌘Z takes back a typing burst rather than a single character.
+    func recordBodyEdit(for section: KishoSection,
+                        from old: NSAttributedString,
+                        to new: NSAttributedString,
+                        using undoManager: UndoManager? = nil) {
+        section.modifiedAt = Date()
+        guard let undoManager else { return }
+        let now = Date()
+        if let burst = bodyEditBursts[section.id],
+           now.timeIntervalSince(burst.lastEdit) < Self.bodyEditBurstInterval {
+            bodyEditBursts[section.id] = (burst.start, now)
+            return
+        }
+        let start = NSAttributedString(attributedString: old)
+        bodyEditBursts[section.id] = (start, now)
+        registerBodyRestore(undoManager, section: section, restore: start)
+    }
+
+    private func registerBodyRestore(_ undoManager: UndoManager, section: KishoSection, restore: NSAttributedString) {
+        undoManager.registerUndo(withTarget: self) { [weak undoManager] target in
+            let current = NSAttributedString(attributedString: section.content.attributedString)
+            section.content.attributedString = restore
+            section.modifiedAt = Date()
+            target.bodyEditBursts[section.id] = nil
+            if let undoManager {
+                target.registerBodyRestore(undoManager, section: section, restore: current)
+            }
+        }
+        undoManager.setActionName("Typing")
     }
 
     // MARK: Tags
@@ -535,6 +607,15 @@ final class KishoDocumentModel: ObservableObject, Codable {
             })
         }
     }
+}
+
+/// See `KishoDocumentModel.focusRequest`. Each request is unique (token) so
+/// repeating the same target still triggers the editor.
+struct EditorFocusRequest: Equatable {
+    enum Field { case title, body }
+    let sectionID: UUID
+    let field: Field
+    let token = UUID()
 }
 
 extension FocusedValues {
