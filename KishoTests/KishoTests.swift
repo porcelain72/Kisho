@@ -789,6 +789,12 @@ final class KishoTests: XCTestCase {
 
     // MARK: - Card editor model support
 
+    /// Lets NSUndoManager close the current event's undo group, as happens
+    /// between keystrokes in the app (event-based grouping).
+    private func endUndoEvent() {
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.02))
+    }
+
     func testSetTitleIsUndoableAndTrims() throws {
         let (document, a, _, _, _) = makeDocument()
         let undo = UndoManager()
@@ -807,18 +813,21 @@ final class KishoTests: XCTestCase {
 
     func testBodyEditsCoalesceIntoOneUndoStep() throws {
         let (document, a, _, _, _) = makeDocument()
+        // Event-based grouping, as in the app: a coalesced keystroke registers
+        // nothing and therefore opens no group. (Explicit empty groups would
+        // be kept by NSUndoManager and swallow the first undo.)
         let undo = UndoManager()
-        undo.groupsByEvent = false
 
         // Simulate the editor applying three quick keystrokes.
         let steps = ["ab", "abc", "abcd"].map { NSAttributedString(string: $0) }
         var previous = a.content.attributedString
+        var location = 1
         for step in steps {
             a.content.attributedString = step
-            undo.beginUndoGrouping()
-            document.recordBodyEdit(for: a, from: previous, to: step, using: undo)
-            undo.endUndoGrouping()
+            document.recordBodyEdit(for: a, from: previous, to: step, editLocation: location, using: undo)
+            endUndoEvent()
             previous = step
+            location += 1
         }
         XCTAssertEqual(a.content.attributedString.string, "abcd")
 
@@ -883,13 +892,12 @@ final class KishoTests: XCTestCase {
 
     func testBurstEndsOnParagraphBreak() throws {
         let (document, a, _, _, _) = makeDocument()   // a's body is "a"
-        let undo = UndoManager(); undo.groupsByEvent = false
+        let undo = UndoManager()
         func edit(_ text: String, at loc: Int) {
             let old = a.content.attributedString
             a.content.attributedString = NSAttributedString(string: text)
-            undo.beginUndoGrouping()
             document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: loc, using: undo)
-            undo.endUndoGrouping()
+            endUndoEvent()
         }
         edit("ab", at: 1)
         edit("ab\n", at: 2)      // Return ends the burst
@@ -905,13 +913,12 @@ final class KishoTests: XCTestCase {
     func testBurstEndsOnCaretJump() throws {
         let (document, a, _, _, _) = makeDocument()
         a.content.attributedString = NSAttributedString(string: "hello world")
-        let undo = UndoManager(); undo.groupsByEvent = false
+        let undo = UndoManager()
         func edit(_ text: String, at loc: Int) {
             let old = a.content.attributedString
             a.content.attributedString = NSAttributedString(string: text)
-            undo.beginUndoGrouping()
             document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: loc, using: undo)
-            undo.endUndoGrouping()
+            endUndoEvent()
         }
         edit("hello world!", at: 11)
         edit("hello world!!", at: 12)
@@ -926,12 +933,11 @@ final class KishoTests: XCTestCase {
     func testUndoRequestsCaretAtEditSite() throws {
         let (document, a, _, _, _) = makeDocument()
         a.content.attributedString = NSAttributedString(string: "hello world")
-        let undo = UndoManager(); undo.groupsByEvent = false
+        let undo = UndoManager()
         let old = a.content.attributedString
         a.content.attributedString = NSAttributedString(string: "hello big world")
-        undo.beginUndoGrouping()
         document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: 6, using: undo)
-        undo.endUndoGrouping()
+        endUndoEvent()
 
         undo.undo()
         XCTAssertEqual(document.focusRequest?.sectionID, a.id)
