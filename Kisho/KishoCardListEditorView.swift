@@ -329,8 +329,8 @@ final class CardTextViewHandle: ObservableObject {
     }
 
     func focus(atEnd: Bool) {
-        guard let textView, let window = textView.window else { return }
-        window.makeFirstResponder(textView)
+        guard let textView else { return }
+        takeFocus(textView)
         if atEnd {
             let end = (textView.string as NSString).length
             textView.setSelectedRange(NSRange(location: end, length: 0))
@@ -339,19 +339,32 @@ final class CardTextViewHandle: ObservableObject {
     }
 
     func focus(at caret: Int) {
-        guard let textView, let window = textView.window else { return }
-        window.makeFirstResponder(textView)
+        guard let textView else { return }
+        takeFocus(textView)
         let length = (textView.string as NSString).length
         textView.setSelectedRange(NSRange(location: max(0, min(caret, length)), length: 0))
         textView.scrollRangeToVisible(textView.selectedRange())
     }
 
     func focus(selecting range: NSRange) {
-        guard let textView, let window = textView.window else { return }
-        window.makeFirstResponder(textView)
+        guard let textView else { return }
+        takeFocus(textView)
         let clamped = Self.clamp(range, in: textView)
         textView.setSelectedRange(clamped)
         textView.scrollRangeToVisible(clamped)
+    }
+
+    /// Make the text view first responder, and make sure it stays so: a
+    /// SwiftUI field being torn down in the same moment (the find bar
+    /// closing) can resign focus for the window just after we took it.
+    private func takeFocus(_ textView: NSTextView) {
+        guard let window = textView.window else { return }
+        window.makeFirstResponder(textView)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak textView] in
+            guard let textView, let window = textView.window,
+                  window.firstResponder !== textView else { return }
+            window.makeFirstResponder(textView)
+        }
     }
 
     /// Bring a range into view without taking keyboard focus or changing the
@@ -473,11 +486,9 @@ private struct CardTextView: NSViewRepresentable {
         context.coordinator.appliedHighlight = highlight
         let length = (textView.string as NSString).length
         layoutManager.removeTemporaryAttribute(.backgroundColor, forCharacterRange: NSRange(location: 0, length: length))
+        // Translucent so the text stays legible in both appearances.
         for range in highlight.ranges where NSMaxRange(range) <= length {
-            let isCurrent = range == highlight.current
-            let color = isCurrent
-                ? NSColor.findHighlightColor
-                : NSColor.findHighlightColor.withAlphaComponent(0.35)
+            let color = NSColor.findHighlightColor.withAlphaComponent(range == highlight.current ? 0.55 : 0.25)
             layoutManager.addTemporaryAttribute(.backgroundColor, value: color, forCharacterRange: range)
         }
     }

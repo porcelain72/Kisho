@@ -320,8 +320,12 @@ final class FindState: ObservableObject {
         guard let document, let match else { return }
         document.selectedSectionID = match.sectionID
         switch match.field {
+        case .body where takingFocus:
+            // Leaving the bar: a plain caret after the word, so typing carries on
+            // from the match (a selected word would show no caret).
+            document.requestFocus(match.sectionID, .body, caret: NSMaxRange(match.range))
         case .body:
-            document.requestFocus(match.sectionID, .body, selection: match.range, takesFocus: takingFocus)
+            document.requestFocus(match.sectionID, .body, selection: match.range, takesFocus: false)
         case .title, .tag:
             document.requestFocus(match.sectionID, .title, takesFocus: takingFocus)
         }
