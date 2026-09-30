@@ -121,24 +121,31 @@ private struct SectionCard: View {
     /// Search hits in the title, drawn as a wash behind the field's text.
     /// Only while the field shows the model's title (not a draft being typed).
     @ViewBuilder private var titleHighlightBackdrop: some View {
-        let hits = find.titleHighlights(for: section.id)
-        if !hits.all.isEmpty, !isTitleFocused, draftTitle == section.title {
-            let ns = NSMutableAttributedString(
-                string: section.title,
-                attributes: [.font: NSFont.systemFont(ofSize: headingSize, weight: .semibold),
-                             .foregroundColor: NSColor.clear])
-            let length = ns.length
-            for range in hits.all where NSMaxRange(range) <= length {
-                let color = range == hits.current
-                    ? NSColor.findHighlightColor
-                    : NSColor.findHighlightColor.withAlphaComponent(0.35)
-                ns.addAttribute(.backgroundColor, value: color, range: range)
-            }
-            Text(AttributedString(ns))
+        if let highlighted = highlightedTitle {
+            Text(highlighted)
                 .lineLimit(1)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
+    }
+
+    /// The title with search hits as background runs and clear glyphs, or nil
+    /// when there is nothing to draw.
+    private var highlightedTitle: AttributedString? {
+        let hits = find.titleHighlights(for: section.id)
+        guard !hits.all.isEmpty, !isTitleFocused, draftTitle == section.title else { return nil }
+        let ns = NSMutableAttributedString(
+            string: section.title,
+            attributes: [.font: NSFont.systemFont(ofSize: headingSize, weight: .semibold),
+                         .foregroundColor: NSColor.clear])
+        let length = ns.length
+        for range in hits.all where NSMaxRange(range) <= length {
+            let color = range == hits.current
+                ? NSColor.findHighlightColor
+                : NSColor.findHighlightColor.withAlphaComponent(0.35)
+            ns.addAttribute(.backgroundColor, value: color, range: range)
+        }
+        return AttributedString(ns)
     }
 
     var body: some View {
