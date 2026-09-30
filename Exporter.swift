@@ -243,11 +243,12 @@ struct Exporter {
 #if os(macOS)
 extension Exporter {
     enum Format: String, CaseIterable, Identifiable {
-        case plainText, pdf, html
+        case plainText, markdown, pdf, html
         var id: String { rawValue }
         var title: String {
             switch self {
             case .plainText: return "Plain Text"
+            case .markdown: return "Markdown"
             case .pdf: return "PDF"
             case .html: return "HTML"
             }
@@ -255,6 +256,7 @@ extension Exporter {
         var fileExtension: String {
             switch self {
             case .plainText: return "txt"
+            case .markdown: return "md"
             case .pdf: return "pdf"
             case .html: return "html"
             }
@@ -268,6 +270,8 @@ extension Exporter {
         switch format {
         case .plainText:
             data = Data(plainText(from: document.sections).utf8)
+        case .markdown:
+            data = Data(Markdown.string(from: document.sections).utf8)
         case .pdf:
             data = pdfData(from: attributedText(from: document.sections))
         case .html:

@@ -1062,6 +1062,120 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(a.content.attributedString.string, "hi")
     }
 
+    // MARK: - Phase 2: Markdown export / import
+
+    private func traits(_ text: NSAttributedString, at index: Int) -> NSFontTraitMask {
+        let font = text.attribute(.font, at: index, effectiveRange: nil) as! NSFont
+        return NSFontManager.shared.traits(of: font)
+    }
+
+    func testMarkdownExportUsesHeadingDepthEmphasisAndTags() throws {
+        let (document, a, a1, _, b) = makeDocument()
+        a.title = "Chapter One"
+        a.tags = ["draft", "rewrite"]
+        let body = NSMutableAttributedString(string: "Plain then bold and italic.\nSecond paragraph.")
+        let base = NSFont(name: "Georgia", size: 14)!
+        body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
+        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 11, length: 4))
+        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 20, length: 6))
+        a.content.attributedString = body
+        a1.title = "Scene"
+        a1.content.attributedString = NSAttributedString(string: "# not a heading")
+        b.title = "Chapter Two"
+        b.content.attributedString = NSAttributedString(string: "")
+
+        let md = Markdown.string(from: document.sections)
+        let expected = """
+        # Chapter One
+
+        <!-- tags: draft, rewrite -->
+
+        Plain then **bold** and *italic*.
+
+        Second paragraph.
+
+        ## Scene
+
+        \\# not a heading
+
+        ## A2
+
+        a2
+
+        # Chapter Two
+
+        """
+        XCTAssertEqual(md, expected)
+    }
+
+    func testMarkdownImportBuildsTreeFromHeadings() throws {
+        let md = """
+        Intro paragraph before any heading.
+
+        # One
+        <!-- tags: draft -->
+        First paragraph with **bold** and *italic* and ***both***.
+        continues on the next line.
+
+        Second paragraph with snake_case and a \\*literal star\\*.
+
+        ## One A
+        ### Deep
+        # Two
+        Setext Title
+        ------------
+        under setext
+        """
+        let sections = Markdown.sections(from: md)
+        XCTAssertEqual(sections.map(\.title), ["Untitled", "One", "Two"])
+        XCTAssertEqual(sections[0].content.attributedString.string, "Intro paragraph before any heading.")
+
+        let one = sections[1]
+        XCTAssertEqual(one.tags, ["draft"])
+        XCTAssertEqual(one.children.map(\.title), ["One A"])
+        XCTAssertEqual(one.children[0].children.map(\.title), ["Deep"])
+        let text = one.content.attributedString
+        XCTAssertEqual(text.string, "First paragraph with bold and italic and both. continues on the next line.\nSecond paragraph with snake_case and a *literal star*.")
+        XCTAssertTrue(traits(text, at: 21).contains(.boldFontMask))
+        XCTAssertFalse(traits(text, at: 21).contains(.italicFontMask))
+        XCTAssertTrue(traits(text, at: 30).contains(.italicFontMask))
+        let both = traits(text, at: 41)
+        XCTAssertTrue(both.contains(.boldFontMask) && both.contains(.italicFontMask))
+        XCTAssertTrue(traits(text, at: 0).isEmpty || !traits(text, at: 0).contains(.boldFontMask))
+
+        let two = sections[2]
+        XCTAssertEqual(two.children.map(\.title), ["Setext Title"])
+        XCTAssertEqual(two.children[0].content.attributedString.string, "under setext")
+    }
+
+    func testMarkdownRoundTripPreservesStructureTextAndEmphasis() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        a.title = "Alpha"; a1.title = "Alpha one"; a2.title = "Alpha two"; b.title = "Beta"
+        a1.tags = ["x"]
+        let body = NSMutableAttributedString(string: "Some bold words here.")
+        let base = TypographySettings().baseFont
+        body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
+        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 5, length: 4))
+        a1.content.attributedString = body
+
+        let again = Markdown.sections(from: Markdown.string(from: document.sections))
+        XCTAssertEqual(again.map(\.title), ["Alpha", "Beta"])
+        XCTAssertEqual(again[0].children.map(\.title), ["Alpha one", "Alpha two"])
+        XCTAssertEqual(again[0].children[0].tags, ["x"])
+        let text = again[0].children[0].content.attributedString
+        XCTAssertEqual(text.string, "Some bold words here.")
+        XCTAssertTrue(traits(text, at: 6).contains(.boldFontMask))
+        XCTAssertFalse(traits(text, at: 12).contains(.boldFontMask))
+        XCTAssertEqual(again[1].content.attributedString.string, "b")
+    }
+
+    func testMarkdownImportOfEmptyOrHeadinglessTextStillYieldsADocument() throws {
+        XCTAssertEqual(Markdown.sections(from: "").map(\.title), ["Untitled"])
+        let plain = Markdown.sections(from: "just a line\n\nand another")
+        XCTAssertEqual(plain.count, 1)
+        XCTAssertEqual(plain[0].content.attributedString.string, "just a line\nand another")
+    }
+
     func testSubtreeHasTag() throws {
         let (document, a, a1, _, b) = makeDocument()
         a1.tags = ["draft"]
