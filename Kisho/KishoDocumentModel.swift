@@ -583,6 +583,13 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     private func registerBodyRestore(_ undoManager: UndoManager, section: KishoSection,
                                      restore: NSAttributedString, caret: Int) {
+        // In the app the undo manager groups by event, so each new burst is its
+        // own step automatically. When grouping is manual (tests), give each
+        // burst its own group so steps stay separate.
+        let needsGroup = !undoManager.groupsByEvent && undoManager.groupingLevel == 0
+        if needsGroup { undoManager.beginUndoGrouping() }
+        defer { if needsGroup { undoManager.endUndoGrouping() } }
+
         undoManager.registerUndo(withTarget: self) { [weak undoManager] target in
             let current = NSAttributedString(attributedString: section.content.attributedString)
             // Redo should put the caret after the text it brings back.
