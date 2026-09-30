@@ -986,7 +986,8 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(matches[2].range, NSRange(location: 18, length: 5), "case-insensitive by default")
         XCTAssertEqual(matches[3], SearchMatch(sectionID: a1.id, field: .tag(0), range: NSRange(location: 0, length: 5)))
 
-        XCTAssertEqual(document.findMatches("alpha", matchCase: true).count, 3)
+        XCTAssertEqual(document.findMatches("alpha", matchCase: true).count, 2,
+                       "match case: only the lowercase body hit and the tag; 'Alpha' and 'ALPHA' are excluded")
         XCTAssertTrue(document.findMatches("").isEmpty)
     }
 
