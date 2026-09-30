@@ -1022,7 +1022,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(a.title, "dog title")
         XCTAssertEqual(a.content.attributedString.string, "dog and dog")
         XCTAssertEqual(a1.tags, ["dog"])
-        XCTAssertEqual(b.title, "dog")
+        XCTAssertEqual(b.title, "Dog", "a capitalised match takes a capitalised replacement")
         XCTAssertTrue(document.findMatches("cat").isEmpty)
 
         undo.undo()
@@ -1031,6 +1031,26 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(a1.tags, ["cat"])
         XCTAssertEqual(b.title, "Cat")
         XCTAssertFalse(undo.canUndo, "replace all is a single undo step")
+    }
+
+    func testReplacementFollowsCaseOfMatchUnlessMatchingCase() throws {
+        typealias M = KishoDocumentModel
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "river"), "stream")
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "River"), "Stream")
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "RIVER"), "STREAM")
+        XCTAssertEqual(M.replacement("Stream", matchingCaseOf: "river"), "Stream", "typed capitals are kept")
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "I"), "Stream", "one capital letter is capitalised, not shouted")
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "RiVer"), "Stream", "mixed case falls back to capitalising")
+        XCTAssertEqual(M.replacement("stream", matchingCaseOf: "123"), "stream")
+
+        let (document, a, _, _, _) = makeDocument()
+        a.content.attributedString = NSAttributedString(string: "River and RIVER and river")
+        XCTAssertEqual(document.replaceAll("river", with: "stream"), 3)
+        XCTAssertEqual(a.content.attributedString.string, "Stream and STREAM and stream")
+
+        a.content.attributedString = NSAttributedString(string: "River and river")
+        XCTAssertEqual(document.replaceAll("river", with: "stream", matchCase: true), 1)
+        XCTAssertEqual(a.content.attributedString.string, "River and stream", "with Match Case the replacement is literal")
     }
 
     func testReplaceStaleMatchIsRejected() throws {

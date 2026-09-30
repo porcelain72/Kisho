@@ -68,24 +68,49 @@ extension KishoDocumentModel {
         return results
     }
 
+    /// The replacement text adapted to the capitalisation of the text it
+    /// replaces, for case-insensitive searches: "River" → "Stream",
+    /// "RIVER" → "STREAM", "river" → the replacement as typed.
+    static func replacement(_ replacement: String, matchingCaseOf matched: String) -> String {
+        let letters = matched.unicodeScalars.filter { CharacterSet.letters.contains($0) }
+        guard let first = letters.first, !replacement.isEmpty else { return replacement }
+        let firstIsUpper = CharacterSet.uppercaseLetters.contains(first)
+        guard firstIsUpper else { return replacement }
+        let restAllUpper = letters.dropFirst().allSatisfy { CharacterSet.uppercaseLetters.contains($0) }
+        if letters.count > 1 && restAllUpper {
+            return replacement.uppercased()
+        }
+        // Capitalised: upper-case the first letter, keep the rest as typed.
+        return replacement.prefix(1).uppercased() + replacement.dropFirst()
+    }
+
     /// Replaces one match. Returns false if the match no longer applies
     /// (text changed underneath it). Undoable through the usual title/body/tag
-    /// paths.
+    /// paths. With `matchCase` off the replacement takes the capitalisation of
+    /// the text it replaces.
     @discardableResult
-    func replace(_ match: SearchMatch, with replacement: String, using undoManager: UndoManager? = nil) -> Bool {
+    func replace(_ match: SearchMatch, with replacement: String, matchCase: Bool = false,
+                 using undoManager: UndoManager? = nil) -> Bool {
         guard let section = section(withID: match.sectionID) else { return false }
+
+        func adapted(for matched: String) -> String {
+            matchCase ? replacement : Self.replacement(replacement, matchingCaseOf: matched)
+        }
+
         switch match.field {
         case .title:
             let ns = section.title as NSString
             guard NSMaxRange(match.range) <= ns.length else { return false }
-            setTitle(ns.replacingCharacters(in: match.range, with: replacement), for: section, using: undoManager)
+            let text = adapted(for: ns.substring(with: match.range))
+            setTitle(ns.replacingCharacters(in: match.range, with: text), for: section, using: undoManager)
             return true
 
         case .body:
             let old = section.content.attributedString
             guard NSMaxRange(match.range) <= old.length else { return false }
+            let text = adapted(for: (old.string as NSString).substring(with: match.range))
             let mutable = NSMutableAttributedString(attributedString: old)
-            mutable.replaceCharacters(in: match.range, with: replacement)
+            mutable.replaceCharacters(in: match.range, with: text)
             let new = NSAttributedString(attributedString: mutable)
             section.content.attributedString = new
             recordBodyEdit(for: section, from: old, to: new, editLocation: match.range.location, using: undoManager)
@@ -95,8 +120,9 @@ extension KishoDocumentModel {
             guard section.tags.indices.contains(index) else { return false }
             let ns = section.tags[index] as NSString
             guard NSMaxRange(match.range) <= ns.length else { return false }
+            let text = adapted(for: ns.substring(with: match.range))
             var tags = section.tags
-            tags[index] = ns.replacingCharacters(in: match.range, with: replacement)
+            tags[index] = ns.replacingCharacters(in: match.range, with: text)
             setTags(tags, for: section, using: undoManager)
             return true
         }
@@ -116,7 +142,8 @@ extension KishoDocumentModel {
 
         // Replace from the end of each string backwards so earlier ranges stay valid.
         var count = 0
-        for match in matches.reversed() where replace(match, with: replacement, using: undoManager) {
+        for match in matches.reversed()
+        where replace(match, with: replacement, matchCase: matchCase, using: undoManager) {
             count += 1
         }
         return count
@@ -146,6 +173,9 @@ final class FindState: ObservableObject {
 
     /// Bumped when the bar should take keyboard focus (⌘F).
     @Published var focusToken = UUID()
+    /// Set by `show()` for a bar that is not on screen yet: it focuses its
+    /// field when it appears. Not set by ⌘E, which leaves focus in the text.
+    var pendingFocus = false
 
     private weak var document: KishoDocumentModel?
     private var cancellables = Set<AnyCancellable>()
@@ -175,8 +205,10 @@ final class FindState: ObservableObject {
                 case .next: self.step(forward: true)
                 case .previous: self.step(forward: false)
                 case .setFindString:
+                    // ⌘E: adopt the selection without moving focus to the bar.
                     if let s = note.userInfo?["string"] as? String { self.query = s }
-                    self.show()
+                    self.refresh()
+                    self.isVisible = true
                 default: self.show()
                 }
             }
@@ -198,13 +230,31 @@ final class FindState: ObservableObject {
 
     /// Show the bar and focus its field.
     func show() {
+        pendingFocus = !isVisible
         isVisible = true
         focusToken = UUID()
     }
 
+    /// Close the bar. If the user had stepped to a match, leave the caret
+    /// there (selected), otherwise focus stays where AppKit puts it.
     func hide() {
+        let landing = current
         isVisible = false
         currentIndex = nil
+        if let landing { reveal(landing, takingFocus: true) }
+    }
+
+    /// "Use Selection for Find" (⌘E): take the selected text of whichever
+    /// text field or text view has keyboard focus as the search term.
+    func useSelection() {
+        guard let responder = NSApp.keyWindow?.firstResponder as? NSTextView else { return }
+        let range = responder.selectedRange()
+        guard range.length > 0 else { return }
+        let selected = (responder.string as NSString).substring(with: range)
+        // A multi-paragraph selection isn't a useful search term.
+        query = selected.components(separatedBy: .newlines).first ?? selected
+        refresh()
+        if !isVisible { isVisible = true }
     }
 
     func refresh(keepingCurrent: Bool = false) {
@@ -231,7 +281,7 @@ final class FindState: ObservableObject {
         } else {
             currentIndex = forward ? 0 : matches.count - 1
         }
-        reveal(current)
+        reveal(current, takingFocus: false)
     }
 
     func replaceCurrent(using undoManager: UndoManager?) {
@@ -239,12 +289,12 @@ final class FindState: ObservableObject {
         if current == nil { step(forward: true) }
         guard let match = current else { return }
         let index = currentIndex ?? 0
-        document.replace(match, with: replacement, using: undoManager)
+        document.replace(match, with: replacement, matchCase: matchCase, using: undoManager)
         refresh()
         guard !matches.isEmpty else { currentIndex = nil; return }
         // The match at `index` was consumed; the next one now sits at the same index.
         currentIndex = min(index, matches.count - 1)
-        reveal(current)
+        reveal(current, takingFocus: false)
     }
 
     func replaceAll(using undoManager: UndoManager?) {
@@ -253,23 +303,34 @@ final class FindState: ObservableObject {
         refresh()
     }
 
-    /// Select the block and, for a body match, select the matched text.
-    private func reveal(_ match: SearchMatch?) {
+    /// Select the block and scroll its card into view, marking the matched
+    /// text. While the bar is in use (`takingFocus` false) keyboard focus stays
+    /// in the bar so Return keeps stepping instead of typing into the card.
+    private func reveal(_ match: SearchMatch?, takingFocus: Bool) {
         guard let document, let match else { return }
         document.selectedSectionID = match.sectionID
         switch match.field {
         case .body:
-            document.requestFocus(match.sectionID, .body, selection: match.range)
+            document.requestFocus(match.sectionID, .body, selection: match.range, takesFocus: takingFocus)
         case .title, .tag:
-            document.requestFocus(match.sectionID, .title)
+            document.requestFocus(match.sectionID, .title, takesFocus: takingFocus)
         }
     }
 
     /// Ranges to highlight in one block's body, and which of them is current.
     func bodyHighlights(for sectionID: UUID) -> (all: [NSRange], current: NSRange?) {
+        highlights(for: sectionID, field: .body)
+    }
+
+    /// Ranges to highlight in one block's title, and which of them is current.
+    func titleHighlights(for sectionID: UUID) -> (all: [NSRange], current: NSRange?) {
+        highlights(for: sectionID, field: .title)
+    }
+
+    private func highlights(for sectionID: UUID, field: SearchMatch.Field) -> (all: [NSRange], current: NSRange?) {
         guard isVisible, !query.isEmpty else { return ([], nil) }
-        let all = matches.filter { $0.sectionID == sectionID && $0.field == .body }.map { $0.range }
-        let cur: NSRange? = (current?.sectionID == sectionID && current?.field == .body) ? current?.range : nil
+        let all = matches.filter { $0.sectionID == sectionID && $0.field == field }.map { $0.range }
+        let cur: NSRange? = (current?.sectionID == sectionID && current?.field == field) ? current?.range : nil
         return (all, cur)
     }
 }
@@ -338,7 +399,10 @@ struct FindBar: View {
         .onAppear {
             find.attach(to: document)
             find.refresh()
-            queryFocused = true
+            if find.pendingFocus {
+                find.pendingFocus = false
+                queryFocused = true
+            }
         }
         .onChange(of: find.focusToken) { _ in queryFocused = true }
         .onChange(of: find.query) { _ in find.refresh() }
@@ -370,6 +434,9 @@ struct FindCommands: Commands {
                 .disabled(find == nil)
             Button("Find Previous") { find?.step(forward: false) }
                 .keyboardShortcut("g", modifiers: [.command, .shift])
+                .disabled(find == nil)
+            Button("Use Selection for Find") { find?.useSelection() }
+                .keyboardShortcut("e", modifiers: .command)
                 .disabled(find == nil)
         }
     }

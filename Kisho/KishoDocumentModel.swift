@@ -31,9 +31,10 @@ final class KishoDocumentModel: ObservableObject, Codable {
     let stats = Stats()
 
     func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field,
-                      caret: Int? = nil, selection: NSRange? = nil) {
+                      caret: Int? = nil, selection: NSRange? = nil, takesFocus: Bool = true) {
         guard let sectionID else { return }
-        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field, caret: caret, selection: selection)
+        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field, caret: caret,
+                                          selection: selection, takesFocus: takesFocus)
     }
 
     /// Sidebar tag filter (UI state; not saved with the document). Rows whose
@@ -677,6 +678,9 @@ struct EditorFocusRequest: Equatable {
     var caret: Int? = nil
     /// Text range to select within the body (takes precedence over `caret`).
     var selection: NSRange? = nil
+    /// False to scroll to and mark the place without moving keyboard focus
+    /// there (the find bar stepping through matches keeps its own focus).
+    var takesFocus: Bool = true
     let token = UUID()
 }
 

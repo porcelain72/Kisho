@@ -116,14 +116,40 @@ private struct SectionCard: View {
         return BodyHighlight(ranges: hits.all, current: hits.current)
     }
 
+    private var titleFont: Font { .system(size: headingSize, weight: .semibold) }
+
+    /// Search hits in the title, drawn as a wash behind the field's text.
+    /// Only while the field shows the model's title (not a draft being typed).
+    @ViewBuilder private var titleHighlightBackdrop: some View {
+        let hits = find.titleHighlights(for: section.id)
+        if !hits.all.isEmpty, !isTitleFocused, draftTitle == section.title {
+            let ns = NSMutableAttributedString(
+                string: section.title,
+                attributes: [.font: NSFont.systemFont(ofSize: headingSize, weight: .semibold),
+                             .foregroundColor: NSColor.clear])
+            let length = ns.length
+            for range in hits.all where NSMaxRange(range) <= length {
+                let color = range == hits.current
+                    ? NSColor.findHighlightColor
+                    : NSColor.findHighlightColor.withAlphaComponent(0.35)
+                ns.addAttribute(.backgroundColor, value: color, range: range)
+            }
+            Text(AttributedString(ns))
+                .lineLimit(1)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Heading
             HStack(spacing: 8) {
                 TextField("Untitled", text: $draftTitle)
                     .textFieldStyle(.plain)
-                    .font(.system(size: headingSize, weight: .semibold))
+                    .font(titleFont)
                     .foregroundStyle(.primary)
+                    .background(alignment: .leading) { titleHighlightBackdrop }
                     .focused($isTitleFocused)
                     .onSubmit { commitTitle(); bodyHandle.focus(atEnd: true) }
                     .onExitCommand { draftTitle = section.title; isTitleFocused = false }
@@ -184,6 +210,13 @@ private struct SectionCard: View {
             guard let request, request.sectionID == section.id else { return }
             // Let the scroll/layout pass land first.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                guard request.takesFocus else {
+                    // Find bar stepping: mark the place, keep focus in the bar.
+                    if request.field == .body, let selection = request.selection {
+                        bodyHandle.show(selection)
+                    }
+                    return
+                }
                 switch request.field {
                 case .title:
                     isTitleFocused = true
@@ -309,11 +342,23 @@ final class CardTextViewHandle: ObservableObject {
     func focus(selecting range: NSRange) {
         guard let textView, let window = textView.window else { return }
         window.makeFirstResponder(textView)
-        let length = (textView.string as NSString).length
-        let location = max(0, min(range.location, length))
-        let clamped = NSRange(location: location, length: max(0, min(range.length, length - location)))
+        let clamped = Self.clamp(range, in: textView)
         textView.setSelectedRange(clamped)
         textView.scrollRangeToVisible(clamped)
+    }
+
+    /// Bring a range into view without taking keyboard focus or changing the
+    /// selection (the find highlight marks it; an inactive selection drawn on
+    /// top would only muddy that).
+    func show(_ range: NSRange) {
+        guard let textView else { return }
+        textView.scrollRangeToVisible(Self.clamp(range, in: textView))
+    }
+
+    private static func clamp(_ range: NSRange, in textView: NSTextView) -> NSRange {
+        let length = (textView.string as NSString).length
+        let location = max(0, min(range.location, length))
+        return NSRange(location: location, length: max(0, min(range.length, length - location)))
     }
 }
 
@@ -499,6 +544,13 @@ final class CardNSTextView: NSTextView {
     /// The standard Edit ▸ Find items (⌘F, ⌘G, ⇧⌘G, ⌘E) send this to the first
     /// responder. Route them to Kisho's document-wide find bar instead of
     /// NSTextView's per-view find panel.
+    /// NSTextView disables the Find items unless it uses its own find bar;
+    /// Kisho handles them itself, so keep them enabled.
+    override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
+        if item.action == #selector(performFindPanelAction(_:)) { return true }
+        return super.validateUserInterfaceItem(item)
+    }
+
     override func performFindPanelAction(_ sender: Any?) {
         let tag = (sender as? NSMenuItem)?.tag ?? (sender as? NSControl)?.tag ?? 1
         var info: [String: Any] = ["tag": tag]
