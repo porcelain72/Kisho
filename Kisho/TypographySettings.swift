@@ -61,6 +61,18 @@ struct TypographySettings: Equatable, Codable {
 }
 
 
+#if os(macOS)
+extension TypographySettings {
+    /// The document's body font: family and size only. Bold/italic are
+    /// per-selection attributes, not document settings.
+    var baseFont: NSFont {
+        let descriptor = NSFontDescriptor(fontAttributes: [.family: fontFamily])
+        return NSFont(descriptor: descriptor, size: CGFloat(fontSize))
+            ?? NSFont.systemFont(ofSize: CGFloat(fontSize))
+    }
+}
+#endif
+
 extension Color {
     init(hex: String) {
         let scanner = Scanner(string: hex)

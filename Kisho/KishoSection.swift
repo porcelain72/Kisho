@@ -190,13 +190,19 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
 
     // MARK: - Word Count
 
-    /// Word count for this section's own content only.
+    private var wordCountCache: (text: NSAttributedString, count: Int)?
+
+    /// Word count for this section's own content only. Cached per content
+    /// object so a document-wide total is cheap to recompute while typing.
     var wordCount: Int {
-        let text = content.attributedString.string
+        let attributed = content.attributedString
+        if let cache = wordCountCache, cache.text === attributed { return cache.count }
+        let text = attributed.string
         var count = 0
         text.enumerateSubstrings(in: text.startIndex..., options: [.byWords, .substringNotRequired]) { _, _, _, _ in
             count += 1
         }
+        wordCountCache = (attributed, count)
         return count
     }
 
@@ -206,8 +212,8 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     }
 
     func applyTypographyToSelfAndDescendants(font: NSFont, color: NSColor? = nil) {
-        // Apply to this section
-        self.content.applyTypography(font: font, color: color)
+        // Apply to this section, keeping any bold/italic the writer applied to runs.
+        self.content.attributedString = KishoSection.retypeset(content.attributedString, base: font, color: color)
 
         // Recursively apply to children
         for child in children {
@@ -221,6 +227,30 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
 }
 
 extension KishoSection {
+    /// Re-sets every run to `base` (family/size) while preserving each run's
+    /// bold/italic traits, and optionally forces a colour.
+    static func retypeset(_ source: NSAttributedString, base: NSFont, color: NSColor?) -> NSAttributedString {
+        let result = NSMutableAttributedString(attributedString: source)
+        let full = NSRange(location: 0, length: result.length)
+        guard full.length > 0 else { return result }
+        let fm = NSFontManager.shared
+        result.beginEditing()
+        result.enumerateAttribute(.font, in: full) { value, range, _ in
+            var font = base
+            if let old = value as? NSFont {
+                let traits = fm.traits(of: old)
+                if traits.contains(.boldFontMask) { font = fm.convert(font, toHaveTrait: .boldFontMask) }
+                if traits.contains(.italicFontMask) { font = fm.convert(font, toHaveTrait: .italicFontMask) }
+            }
+            result.addAttribute(.font, value: font, range: range)
+        }
+        if let color {
+            result.addAttribute(.foregroundColor, value: color, range: full)
+        }
+        result.endEditing()
+        return result
+    }
+
     static func combinedRichText(from sections: [KishoSection]) -> RichTextModel {
         let richParts = sections.map { $0.joinedChildrenContent() }
         return RichTextModel.joined(richParts)

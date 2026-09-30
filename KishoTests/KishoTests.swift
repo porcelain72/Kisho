@@ -908,4 +908,30 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(document.focusRequest?.sectionID, document.selectedSectionID)
         XCTAssertEqual(document.focusRequest?.field, .title)
     }
+
+    func testRetypesetPreservesBoldAndItalicPerRun() throws {
+        let fm = NSFontManager.shared
+        let text = NSMutableAttributedString(string: "plain bold italic")
+        let base = NSFont.systemFont(ofSize: 12)
+        text.addAttribute(.font, value: base, range: NSRange(location: 0, length: 17))
+        text.addAttribute(.font, value: fm.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 6, length: 4))
+        text.addAttribute(.font, value: fm.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 11, length: 6))
+
+        let newBase = NSFont(name: "Helvetica", size: 16) ?? NSFont.systemFont(ofSize: 16)
+        let result = KishoSection.retypeset(text, base: newBase, color: nil)
+
+        func font(at i: Int) -> NSFont { result.attribute(.font, at: i, effectiveRange: nil) as! NSFont }
+        XCTAssertEqual(font(at: 0).pointSize, 16)
+        XCTAssertFalse(fm.traits(of: font(at: 0)).contains(.boldFontMask))
+        XCTAssertTrue(fm.traits(of: font(at: 7)).contains(.boldFontMask), "bold run must stay bold")
+        XCTAssertEqual(font(at: 7).pointSize, 16)
+        XCTAssertTrue(fm.traits(of: font(at: 12)).contains(.italicFontMask), "italic run must stay italic")
+    }
+
+    func testDocumentTotalWordCount() throws {
+        let (document, a, _, _, _) = makeDocument()
+        XCTAssertEqual(document.totalWordCount, 4)
+        a.content.attributedString = NSAttributedString(string: "one two three")
+        XCTAssertEqual(document.totalWordCount, 6, "count follows content changes despite caching")
+    }
 }

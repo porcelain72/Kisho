@@ -41,12 +41,32 @@ struct KishoApp: App {
         #if os(macOS)
         .commands {
             SectionEditCommands()
+            ExportCommands()
         }
         #endif
     }
 }
 
 #if os(macOS)
+/// File ▸ Export as … items, mirroring the toolbar's Export button.
+struct ExportCommands: Commands {
+    @FocusedValue(\.kishoDocumentModel) private var documentModel
+
+    var body: some Commands {
+        CommandGroup(after: .importExport) {
+            Menu("Export As") {
+                ForEach(Exporter.Format.allCases) { format in
+                    Button("\(format.title)…") {
+                        guard let documentModel else { return }
+                        Exporter.export(documentModel, as: format, title: Exporter.keyWindowDocumentTitle)
+                    }
+                }
+            }
+            .disabled(documentModel == nil)
+        }
+    }
+}
+
 /// A `Commands` block that injects into the Edit menu right after Paste/Cut/Copy.
 struct SectionEditCommands: Commands {
     // 1) Grab the document model from FocusedValues:

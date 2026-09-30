@@ -162,7 +162,9 @@ private struct SectionCard: View {
         .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
         .onChange(of: section.title) { newValue in
-            if !isTitleFocused { draftTitle = newValue }
+            // Undo/redo may change the title while the field has focus; the
+            // field must follow the model, not keep a stale draft.
+            draftTitle = newValue
         }
         .onChange(of: isTitleFocused) { focused in
             if focused { selectFromEditor() } else { commitTitle() }
@@ -202,6 +204,11 @@ private struct SectionCard: View {
     /// The user clicked or tabbed into this card: make it the selected block
     /// without scrolling or moving their caret.
     private func selectFromEditor() {
+        // Only a click or key press counts: AppKit also hands out first-responder
+        // status on its own (e.g. to the first field at launch), and that must
+        // not override the selection restored from the file.
+        guard let event = NSApp.currentEvent,
+              [.leftMouseDown, .leftMouseUp, .rightMouseDown, .keyDown].contains(event.type) else { return }
         if document.selectedSectionID != section.id {
             document.selectedSectionID = section.id
         }
@@ -313,9 +320,11 @@ private struct CardTextView: NSViewRepresentable {
             handle?.report(height: height)
         }
         textView.isContinuousSpellCheckingEnabled = true
-        textView.isAutomaticSpellingCorrectionEnabled = true
-        textView.isAutomaticTextReplacementEnabled = true
-        textView.isGrammarCheckingEnabled = true
+        // Underline misspellings, but no autocorrect/inline suggestion bubbles.
+        textView.isAutomaticSpellingCorrectionEnabled = false
+        textView.isAutomaticTextCompletionEnabled = false
+        textView.isAutomaticTextReplacementEnabled = false
+        textView.isGrammarCheckingEnabled = false
         textView.isAutomaticQuoteSubstitutionEnabled = true
         textView.delegate = context.coordinator
         textView.onBecomeFirstResponder = { [weak coordinator = context.coordinator] in
@@ -343,8 +352,16 @@ private struct CardTextView: NSViewRepresentable {
             let length = (textView.string as NSString).length
             textView.setSelectedRange(NSRange(location: min(selection.location, length), length: 0))
         }
-        if textView.string.isEmpty {
-            textView.typingAttributes = typingAttributes()
+        if textView.string.isEmpty || context.coordinator.appliedTypography != typography {
+            // Keep bold/italic the user has toggled for the caret, but adopt the
+            // new family/size.
+            var attrs = typingAttributes()
+            if let current = textView.typingAttributes[.font] as? NSFont,
+               let base = attrs[.font] as? NSFont {
+                attrs[.font] = SelectionFormatting.font(base, matchingTraitsOf: current)
+            }
+            textView.typingAttributes = attrs
+            context.coordinator.appliedTypography = typography
         }
         textView.measure()
     }
@@ -359,14 +376,7 @@ private struct CardTextView: NSViewRepresentable {
     }
 
     private func typingAttributes() -> [NSAttributedString.Key: Any] {
-        var descriptor = NSFontDescriptor(fontAttributes: [.family: typography.fontFamily])
-        var traits = NSFontDescriptor.SymbolicTraits()
-        if typography.isBold { traits.insert(.bold) }
-        if typography.isItalic { traits.insert(.italic) }
-        descriptor = descriptor.withSymbolicTraits(traits)
-        let font = NSFont(descriptor: descriptor, size: CGFloat(typography.fontSize))
-            ?? NSFont.systemFont(ofSize: CGFloat(typography.fontSize))
-        return [.font: font, .foregroundColor: NSColor.labelColor]
+        [.font: typography.baseFont, .foregroundColor: NSColor.labelColor]
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
@@ -374,6 +384,7 @@ private struct CardTextView: NSViewRepresentable {
         weak var textView: NSTextView?
         var isApplyingModel = false
         var isPushingToModel = false
+        var appliedTypography: TypographySettings?
 
         init(_ parent: CardTextView) { self.parent = parent }
 
@@ -426,6 +437,86 @@ final class CardNSTextView: NSTextView {
     // SwiftUI sizes us; never report an intrinsic size that could fight it.
     override var intrinsicContentSize: NSSize {
         NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
+    }
+}
+
+// MARK: - Selection formatting
+
+/// Bold/italic applied to the selected text of whichever block body has the
+/// keyboard focus (or to the typing attributes when nothing is selected).
+enum SelectionFormatting {
+    enum Trait { case bold, italic
+
+        var mask: NSFontTraitMask { self == .bold ? .boldFontMask : .italicFontMask }
+    }
+
+    /// The card body that currently has keyboard focus, if any.
+    static var focusedTextView: CardNSTextView? {
+        NSApp.keyWindow?.firstResponder as? CardNSTextView
+    }
+
+    static func toggle(_ trait: Trait) {
+        guard let textView = focusedTextView, textView.isEditable else { return }
+        let fm = NSFontManager.shared
+        let range = textView.selectedRange()
+
+        if range.length == 0 {
+            var attrs = textView.typingAttributes
+            let font = (attrs[.font] as? NSFont) ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+            attrs[.font] = fm.traits(of: font).contains(trait.mask)
+                ? fm.convert(font, toNotHaveTrait: trait.mask)
+                : fm.convert(font, toHaveTrait: trait.mask)
+            textView.typingAttributes = attrs
+            return
+        }
+
+        guard let storage = textView.textStorage,
+              textView.shouldChangeText(in: range, replacementString: nil) else { return }
+
+        // If every run already has the trait, remove it; otherwise add it.
+        var allHave = true
+        storage.enumerateAttribute(.font, in: range) { value, _, _ in
+            let font = (value as? NSFont) ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+            if !fm.traits(of: font).contains(trait.mask) { allHave = false }
+        }
+        storage.beginEditing()
+        storage.enumerateAttribute(.font, in: range) { value, runRange, _ in
+            let font = (value as? NSFont) ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+            let newFont = allHave
+                ? fm.convert(font, toNotHaveTrait: trait.mask)
+                : fm.convert(font, toHaveTrait: trait.mask)
+            storage.addAttribute(.font, value: newFont, range: runRange)
+        }
+        storage.endEditing()
+        // Runs the same path as typing: measures, pushes to the model, records undo.
+        textView.didChangeText()
+        textView.setSelectedRange(range)
+    }
+
+    /// Whether the selection (or caret) currently carries the trait — for the
+    /// toolbar highlight.
+    static func selectionHas(_ trait: Trait) -> Bool {
+        guard let textView = focusedTextView else { return false }
+        let fm = NSFontManager.shared
+        let range = textView.selectedRange()
+        let font: NSFont?
+        if range.length == 0 || textView.textStorage == nil {
+            font = textView.typingAttributes[.font] as? NSFont
+        } else {
+            font = textView.textStorage?.attribute(.font, at: range.location, effectiveRange: nil) as? NSFont
+        }
+        guard let font else { return false }
+        return fm.traits(of: font).contains(trait.mask)
+    }
+
+    /// `base` (family/size) carrying the bold/italic traits of `other`.
+    static func font(_ base: NSFont, matchingTraitsOf other: NSFont) -> NSFont {
+        let fm = NSFontManager.shared
+        var font = base
+        let traits = fm.traits(of: other)
+        if traits.contains(.boldFontMask) { font = fm.convert(font, toHaveTrait: .boldFontMask) }
+        if traits.contains(.italicFontMask) { font = fm.convert(font, toHaveTrait: .italicFontMask) }
+        return font
     }
 }
 #endif

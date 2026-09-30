@@ -240,6 +240,72 @@ struct Exporter {
     // (Later, you can add an HTML conversion method, e.g. `static func htmlString(from:) -> String`)
 }
 
+#if os(macOS)
+extension Exporter {
+    enum Format: String, CaseIterable, Identifiable {
+        case plainText, pdf, html
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .plainText: return "Plain Text"
+            case .pdf: return "PDF"
+            case .html: return "HTML"
+            }
+        }
+        var fileExtension: String {
+            switch self {
+            case .plainText: return "txt"
+            case .pdf: return "pdf"
+            case .html: return "html"
+            }
+        }
+    }
+
+    /// Export the document in `format`, asking where to save. `title` is the
+    /// suggested file name (usually the document's name).
+    static func export(_ document: KishoDocumentModel, as format: Format, title: String) {
+        let data: Data?
+        switch format {
+        case .plainText:
+            data = Data(plainText(from: document.sections).utf8)
+        case .pdf:
+            data = pdfData(from: attributedText(from: document.sections))
+        case .html:
+            data = Data(htmlString(from: document.sections).utf8)
+        }
+        guard let data else {
+            let alert = NSAlert()
+            alert.messageText = "Export failed"
+            alert.informativeText = "The document could not be converted to \(format.title)."
+            alert.runModal()
+            return
+        }
+
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "\(title).\(format.fileExtension)"
+        panel.allowedContentTypes = [UTType(filenameExtension: format.fileExtension)].compactMap { $0 }
+        panel.canCreateDirectories = true
+        panel.isExtensionHidden = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                try data.write(to: url)
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+    }
+
+    /// The name of the document in the key window, for a default file name.
+    static var keyWindowDocumentTitle: String {
+        if let url = NSApp.keyWindow?.representedURL {
+            return url.deletingPathExtension().lastPathComponent
+        }
+        return NSApp.keyWindow?.title.isEmpty == false ? NSApp.keyWindow!.title : "Untitled"
+    }
+}
+#endif
+
 extension Exporter {
     static func htmlString(from sections: [KishoSection]) -> String {
         var html = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body>\n"

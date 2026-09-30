@@ -147,6 +147,11 @@ final class KishoDocumentModel: ObservableObject, Codable {
         return depth
     }
 
+    /// Words in the whole document.
+    var totalWordCount: Int {
+        sections.reduce(0) { $0 + $1.totalWordCount }
+    }
+
     var allTags: [String] {
         Set(orderedSections.flatMap { $0.tags }).sorted()
     }
@@ -320,6 +325,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             target.pendingTitleEditID = nil
             target.selectedSectionID = previousSelection.flatMap { target.section(withID: $0) }?.id
                 ?? target.selectionAfterRemoving(parent: parent, index: index)
+            target.requestFocus(target.selectedSectionID, .body)
         })
     }
 
@@ -344,6 +350,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         }, inverse: { target in
             target.rawInsert(section, into: parent, at: index)
             target.selectedSectionID = previousSelection ?? section.id
+            target.requestFocus(target.selectedSectionID, .body)
         })
     }
 
@@ -418,6 +425,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: origin.parent, at: origin.index)
             t.selectedSectionID = previousSelection
+            t.requestFocus(previousSelection, .body)
         })
     }
 
@@ -464,6 +472,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 section.children = originalChildren
                 section.modifiedAt = Date()
                 target.selectedSectionID = previousSelection
+                target.requestFocus(previousSelection, .body)
             })
         }
     }
@@ -490,6 +499,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 section.children = originalChildren
                 section.modifiedAt = Date()
                 target.selectedSectionID = previousSelection
+                target.requestFocus(previousSelection, .body)
             })
         }
     }
@@ -505,8 +515,8 @@ final class KishoDocumentModel: ObservableObject, Codable {
         section.title = cleaned
         section.modifiedAt = Date()
         registerReversible(undoManager, name: "Rename Section",
-                           undo: { _ in section.title = old },
-                           redo: { _ in section.title = cleaned })
+                           undo: { t in section.title = old; t.selectedSectionID = section.id; t.requestFocus(section.id, .title) },
+                           redo: { t in section.title = cleaned; t.selectedSectionID = section.id; t.requestFocus(section.id, .title) })
     }
 
     private var bodyEditBursts: [UUID: (start: NSAttributedString, lastEdit: Date)] = [:]
@@ -538,6 +548,9 @@ final class KishoDocumentModel: ObservableObject, Codable {
             section.content.attributedString = restore
             section.modifiedAt = Date()
             target.bodyEditBursts[section.id] = nil
+            // Bring the caret to the block whose text just changed.
+            target.selectedSectionID = section.id
+            target.requestFocus(section.id, .body)
             if let undoManager {
                 target.registerBodyRestore(undoManager, section: section, restore: current)
             }
@@ -576,14 +589,8 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let settings = self.typography
         let previousSettings = previousSettings ?? settings
 
-        var descriptor = NSFontDescriptor(fontAttributes: [.family: settings.fontFamily])
-        var traits = NSFontDescriptor.SymbolicTraits()
-        if settings.isBold { traits.insert(.bold) }
-        if settings.isItalic { traits.insert(.italic) }
-        descriptor = descriptor.withSymbolicTraits(traits)
-
-        let font = NSFont(descriptor: descriptor, size: CGFloat(settings.fontSize))
-            ?? NSFont.systemFont(ofSize: CGFloat(settings.fontSize))
+        // Family and size only; bold/italic are per-selection and preserved.
+        let font = settings.baseFont
 
         // Use the appearance-adaptive label color so text follows light/dark mode
         // instead of baking a static black into the rich text.

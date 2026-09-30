@@ -36,24 +36,18 @@ struct ToolbarTypographyControlsView: View {
             // Font Size Picker with Chevrons
             FontSizePicker(fontSize: binding.fontSize) { }
 
-            // Bold Button
-            Button(action: {
-                binding.wrappedValue.isBold.toggle()
-            }) {
+            // Bold / Italic apply to the selected text (or the caret) in the
+            // focused block, like any text editor.
+            Button(action: { SelectionFormatting.toggle(.bold) }) {
                 Image(systemName: "bold")
             }
-            .foregroundStyle(binding.isBold.wrappedValue ? Color.accentColor : .primary)
-            .help("Bold")
+            .help("Bold (⌘B)")
             .keyboardShortcut("b", modifiers: .command)
 
-            // Italic Button
-            Button(action: {
-                binding.wrappedValue.isItalic.toggle()
-            }) {
+            Button(action: { SelectionFormatting.toggle(.italic) }) {
                 Image(systemName: "italic")
             }
-            .foregroundStyle(binding.isItalic.wrappedValue ? Color.accentColor : .primary)
-            .help("Italic")
+            .help("Italic (⌘I)")
             .keyboardShortcut("i", modifiers: .command)
         }
         .onAppear {

@@ -75,9 +75,9 @@ struct KishoDocumentView: View {
                 Button {
                     showingExportOptions = true
                 } label: {
-                    Label("Export…", systemImage: "square.and.arrow.up")
+                    Label("Export…", systemImage: "arrow.up.doc")
                 }
-                .help("Export document as plain text, PDF or HTML")
+                .help("Export document as plain text, PDF or HTML (also in the File menu)")
          
                 Button {
                     undoManager?.undo()
@@ -126,25 +126,13 @@ struct KishoDocumentView: View {
             isPresented: $showingExportOptions,
             titleVisibility: .visible
         ) {
-            Button("Plain Text") {
-                exportAsPlainText()
-            }
-            Button("PDF") {
-                exportAsPDF()
-            }
-            Button("HTML") {
-                let html = Exporter.htmlString(from: document.sections)
-                let data = Data(html.utf8)
-                let filename = "\(documentTitle).html"
-                #if os(macOS)
-                showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["html", "htm"])
-                #else
-                #endif
+            ForEach(Exporter.Format.allCases) { format in
+                Button(format.title) {
+                    Exporter.export(document, as: format, title: documentTitle)
+                }
             }
             Button("Cancel", role: .cancel) { }
         }
-    
-
         .alert("Delete Section?",
                isPresented: $showDeleteAlert,
                actions: {
@@ -166,57 +154,4 @@ struct KishoDocumentView: View {
 
  
 
-    // MARK: –– Export Actions
-
-    private func exportAsPlainText() {
-        let fullText = Exporter.plainText(from: document.sections)
-        let data = Data(fullText.utf8)
-        let filename = "\(documentTitle).txt"
-        #if os(macOS)
-        showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["txt"])
-        #else
-        #endif
-    }
-
-    private func exportAsPDF() {
-        let fullAttr = Exporter.attributedText(from: document.sections)
-        guard let pdfData = Exporter.pdfData(from: fullAttr) else {
-            // Handle PDF generation failure if needed
-            return
-        }
-        let filename = "\(documentTitle).pdf"
-        #if os(macOS)
-        showSavePanel(for: pdfData, defaultFileName: filename, allowedTypes: ["pdf"])
-        #else
-        
-        #endif
-    }
-
-
-    #if os(macOS)
-    /// Presents the standard NSSavePanel and writes the given data to the chosen file URL.
-    private func showSavePanel(
-        for data: Data,
-        defaultFileName: String,
-        allowedTypes: [String]
-    ) {
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = defaultFileName
-        panel.allowedContentTypes = allowedTypes.compactMap { UTType(filenameExtension: $0) }
-        panel.canCreateDirectories = true
-        panel.isExtensionHidden = false
-        panel.begin { response in
-            if response == .OK, let url = panel.url {
-                do {
-                    try data.write(to: url)
-                } catch {
-                    // Present an alert if write fails
-                    let alert = NSAlert(error: error)
-                    alert.runModal()
-                }
-            }
-        }
-    }
-    #endif
-    
 }
