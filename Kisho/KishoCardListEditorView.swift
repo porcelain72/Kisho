@@ -139,10 +139,10 @@ private struct SectionCard: View {
             attributes: [.font: NSFont.systemFont(ofSize: headingSize, weight: .semibold),
                          .foregroundColor: NSColor.clear])
         let length = ns.length
+        // Translucent even for the current match: an opaque wash under the
+        // heading's semibold text makes it hard to read.
         for range in hits.all where NSMaxRange(range) <= length {
-            let color = range == hits.current
-                ? NSColor.findHighlightColor
-                : NSColor.findHighlightColor.withAlphaComponent(0.35)
+            let color = NSColor.findHighlightColor.withAlphaComponent(range == hits.current ? 0.55 : 0.25)
             ns.addAttribute(.backgroundColor, value: color, range: range)
         }
         return AttributedString(ns)

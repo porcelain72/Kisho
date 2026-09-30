@@ -238,10 +238,20 @@ final class FindState: ObservableObject {
     /// Close the bar. If the user had stepped to a match, leave the caret
     /// there (selected), otherwise focus stays where AppKit puts it.
     func hide() {
-        let landing = current
-        isVisible = false
-        currentIndex = nil
-        if let landing { reveal(landing, takingFocus: true) }
+        guard let landing = current else {
+            isVisible = false
+            return
+        }
+        // Hand focus to the card first and remove the bar afterwards: taking
+        // the bar's focused field out of the hierarchy while it is still first
+        // responder resigns focus for the whole window, which would undo the
+        // hand-over and leave only the selection behind.
+        reveal(landing, takingFocus: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self else { return }
+            self.isVisible = false
+            self.currentIndex = nil
+        }
     }
 
     /// "Use Selection for Find" (⌘E): take the selected text of whichever
