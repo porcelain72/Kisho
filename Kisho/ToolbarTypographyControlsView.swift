@@ -25,9 +25,10 @@ struct ToolbarTypographyControlsView: View {
             // Font Family Picker
             Picker("", selection: binding.fontFamily) {
                 ForEach(fontFamilies, id: \.self) { family in
-                    Text(family)
-                        .font(.custom(family, size: 13))
-                                    .tag(family)                }
+                    Text(TypographySettings.displayName(forFamily: family))
+                        .font(family.hasPrefix(".") ? .system(size: 13) : .custom(family, size: 13))
+                        .tag(family)
+                }
             }
             .frame(width: 140)
             .labelsHidden()

@@ -773,7 +773,7 @@ final class KishoTests: XCTestCase {
         undo.undo()
         let restored = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
         XCTAssertNotEqual(restored?.pointSize, 30)
-        XCTAssertEqual(document.typography.fontSize, 12, "undo restores the previous settings too")
+        XCTAssertEqual(document.typography.fontSize, TypographySettings.defaultFontSize, "undo restores the previous settings too")
     }
 
     func testExportedAttributedTextIsBlack() throws {
@@ -956,5 +956,16 @@ final class KishoTests: XCTestCase {
         XCTAssertGreaterThan(parentChanges, 0, "parent row must refresh its subtree word count")
         XCTAssertNotEqual(document.stats.version, statsBefore)
         sub.cancel()
+    }
+
+    func testDefaultTypographyIsAPickableFamily() throws {
+        let settings = TypographySettings()
+        XCTAssertEqual(settings.fontFamily, "Georgia")
+        XCTAssertEqual(settings.fontSize, 14)
+        XCTAssertFalse(settings.fontFamily.hasPrefix("."), "default must be a real family, not the system font's internal name")
+        XCTAssertTrue(NSFontManager.shared.availableFontFamilies.contains(settings.fontFamily))
+        XCTAssertEqual(TypographySettings.displayName(forFamily: ".AppleSystemUIFont"), "System Font")
+        XCTAssertEqual(TypographySettings.displayName(forFamily: "Georgia"), "Georgia")
+        XCTAssertEqual(KishoDocumentModel().typography, settings)
     }
 }

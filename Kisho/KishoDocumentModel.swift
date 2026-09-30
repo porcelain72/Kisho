@@ -14,13 +14,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         didSet { sections.forEach { $0.parent = nil } }
     }
     @Published var selectedSectionID : UUID? = nil
-    @Published var typography: TypographySettings = TypographySettings(
-        fontFamily: NSFont.systemFont(ofSize: 12).familyName ?? "System",
-        fontSize: 12,
-        isBold: false,
-        isItalic: false,
-        color: .primary
-    )
+    @Published var typography: TypographySettings = TypographySettings()
 
     /// Asks the editor to scroll to a block and put the keyboard focus in its
     /// title or body. Set by the sidebar, navigation and structural edits;

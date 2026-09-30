@@ -22,9 +22,20 @@ struct TypographySettings: Equatable, Codable {
         case colorHex
     }
 
+    /// Default body font for new documents: a real, pickable family that reads
+    /// as a writing face and ships on every Mac (and Windows, for exports).
+    static let defaultFontFamily = "Georgia"
+    static let defaultFontSize: Double = 14
+
+    /// Display name for the picker: the system font's internal family name
+    /// (".AppleSystemUIFont") is not something a user would recognise.
+    static func displayName(forFamily family: String) -> String {
+        family.hasPrefix(".") ? "System Font" : family
+    }
+
     init(
-        fontFamily: String = "System",
-        fontSize: Double = 12,
+        fontFamily: String = TypographySettings.defaultFontFamily,
+        fontSize: Double = TypographySettings.defaultFontSize,
         isBold: Bool = false,
         isItalic: Bool = false,
         color: Color = .primary
@@ -66,6 +77,9 @@ extension TypographySettings {
     /// The document's body font: family and size only. Bold/italic are
     /// per-selection attributes, not document settings.
     var baseFont: NSFont {
+        if fontFamily.hasPrefix(".") {
+            return NSFont.systemFont(ofSize: CGFloat(fontSize))
+        }
         let descriptor = NSFontDescriptor(fontAttributes: [.family: fontFamily])
         return NSFont(descriptor: descriptor, size: CGFloat(fontSize))
             ?? NSFont.systemFont(ofSize: CGFloat(fontSize))
