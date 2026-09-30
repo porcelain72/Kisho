@@ -1194,6 +1194,57 @@ final class KishoTests: XCTestCase {
         let plain = Markdown.sections(from: "just a line\n\nand another")
         XCTAssertEqual(plain.count, 1)
         XCTAssertEqual(plain[0].content.attributedString.string, "just a line\nand another")
+    // MARK: - Phase 2: Word export
+
+    func testDocxDocumentXMLUsesHeadingStylesAndRuns() throws {
+        let (document, a, a1, _, b) = makeDocument()
+        a.title = "Chapter <One> & Co"
+        let body = NSMutableAttributedString(string: "Plain bold italic.\nSecond\tline")
+        let base = NSFont(name: "Georgia", size: 14)!
+        body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
+        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 6, length: 4))
+        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 11, length: 6))
+        a.content.attributedString = body
+        a1.content.attributedString = NSAttributedString(string: "")
+        b.content.attributedString = NSAttributedString(string: "\n\n")
+
+        let xml = Docx.documentXML(sections: document.sections)
+        XCTAssertTrue(xml.contains("<w:pStyle w:val=\"Heading1\"/></w:pPr><w:r><w:t xml:space=\"preserve\">Chapter &lt;One&gt; &amp; Co</w:t></w:r>"))
+        XCTAssertTrue(xml.contains("<w:r><w:t xml:space=\"preserve\">Plain </w:t></w:r><w:r><w:rPr><w:b/><w:bCs/></w:rPr><w:t xml:space=\"preserve\">bold</w:t></w:r><w:r><w:t xml:space=\"preserve\"> </w:t></w:r><w:r><w:rPr><w:i/><w:iCs/></w:rPr><w:t xml:space=\"preserve\">italic</w:t></w:r><w:r><w:t xml:space=\"preserve\">.</w:t></w:r></w:p>"))
+        XCTAssertTrue(xml.contains("<w:t xml:space=\"preserve\">Second</w:t><w:tab/><w:t xml:space=\"preserve\">line</w:t>"), "tabs become Word tabs")
+        XCTAssertTrue(xml.contains("<w:pStyle w:val=\"Heading2\"/></w:pPr><w:r><w:t xml:space=\"preserve\">A1</w:t></w:r></w:p>\n<w:p><w:pPr><w:pStyle w:val=\"Heading2\"/>"), "an empty body adds no paragraphs")
+        XCTAssertEqual(xml.components(separatedBy: "Heading1").count - 1, 2, "two top-level blocks")
+        XCTAssertFalse(xml.contains("<w:p></w:p>"), "blank lines are dropped")
+        XCTAssertTrue(xml.hasSuffix("</w:body>\n</w:document>"))
+    }
+
+    func testDocxStylesFollowDocumentTypography() throws {
+        let georgia = Docx.stylesXML(typography: TypographySettings(fontFamily: "Georgia", fontSize: 14))
+        XCTAssertTrue(georgia.contains("w:ascii=\"Georgia\""))
+        XCTAssertTrue(georgia.contains("<w:sz w:val=\"28\"/>"), "14 pt is 28 half-points")
+        XCTAssertTrue(georgia.contains("w:styleId=\"Heading6\""))
+        XCTAssertTrue(georgia.contains("<w:outlineLvl w:val=\"0\"/>"))
+
+        let system = Docx.stylesXML(typography: TypographySettings(fontFamily: ".AppleSystemUIFont", fontSize: 12))
+        XCTAssertTrue(system.contains("w:ascii=\"Helvetica Neue\""), "Word has no system UI font")
+        XCTAssertEqual(Docx.escape("a < b & \"c\"\u{01}"), "a &lt; b &amp; &quot;c&quot;", "control characters dropped")
+    }
+
+    func testDocxPackageIsAStoredZipWithFiveParts() throws {
+        XCTAssertEqual(ZipWriter.crc32(Data("123456789".utf8)), 0xCBF43926)
+
+        let (document, _, _, _, _) = makeDocument()
+        let data = Docx.data(from: document.sections, typography: TypographySettings())
+        XCTAssertEqual([UInt8](data.prefix(4)), [0x50, 0x4B, 0x03, 0x04], "local file header signature")
+        let text = String(decoding: data, as: UTF8.self)
+        for part in ["[Content_Types].xml", "_rels/.rels", "word/_rels/document.xml.rels", "word/document.xml", "word/styles.xml"] {
+            XCTAssertEqual(text.components(separatedBy: part).count - 1, 2, "\(part) appears in a local header and the central directory")
+        }
+        // End of central directory: signature then two zero shorts, then the entry count twice.
+        let eocd = data.suffix(22)
+        XCTAssertEqual([UInt8](eocd.prefix(4)), [0x50, 0x4B, 0x05, 0x06])
+        XCTAssertEqual(eocd[eocd.startIndex + 8], 5)
+        XCTAssertEqual(eocd[eocd.startIndex + 10], 5)
     }
 
     func testSubtreeHasTag() throws {
