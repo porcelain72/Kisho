@@ -22,26 +22,25 @@ final class KishoDocumentModel: ObservableObject, Codable {
         color: .primary
     )
 
-    /// A section that was just created and whose heading should be selected
-    /// in the editor so the user can type its name straight away. Consumed by
-    /// the editor view; deliberately not published (it always accompanies a
-    /// `selectedSectionID` change).
-    var pendingTitleEditID: UUID?
-
     /// Asks the editor to scroll to a block and put the keyboard focus in its
     /// title or body. Set by the sidebar, navigation and structural edits;
     /// *not* set when the selection changes because the user clicked into a
     /// block in the editor (their caret is already where they want it).
     @Published var focusRequest: EditorFocusRequest?
 
-    func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field) {
+    /// Lightweight change signal for views that show document-wide figures
+    /// (word count footer). Bumped on body edits so those views refresh
+    /// without the whole document re-rendering on every keystroke.
+    final class Stats: ObservableObject {
+        @Published var version = 0
+    }
+    let stats = Stats()
+
+    func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field, caret: Int? = nil) {
         guard let sectionID else { return }
-        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field)
+        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field, caret: caret)
     }
 
-    /// Latest editor composite, used so Split/Gather see typing that has not
-    /// yet been distributed back into `section.content`.
-    var liveCompositeProvider: (() -> NSAttributedString)?
     /// Flush live editor text into the section tree before a structural edit.
     var beforeStructureEdit: (() -> Void)?
     /// Rebuild the editor after a structural edit and ignore stale text-view writebacks.
@@ -317,12 +316,10 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let previousSelection = selectedSectionID
         perform(name, using: undoManager, forward: { target in
             target.rawInsert(newSection, into: parent, at: index)
-            target.pendingTitleEditID = newSection.id
             target.selectedSectionID = newSection.id
             target.requestFocus(newSection.id, .title)
         }, inverse: { target in
             target.rawRemove(newSection)
-            target.pendingTitleEditID = nil
             target.selectedSectionID = previousSelection.flatMap { target.section(withID: $0) }?.id
                 ?? target.selectionAfterRemoving(parent: parent, index: index)
             target.requestFocus(target.selectedSectionID, .body)
@@ -448,7 +445,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         // the nested perform() then fires no further hooks.
         withStructureEdit {
             guard let section = selectedSection else { return }
-            let newSections = section.asSections(fromComposite: liveCompositeProvider?())
+            let newSections = section.asSections()
             guard !newSections.isEmpty else { return }
 
             let originalTitle = section.title
@@ -519,40 +516,86 @@ final class KishoDocumentModel: ObservableObject, Codable {
                            redo: { t in section.title = cleaned; t.selectedSectionID = section.id; t.requestFocus(section.id, .title) })
     }
 
-    private var bodyEditBursts: [UUID: (start: NSAttributedString, lastEdit: Date)] = [:]
+    private struct BodyEditBurst {
+        var start: NSAttributedString
+        var startCaret: Int
+        var lastEdit: Date
+        var lastLocation: Int
+        var lastLength: Int
+    }
+    private var bodyEditBursts: [UUID: BodyEditBurst] = [:]
     private static let bodyEditBurstInterval: TimeInterval = 1.0
 
     /// Registers undo for a body edit the editor has already applied to the
-    /// model. Edits within a second of each other coalesce into one undo step,
-    /// so ⌘Z takes back a typing burst rather than a single character.
+    /// model. Consecutive keystrokes coalesce into one undo step; a burst ends
+    /// on a pause of a second, a paragraph break, or a caret jump (an edit
+    /// that is not adjacent to the previous one), so ⌘Z takes back a run of
+    /// typing rather than one character — or a whole session.
+    ///
+    /// - Parameter editLocation: character index where the edit happened.
     func recordBodyEdit(for section: KishoSection,
                         from old: NSAttributedString,
                         to new: NSAttributedString,
+                        editLocation: Int = 0,
                         using undoManager: UndoManager? = nil) {
         section.modifiedAt = Date()
+        publishAncestorChange(of: section)
         guard let undoManager else { return }
+
         let now = Date()
-        if let burst = bodyEditBursts[section.id],
-           now.timeIntervalSince(burst.lastEdit) < Self.bodyEditBurstInterval {
-            bodyEditBursts[section.id] = (burst.start, now)
+        let insertedParagraphBreak = paragraphBreaks(in: new.string) > paragraphBreaks(in: old.string)
+
+        if var burst = bodyEditBursts[section.id],
+           now.timeIntervalSince(burst.lastEdit) < Self.bodyEditBurstInterval,
+           abs(editLocation - burst.lastLocation) <= max(1, abs(new.length - burst.lastLength) + 1) {
+            burst.lastEdit = insertedParagraphBreak ? .distantPast : now
+            burst.lastLocation = editLocation
+            burst.lastLength = new.length
+            bodyEditBursts[section.id] = burst
             return
         }
+
         let start = NSAttributedString(attributedString: old)
-        bodyEditBursts[section.id] = (start, now)
-        registerBodyRestore(undoManager, section: section, restore: start)
+        bodyEditBursts[section.id] = BodyEditBurst(
+            start: start,
+            startCaret: editLocation,
+            lastEdit: insertedParagraphBreak ? .distantPast : now,
+            lastLocation: editLocation,
+            lastLength: new.length
+        )
+        registerBodyRestore(undoManager, section: section, restore: start, caret: editLocation)
     }
 
-    private func registerBodyRestore(_ undoManager: UndoManager, section: KishoSection, restore: NSAttributedString) {
+    private func paragraphBreaks(in string: String) -> Int {
+        string.reduce(0) { $0 + ($1 == "\n" || $1 == "\r" || $1 == "\u{2029}" ? 1 : 0) }
+    }
+
+    /// Ancestors show subtree word counts, and the footer shows the document
+    /// total; neither observes the edited block, so tell them.
+    private func publishAncestorChange(of section: KishoSection) {
+        var parent = section.parent
+        while let p = parent {
+            p.objectWillChange.send()
+            parent = p.parent
+        }
+        stats.version &+= 1
+    }
+
+    private func registerBodyRestore(_ undoManager: UndoManager, section: KishoSection,
+                                     restore: NSAttributedString, caret: Int) {
         undoManager.registerUndo(withTarget: self) { [weak undoManager] target in
             let current = NSAttributedString(attributedString: section.content.attributedString)
+            // Redo should put the caret after the text it brings back.
+            let redoCaret = min(caret + max(0, current.length - restore.length), current.length)
             section.content.attributedString = restore
             section.modifiedAt = Date()
+            target.publishAncestorChange(of: section)
             target.bodyEditBursts[section.id] = nil
-            // Bring the caret to the block whose text just changed.
+            // Bring the caret to the edit site in the block whose text changed.
             target.selectedSectionID = section.id
-            target.requestFocus(section.id, .body)
+            target.requestFocus(section.id, .body, caret: min(caret, restore.length))
             if let undoManager {
-                target.registerBodyRestore(undoManager, section: section, restore: current)
+                target.registerBodyRestore(undoManager, section: section, restore: current, caret: redoCaret)
             }
         }
         undoManager.setActionName("Typing")
@@ -622,6 +665,8 @@ struct EditorFocusRequest: Equatable {
     enum Field { case title, body }
     let sectionID: UUID
     let field: Field
+    /// Caret position within the body (nil = end of text).
+    var caret: Int? = nil
     let token = UUID()
 }
 

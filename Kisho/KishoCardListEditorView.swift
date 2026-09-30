@@ -141,8 +141,8 @@ private struct SectionCard: View {
                 handle: bodyHandle,
                 typography: document.typography,
                 onBeginEditing: { selectFromEditor() },
-                onChange: { old, new in
-                    document.recordBodyEdit(for: section, from: old, to: new, using: undoManager)
+                onChange: { old, new, location in
+                    document.recordBodyEdit(for: section, from: old, to: new, editLocation: location, using: undoManager)
                 }
             )
             .frame(maxWidth: .infinity)
@@ -177,7 +177,11 @@ private struct SectionCard: View {
                 case .title:
                     isTitleFocused = true
                 case .body:
-                    bodyHandle.focus(atEnd: true)
+                    if let caret = request.caret {
+                        bodyHandle.focus(at: caret)
+                    } else {
+                        bodyHandle.focus(atEnd: true)
+                    }
                 }
             }
         }
@@ -280,6 +284,14 @@ final class CardTextViewHandle: ObservableObject {
         }
         textView.scrollRangeToVisible(textView.selectedRange())
     }
+
+    func focus(at caret: Int) {
+        guard let textView, let window = textView.window else { return }
+        window.makeFirstResponder(textView)
+        let length = (textView.string as NSString).length
+        textView.setSelectedRange(NSRange(location: max(0, min(caret, length)), length: 0))
+        textView.scrollRangeToVisible(textView.selectedRange())
+    }
 }
 
 /// One block's body. Sizes itself to its text (no internal scrolling), writes
@@ -290,8 +302,9 @@ private struct CardTextView: NSViewRepresentable {
     let handle: CardTextViewHandle
     let typography: TypographySettings
     let onBeginEditing: () -> Void
-    /// Called with the text before and after a user edit.
-    let onChange: (NSAttributedString, NSAttributedString) -> Void
+    /// Called with the text before and after a user edit, and the character
+    /// index where the edit happened.
+    let onChange: (NSAttributedString, NSAttributedString, Int) -> Void
 
     private static let insets = NSSize(width: 4, height: 4)
 
@@ -388,6 +401,15 @@ private struct CardTextView: NSViewRepresentable {
 
         init(_ parent: CardTextView) { self.parent = parent }
 
+        /// Start of the range about to change; NSTextView reports it before
+        /// the edit, so it is the edit site for undo caret placement.
+        private var pendingEditLocation = 0
+
+        func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+            pendingEditLocation = affectedCharRange.location
+            return true
+        }
+
         func textDidChange(_ notification: Notification) {
             guard !isApplyingModel, let textView else { return }
             let before = parent.content.attributedString
@@ -395,7 +417,7 @@ private struct CardTextView: NSViewRepresentable {
             isPushingToModel = true
             parent.content.attributedString = after
             isPushingToModel = false
-            parent.onChange(before, after)
+            parent.onChange(before, after, pendingEditLocation)
         }
     }
 }

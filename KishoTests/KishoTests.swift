@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Combine
 import AppKit
 import RichTextEditor
 @testable import Kisho
@@ -80,28 +81,6 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(plain.contains("CCC body"))
     }
 
-    func testEditorModelUpdateRootShowsFullSubtree() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA body")
-        let childB = makeSection(title: "Bravo", body: "BBB body")
-        let childC = makeSection(title: "Charlie", body: "CCC body")
-        let root = makeSection(title: "Root", body: "ROOT body", children: [childA, childB, childC])
-
-        // Simulate first appear on a leaf (e.g. last child), as if restored selection
-        let model = SectionSubtreeEditorModel(section: childC)
-        print("AFTER INIT leaf >>>\(model.compositeContent.attributedString.string)<<<")
-        XCTAssertEqual(model.compositeContent.attributedString.string, "CCC body")
-
-        // Now simulate clicking the parent in the sidebar
-        model.updateRoot(root)
-        let plain = model.compositeContent.attributedString.string
-        print("AFTER updateRoot to parent >>>\n\(plain)\n<<<")
-
-        XCTAssertTrue(plain.contains("ROOT body"), "root body missing after updateRoot")
-        XCTAssertTrue(plain.contains("AAA body"), "A missing after updateRoot")
-        XCTAssertTrue(plain.contains("BBB body"), "B missing after updateRoot")
-        XCTAssertTrue(plain.contains("CCC body"), "C missing after updateRoot")
-    }
-
     func testDocumentCompositeShowsAllTopLevelSections() throws {
         let childA = makeSection(title: "Alpha", body: "AAA body")
         let s1 = makeSection(title: "One", body: "ONE body", children: [childA])
@@ -132,21 +111,6 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(childA.content.attributedString.string, "AAA body")
         XCTAssertEqual(s2.title, "Two")
         XCTAssertEqual(s2.content.attributedString.string, "TWO body")
-    }
-
-    func testDocumentEditorModelComposesWholeDocument() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA body")
-        let s1 = makeSection(title: "One", body: "ONE body", children: [childA])
-        let s2 = makeSection(title: "Two", body: "TWO body")
-
-        let model = KishoDocumentModel(sections: [s1, s2])
-        let editor = DocumentCompositeEditorModel(document: model)
-        let plain = editor.compositeContent.attributedString.string
-        print("EDITOR DOC COMPOSITE >>>\n\(plain)\n<<<")
-
-        for token in ["One", "ONE body", "Alpha", "AAA body", "Two", "TWO body"] {
-            XCTAssertTrue(plain.contains(token), "missing \(token)")
-        }
     }
 
     func testCompositeCaretIndexAtEndOfSectionContent() throws {
@@ -246,25 +210,6 @@ final class KishoTests: XCTestCase {
         document.makeChildren()
 
         XCTAssertEqual(root.children.count, 3, "each line should become its own section")
-        XCTAssertEqual(root.children[0].title, "First paragraph.")
-        XCTAssertEqual(root.children[1].title, "Second paragraph.")
-        XCTAssertEqual(root.children[2].title, "Third paragraph.")
-    }
-
-    func testMakeChildrenKeepsUntaggedParagraphsFromComposite() throws {
-        let root = makeSection(title: "Root", body: "First paragraph.")
-        let document = KishoDocumentModel(sections: [root])
-        document.selectedSectionID = root.id
-
-        let composite = NSMutableAttributedString(
-            attributedString: KishoSection.documentCompositeAttributedString(sections: [root])
-        )
-        composite.append(NSAttributedString(string: "\nSecond paragraph.\nThird paragraph."))
-        document.liveCompositeProvider = { composite }
-
-        document.makeChildren()
-
-        XCTAssertEqual(root.children.count, 3)
         XCTAssertEqual(root.children[0].title, "First paragraph.")
         XCTAssertEqual(root.children[1].title, "Second paragraph.")
         XCTAssertEqual(root.children[2].title, "Third paragraph.")
@@ -545,7 +490,6 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(a.children.count, 3)
         XCTAssertEqual(a.children[1].id, document.selectedSectionID)
         XCTAssertTrue(a.children[1].parent === a)
-        XCTAssertEqual(document.pendingTitleEditID, document.selectedSectionID)
     }
 
     func testAddSiblingAtTopLevelInsertsAfterSelection() throws {
@@ -933,5 +877,82 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(document.totalWordCount, 4)
         a.content.attributedString = NSAttributedString(string: "one two three")
         XCTAssertEqual(document.totalWordCount, 6, "count follows content changes despite caching")
+    }
+
+    // MARK: - Phase 1: undo bursts, caret, ancestor refresh
+
+    func testBurstEndsOnParagraphBreak() throws {
+        let (document, a, _, _, _) = makeDocument()   // a's body is "a"
+        let undo = UndoManager(); undo.groupsByEvent = false
+        func edit(_ text: String, at loc: Int) {
+            let old = a.content.attributedString
+            a.content.attributedString = NSAttributedString(string: text)
+            undo.beginUndoGrouping()
+            document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: loc, using: undo)
+            undo.endUndoGrouping()
+        }
+        edit("ab", at: 1)
+        edit("ab\n", at: 2)      // Return ends the burst
+        edit("ab\nc", at: 3)
+        edit("ab\ncd", at: 4)
+
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "ab\n", "second line is its own undo step")
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "a")
+    }
+
+    func testBurstEndsOnCaretJump() throws {
+        let (document, a, _, _, _) = makeDocument()
+        a.content.attributedString = NSAttributedString(string: "hello world")
+        let undo = UndoManager(); undo.groupsByEvent = false
+        func edit(_ text: String, at loc: Int) {
+            let old = a.content.attributedString
+            a.content.attributedString = NSAttributedString(string: text)
+            undo.beginUndoGrouping()
+            document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: loc, using: undo)
+            undo.endUndoGrouping()
+        }
+        edit("hello world!", at: 11)
+        edit("hello world!!", at: 12)
+        edit("Xhello world!!", at: 0)   // jumped to the start
+
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "hello world!!", "edit after a caret jump is a separate step")
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "hello world")
+    }
+
+    func testUndoRequestsCaretAtEditSite() throws {
+        let (document, a, _, _, _) = makeDocument()
+        a.content.attributedString = NSAttributedString(string: "hello world")
+        let undo = UndoManager(); undo.groupsByEvent = false
+        let old = a.content.attributedString
+        a.content.attributedString = NSAttributedString(string: "hello big world")
+        undo.beginUndoGrouping()
+        document.recordBodyEdit(for: a, from: old, to: a.content.attributedString, editLocation: 6, using: undo)
+        undo.endUndoGrouping()
+
+        undo.undo()
+        XCTAssertEqual(document.focusRequest?.sectionID, a.id)
+        XCTAssertEqual(document.focusRequest?.field, .body)
+        XCTAssertEqual(document.focusRequest?.caret, 6)
+
+        undo.redo()
+        XCTAssertEqual(a.content.attributedString.string, "hello big world")
+        XCTAssertEqual(document.focusRequest?.caret, 10, "redo places the caret after the restored text")
+    }
+
+    func testBodyEditNotifiesAncestorsAndStats() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        var parentChanges = 0
+        let sub = a.objectWillChange.sink { _ in parentChanges += 1 }
+        let statsBefore = document.stats.version
+
+        document.recordBodyEdit(for: a1, from: a1.content.attributedString, to: NSAttributedString(string: "new"))
+
+        XCTAssertGreaterThan(parentChanges, 0, "parent row must refresh its subtree word count")
+        XCTAssertNotEqual(document.stats.version, statsBefore)
+        sub.cancel()
     }
 }

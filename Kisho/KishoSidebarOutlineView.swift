@@ -51,20 +51,33 @@ struct KishoSidebarOutlineView: View {
             }
 
             Divider()
-            HStack {
-                Text("\(document.totalWordCount.formatted()) words")
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("\(document.orderedSections.count) blocks")
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            DocumentStatsFooter(stats: document.stats)
         }
     }
 #endif
 }
+
+#if os(macOS)
+/// Word/block totals. Observes the model's lightweight `stats` signal so it
+/// refreshes on every keystroke without re-rendering the outline.
+private struct DocumentStatsFooter: View {
+    @EnvironmentObject var document: KishoDocumentModel
+    @ObservedObject var stats: KishoDocumentModel.Stats
+
+    var body: some View {
+        HStack {
+            Text("\(document.totalWordCount.formatted()) words")
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text("\(document.orderedSections.count) blocks")
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+    }
+}
+#endif

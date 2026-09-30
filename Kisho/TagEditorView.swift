@@ -195,3 +195,15 @@ struct TagInputPill: View {
         isEditing = false
     }
 }
+
+// MARK: - Ghost Suggestion Helper
+extension String {
+    func ghostSuffix(with suggestion: String) -> String {
+        guard let last = self.split(separator: ",").last else { return "" }
+        let current = last.trimmingCharacters(in: .whitespaces)
+        if suggestion.lowercased().hasPrefix(current.lowercased()) {
+            return String(suggestion.dropFirst(current.count))
+        }
+        return ""
+    }
+}
