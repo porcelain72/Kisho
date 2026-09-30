@@ -538,6 +538,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                         to new: NSAttributedString,
                         editLocation: Int = 0,
                         using undoManager: UndoManager? = nil) {
+        assert(old !== new, "recordBodyEdit needs a pre-edit snapshot, not the live text storage")
         section.modifiedAt = Date()
         publishAncestorChange(of: section)
         guard let undoManager else { return }

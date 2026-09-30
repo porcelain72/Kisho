@@ -413,7 +413,12 @@ private struct CardTextView: NSViewRepresentable {
         func textDidChange(_ notification: Notification) {
             guard !isApplyingModel, let textView else { return }
             let before = parent.content.attributedString
-            let after = textView.attributedString()
+            // attributedString() is the live NSTextStorage, not a copy. The model
+            // must own an immutable snapshot, otherwise "before" and "after" are
+            // the same mutating object: undo snapshots capture text one keystroke
+            // late, the paragraph-break check never fires, and the identity-keyed
+            // word-count cache never invalidates.
+            let after = NSAttributedString(attributedString: textView.attributedString())
             isPushingToModel = true
             parent.content.attributedString = after
             isPushingToModel = false
