@@ -30,10 +30,16 @@ final class KishoDocumentModel: ObservableObject, Codable {
     }
     let stats = Stats()
 
-    func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field, caret: Int? = nil) {
+    func requestFocus(_ sectionID: UUID?, _ field: EditorFocusRequest.Field,
+                      caret: Int? = nil, selection: NSRange? = nil) {
         guard let sectionID else { return }
-        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field, caret: caret)
+        focusRequest = EditorFocusRequest(sectionID: sectionID, field: field, caret: caret, selection: selection)
     }
+
+    /// Sidebar tag filter (UI state; not saved with the document). Rows whose
+    /// block carries the tag are shown; their ancestors are shown dimmed;
+    /// everything else is hidden.
+    @Published var tagFilter: String?
 
     /// Flush live editor text into the section tree before a structural edit.
     var beforeStructureEdit: (() -> Void)?
@@ -669,6 +675,8 @@ struct EditorFocusRequest: Equatable {
     let field: Field
     /// Caret position within the body (nil = end of text).
     var caret: Int? = nil
+    /// Text range to select within the body (takes precedence over `caret`).
+    var selection: NSRange? = nil
     let token = UUID()
 }
 

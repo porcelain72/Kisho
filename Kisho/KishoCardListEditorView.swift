@@ -19,10 +19,14 @@ import AppKit
 
 struct KishoCardListEditorView: View {
     @EnvironmentObject var document: KishoDocumentModel
+    @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if find.isVisible {
+                FindBar(find: find)
+            }
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
@@ -88,6 +92,7 @@ private struct SectionCardTree: View {
 
 private struct SectionCard: View {
     @EnvironmentObject var document: KishoDocumentModel
+    @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
     @ObservedObject var section: KishoSection
     let depth: Int
@@ -105,6 +110,11 @@ private struct SectionCard: View {
     }
 
     private var isSelected: Bool { document.selectedSectionID == section.id }
+
+    private var bodyHighlight: BodyHighlight {
+        let hits = find.bodyHighlights(for: section.id)
+        return BodyHighlight(ranges: hits.all, current: hits.current)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -140,6 +150,7 @@ private struct SectionCard: View {
                 content: section.content,
                 handle: bodyHandle,
                 typography: document.typography,
+                highlight: bodyHighlight,
                 onBeginEditing: { selectFromEditor() },
                 onChange: { old, new, location in
                     document.recordBodyEdit(for: section, from: old, to: new, editLocation: location, using: undoManager)
@@ -177,7 +188,9 @@ private struct SectionCard: View {
                 case .title:
                     isTitleFocused = true
                 case .body:
-                    if let caret = request.caret {
+                    if let selection = request.selection {
+                        bodyHandle.focus(selecting: selection)
+                    } else if let caret = request.caret {
                         bodyHandle.focus(at: caret)
                     } else {
                         bodyHandle.focus(atEnd: true)
@@ -292,6 +305,23 @@ final class CardTextViewHandle: ObservableObject {
         textView.setSelectedRange(NSRange(location: max(0, min(caret, length)), length: 0))
         textView.scrollRangeToVisible(textView.selectedRange())
     }
+
+    func focus(selecting range: NSRange) {
+        guard let textView, let window = textView.window else { return }
+        window.makeFirstResponder(textView)
+        let length = (textView.string as NSString).length
+        let location = max(0, min(range.location, length))
+        let clamped = NSRange(location: location, length: max(0, min(range.length, length - location)))
+        textView.setSelectedRange(clamped)
+        textView.scrollRangeToVisible(clamped)
+    }
+}
+
+/// Which ranges of a block's body to mark as search hits.
+struct BodyHighlight: Equatable {
+    var ranges: [NSRange]
+    var current: NSRange?
+    static let none = BodyHighlight(ranges: [], current: nil)
 }
 
 /// One block's body. Sizes itself to its text (no internal scrolling), writes
@@ -301,6 +331,7 @@ private struct CardTextView: NSViewRepresentable {
     @ObservedObject var content: RichTextModel
     let handle: CardTextViewHandle
     let typography: TypographySettings
+    let highlight: BodyHighlight
     let onBeginEditing: () -> Void
     /// Called with the text before and after a user edit, and the character
     /// index where the edit happened.
@@ -340,6 +371,7 @@ private struct CardTextView: NSViewRepresentable {
         textView.isGrammarCheckingEnabled = false
         textView.isAutomaticQuoteSubstitutionEnabled = true
         textView.delegate = context.coordinator
+        textView.contentModel = content
         textView.onBecomeFirstResponder = { [weak coordinator = context.coordinator] in
             coordinator?.parent.onBeginEditing()
         }
@@ -362,6 +394,7 @@ private struct CardTextView: NSViewRepresentable {
             textView.textStorage?.setAttributedString(stored)
             applyDisplayColour(textView)
             context.coordinator.isApplyingModel = false
+            context.coordinator.appliedHighlight = nil   // storage reset drops temporary attributes
             let length = (textView.string as NSString).length
             textView.setSelectedRange(NSRange(location: min(selection.location, length), length: 0))
         }
@@ -377,6 +410,24 @@ private struct CardTextView: NSViewRepresentable {
             context.coordinator.appliedTypography = typography
         }
         textView.measure()
+        applyHighlight(textView, context: context)
+    }
+
+    /// Search hits as temporary layout attributes: visible, but never part of
+    /// the document text.
+    private func applyHighlight(_ textView: NSTextView, context: Context) {
+        guard context.coordinator.appliedHighlight != highlight,
+              let layoutManager = textView.layoutManager else { return }
+        context.coordinator.appliedHighlight = highlight
+        let length = (textView.string as NSString).length
+        layoutManager.removeTemporaryAttribute(.backgroundColor, forCharacterRange: NSRange(location: 0, length: length))
+        for range in highlight.ranges where NSMaxRange(range) <= length {
+            let isCurrent = range == highlight.current
+            let color = isCurrent
+                ? NSColor.findHighlightColor
+                : NSColor.findHighlightColor.withAlphaComponent(0.35)
+            layoutManager.addTemporaryAttribute(.backgroundColor, value: color, forCharacterRange: range)
+        }
     }
 
     /// Stored text may carry a baked-in colour from RTF; show it in the
@@ -398,6 +449,7 @@ private struct CardTextView: NSViewRepresentable {
         var isApplyingModel = false
         var isPushingToModel = false
         var appliedTypography: TypographySettings?
+        var appliedHighlight: BodyHighlight?
 
         init(_ parent: CardTextView) { self.parent = parent }
 
@@ -432,6 +484,9 @@ private struct CardTextView: NSViewRepresentable {
 final class CardNSTextView: NSTextView {
     var onBecomeFirstResponder: (() -> Void)?
     var onHeightChange: ((CGFloat) -> Void)?
+    /// The block body this view edits, so find actions can be routed to the
+    /// right document when several windows are open.
+    weak var contentModel: RichTextModel?
 
     private static let minimumTextHeight: CGFloat = 18
 
@@ -439,6 +494,20 @@ final class CardNSTextView: NSTextView {
         let ok = super.becomeFirstResponder()
         if ok { onBecomeFirstResponder?() }
         return ok
+    }
+
+    /// The standard Edit ▸ Find items (⌘F, ⌘G, ⇧⌘G, ⌘E) send this to the first
+    /// responder. Route them to Kisho's document-wide find bar instead of
+    /// NSTextView's per-view find panel.
+    override func performFindPanelAction(_ sender: Any?) {
+        let tag = (sender as? NSMenuItem)?.tag ?? (sender as? NSControl)?.tag ?? 1
+        var info: [String: Any] = ["tag": tag]
+        if let contentModel { info["content"] = contentModel }
+        if tag == Int(NSFindPanelAction.setFindString.rawValue) {
+            let range = selectedRange()
+            if range.length > 0 { info["string"] = (string as NSString).substring(with: range) }
+        }
+        NotificationCenter.default.post(name: .kishoFindPanelAction, object: self, userInfo: info)
     }
 
     override func setFrameSize(_ newSize: NSSize) {
@@ -547,3 +616,9 @@ enum SelectionFormatting {
     }
 }
 #endif
+
+extension Notification.Name {
+    /// Posted by card text views when a standard Find menu item reaches them.
+    /// userInfo: "tag" (NSFindPanelAction raw value), optional "string".
+    static let kishoFindPanelAction = Notification.Name("KishoFindPanelAction")
+}

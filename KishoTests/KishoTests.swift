@@ -968,4 +968,84 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(TypographySettings.displayName(forFamily: "Georgia"), "Georgia")
         XCTAssertEqual(KishoDocumentModel().typography, settings)
     }
+
+    // MARK: - Phase 2: find & replace, tag filter
+
+    func testFindMatchesCoverTitlesBodiesAndTagsInReadingOrder() throws {
+        let (document, a, a1, _, b) = makeDocument()
+        a.title = "Alpha chapter"
+        a.content.attributedString = NSAttributedString(string: "the alpha and the ALPHA")
+        a1.tags = ["alpha-draft"]
+        b.title = "Beta"
+
+        let matches = document.findMatches("alpha")
+        XCTAssertEqual(matches.count, 4)
+        XCTAssertEqual(matches[0], SearchMatch(sectionID: a.id, field: .title, range: NSRange(location: 0, length: 5)))
+        XCTAssertEqual(matches[1].field, .body)
+        XCTAssertEqual(matches[1].range, NSRange(location: 4, length: 5))
+        XCTAssertEqual(matches[2].range, NSRange(location: 18, length: 5), "case-insensitive by default")
+        XCTAssertEqual(matches[3], SearchMatch(sectionID: a1.id, field: .tag(0), range: NSRange(location: 0, length: 5)))
+
+        XCTAssertEqual(document.findMatches("alpha", matchCase: true).count, 3)
+        XCTAssertTrue(document.findMatches("").isEmpty)
+    }
+
+    func testReplaceSingleBodyMatchKeepsFormattingAndIsUndoable() throws {
+        let (document, a, _, _, _) = makeDocument()
+        let body = NSMutableAttributedString(string: "keep the colour")
+        body.addAttribute(.font, value: NSFont.boldSystemFont(ofSize: 12), range: NSRange(location: 9, length: 6))
+        a.content.attributedString = body
+        let undo = manualUndoManager()
+
+        let match = document.findMatches("colour").first!
+        XCTAssertTrue(document.replace(match, with: "color", using: undo))
+        XCTAssertEqual(a.content.attributedString.string, "keep the color")
+        let font = a.content.attributedString.attribute(.font, at: 9, effectiveRange: nil) as? NSFont
+        XCTAssertTrue(NSFontManager.shared.traits(of: font!).contains(.boldFontMask), "replacement inherits the run's attributes")
+
+        undo.undo()
+        XCTAssertEqual(a.content.attributedString.string, "keep the colour")
+    }
+
+    func testReplaceAllAcrossFieldsIsOneUndoStep() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        a.title = "cat title"
+        a.content.attributedString = NSAttributedString(string: "cat and cat")
+        a1.tags = ["cat"]
+        a2.content.attributedString = NSAttributedString(string: "no match here")
+        b.title = "Cat"
+        let undo = manualUndoManager()
+
+        let count = document.replaceAll("cat", with: "dog", using: undo)
+        XCTAssertEqual(count, 5)
+        XCTAssertEqual(a.title, "dog title")
+        XCTAssertEqual(a.content.attributedString.string, "dog and dog")
+        XCTAssertEqual(a1.tags, ["dog"])
+        XCTAssertEqual(b.title, "dog")
+        XCTAssertTrue(document.findMatches("cat").isEmpty)
+
+        undo.undo()
+        XCTAssertEqual(a.title, "cat title")
+        XCTAssertEqual(a.content.attributedString.string, "cat and cat")
+        XCTAssertEqual(a1.tags, ["cat"])
+        XCTAssertEqual(b.title, "Cat")
+        XCTAssertFalse(undo.canUndo, "replace all is a single undo step")
+    }
+
+    func testReplaceStaleMatchIsRejected() throws {
+        let (document, a, _, _, _) = makeDocument()
+        a.content.attributedString = NSAttributedString(string: "hello")
+        let match = document.findMatches("hello").first!
+        a.content.attributedString = NSAttributedString(string: "hi")
+        XCTAssertFalse(document.replace(match, with: "x"))
+        XCTAssertEqual(a.content.attributedString.string, "hi")
+    }
+
+    func testSubtreeHasTag() throws {
+        let (document, a, a1, _, b) = makeDocument()
+        a1.tags = ["draft"]
+        XCTAssertTrue(document.subtreeHasTag("draft", in: a), "ancestor of a tagged block is context")
+        XCTAssertTrue(document.subtreeHasTag("draft", in: a1))
+        XCTAssertFalse(document.subtreeHasTag("draft", in: b))
+    }
 }

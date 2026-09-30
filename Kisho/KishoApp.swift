@@ -42,6 +42,7 @@ struct KishoApp: App {
         .commands {
             SectionEditCommands()
             ExportCommands()
+            FindCommands()
         }
         #endif
     }

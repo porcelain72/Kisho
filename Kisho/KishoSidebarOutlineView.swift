@@ -33,6 +33,7 @@ struct KishoSidebarOutlineView: View {
 #else
     @ViewBuilder func bodyMAC() -> some View {
         VStack(spacing: 0) {
+            TagFilterBar()
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
@@ -78,6 +79,45 @@ private struct DocumentStatsFooter: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
+    }
+}
+#endif
+
+#if os(macOS)
+/// Picker above the outline that narrows the rows to blocks carrying a tag.
+private struct TagFilterBar: View {
+    @EnvironmentObject var document: KishoDocumentModel
+
+    var body: some View {
+        let tags = document.allTags
+        if !tags.isEmpty || document.tagFilter != nil {
+            HStack(spacing: 6) {
+                Image(systemName: "tag")
+                    .foregroundStyle(.secondary)
+                Picker("Tag filter", selection: $document.tagFilter) {
+                    Text("All blocks").tag(String?.none)
+                    ForEach(tags, id: \.self) { tag in
+                        Text(tag).tag(String?.some(tag))
+                    }
+                }
+                .labelsHidden()
+                .controlSize(.small)
+                if document.tagFilter != nil {
+                    Button { document.tagFilter = nil } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help("Clear filter")
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .onChange(of: tags) { newTags in
+                // A filter for a tag that no longer exists anywhere is cleared.
+                if let f = document.tagFilter, !newTags.contains(f) { document.tagFilter = nil }
+            }
+        }
     }
 }
 #endif

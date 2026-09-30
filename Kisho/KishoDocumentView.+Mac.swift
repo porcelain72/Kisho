@@ -12,6 +12,7 @@ struct KishoDocumentView: View {
   //  @Binding var document: KishoDocumentModel
    
     @State private var showDeleteAlert = false
+    @StateObject private var find = FindState()
     @Environment(\.undoManager) private var undoManager
 
     @EnvironmentObject var document : KishoDocumentModel
@@ -38,6 +39,8 @@ struct KishoDocumentView: View {
             
             KishoSidebarOutlineView(showDeleteAlert: $showDeleteAlert)
                 .environmentObject(self.document)
+                .environmentObject(find)
+                .focusedValue(\.kishoFindState, find)
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                 .focusedValue(\.showDeleteAlert , $showDeleteAlert)
@@ -46,6 +49,8 @@ struct KishoDocumentView: View {
         } detail: {
             KishoCardListEditorView()
                 .environmentObject(self.document)
+                .environmentObject(find)
+                .focusedValue(\.kishoFindState, find)
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                 .focusedValue(\.showDeleteAlert , $showDeleteAlert)
@@ -72,6 +77,13 @@ struct KishoDocumentView: View {
                 .disabled(document.selectedSection?.children.isEmpty ?? true)
                 .help("Gather all sub-section text back into the selected section (⌥⌘G)")
                 
+                Button {
+                    find.show()
+                } label: {
+                    Label("Find", systemImage: "magnifyingglass")
+                }
+                .help("Find and replace across all blocks (⌘F)")
+
                 Button {
                     showingExportOptions = true
                 } label: {

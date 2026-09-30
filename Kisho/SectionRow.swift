@@ -21,7 +21,23 @@ struct SectionRow: View {
 
     enum DropPosition { case above, on, below }
 
+    /// Under a tag filter: `.hidden` when neither this block nor a descendant
+    /// carries the tag, `.context` when only descendants do, `.match` otherwise.
+    private enum FilterState { case match, context, hidden }
+
+    private var filterState: FilterState {
+        guard let tag = document.tagFilter else { return .match }
+        if section.tags.contains(tag) { return .match }
+        return document.subtreeHasTag(tag, in: section) ? .context : .hidden
+    }
+
     var body: some View {
+        if filterState != .hidden {
+            rowAndChildren
+        }
+    }
+
+    private var rowAndChildren: some View {
         VStack(spacing: 0) {
             // Drop above
             dropTargetView(position: .above)
@@ -38,6 +54,7 @@ struct SectionRow: View {
                 }
             }
             .modifier(CellModifier(depth: depth, selected: self.section.id == document.selectedSectionID))
+            .opacity(filterState == .context ? 0.45 : 1)
             .contentShape(Rectangle())
             .onTapGesture { self.document.select(section: section) }
             .overlay(
