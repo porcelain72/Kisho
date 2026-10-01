@@ -856,6 +856,7 @@ final class KishoTests: XCTestCase {
     
     func testAddSectionRequestsTitleFocus() throws {
         let (document, a, _, _, _) = makeDocument()
+        document.newBlockFocus = { .title }   // independent of the Mac's Settings
         document.selectedSectionID = a.id
         document.addSiblingSection()
         XCTAssertEqual(document.focusRequest?.sectionID, document.selectedSectionID)
@@ -1378,7 +1379,15 @@ final class KishoTests: XCTestCase {
 
     func testNewBlockFocusFollowsPreference() throws {
         let (document, _, _, _, _) = makeDocument()
+        // The preference lives in the real UserDefaults; pin it and put it back.
+        let key = KishoPreferences.Key.newBlockFocusesBody
+        let saved = UserDefaults.standard.object(forKey: key)
+        defer { if let saved { UserDefaults.standard.set(saved, forKey: key) } else { UserDefaults.standard.removeObject(forKey: key) } }
+        UserDefaults.standard.removeObject(forKey: key)
         XCTAssertEqual(KishoPreferences.newBlockFocus, .title, "default is the title")
+        UserDefaults.standard.set(true, forKey: key)
+        XCTAssertEqual(KishoPreferences.newBlockFocus, .body)
+        UserDefaults.standard.set(false, forKey: key)
         document.newBlockFocus = { .body }
         document.addSiblingSection()
         XCTAssertEqual(document.focusRequest?.field, .body)
