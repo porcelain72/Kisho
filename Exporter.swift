@@ -277,7 +277,9 @@ extension Exporter {
         case .docx:
             data = Docx.data(from: document.sections, typography: document.typography)
         case .pdf:
-            data = pdfData(from: attributedText(from: document.sections))
+            // Same pages as File ▸ Print: the user's paper and margins, page numbers,
+            // headings kept with their text.
+            data = PageLayout.pdfData(from: document.sections, options: .fromPrintInfo(title: title))
         case .html:
             data = Data(htmlString(from: document.sections).utf8)
         }

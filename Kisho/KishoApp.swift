@@ -44,6 +44,7 @@ struct KishoApp: App {
             ExportCommands()
             FindCommands()
             HelpCommands()
+            PrintCommands()
         }
         #endif
 

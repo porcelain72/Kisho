@@ -37,6 +37,7 @@
 		A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */; };
 		A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */; };
 		A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */; };
+		A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */; platformFilters = (macos, ); };
 		A1B2C3D42F00001600KISHO01 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -92,6 +93,7 @@
 		A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocx.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPreferences.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoHelpView.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPrint.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -159,6 +161,7 @@
 				A1B2C3D42F00000D00KISHO01 /* KishoMarkdown.swift */,
 				A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */,
 				A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */,
+				A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */,
 				A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */,
 				A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */,
 				A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */,
@@ -348,6 +351,7 @@
 				A1B2C3D42F00000E00KISHO01 /* KishoMarkdown.swift in Sources */,
 				A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */,
 				A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */,
+				A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */,
 				A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */,
 				A1B2C3D42F00000400KISHO01 /* SectionSubtreeEditorModel.swift in Sources */,
 				A1B2C3D42F00000200KISHO01 /* KishoSection+Composite.swift in Sources */,

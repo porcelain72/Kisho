@@ -8,6 +8,7 @@
 import XCTest
 import Combine
 import AppKit
+import PDFKit
 import RichTextEditor
 @testable import Kisho
 
@@ -1384,6 +1385,68 @@ final class KishoTests: XCTestCase {
         document.newBlockFocus = { .title }
         document.addChildSection()
         XCTAssertEqual(document.focusRequest?.field, .title)
+    }
+
+    // MARK: - Print / paged PDF
+
+    func testPrintableTextTagsHeadingsByDepthAndKeepsBodies() throws {
+        let (document, a, _, _, _) = makeDocument()
+        a.content.attributedString = NSAttributedString(string: "line one\nline two\n\n")
+        let text = PageLayout.printableText(from: document.sections)
+        let string = text.string
+        XCTAssertTrue(string.hasPrefix("A\nline one\nline two\nA1\n"), string)
+        XCTAssertEqual(text.attribute(.kishoHeading, at: 0, effectiveRange: nil) as? Int, 1)
+        let a1Index = (string as NSString).range(of: "A1\n").location
+        XCTAssertEqual(text.attribute(.kishoHeading, at: a1Index, effectiveRange: nil) as? Int, 2)
+        XCTAssertNil(text.attribute(.kishoHeading, at: 2, effectiveRange: nil), "bodies are not headings")
+        let h1 = text.attribute(.font, at: 0, effectiveRange: nil) as! NSFont
+        let h2 = text.attribute(.font, at: a1Index, effectiveRange: nil) as! NSFont
+        XCTAssertGreaterThan(h1.pointSize, h2.pointSize)
+        XCTAssertEqual(text.attribute(.foregroundColor, at: 2, effectiveRange: nil) as? NSColor, .black)
+    }
+
+    func testPaginationNeverLeavesAHeadingAtTheFootOfAPage() throws {
+        // Many short blocks on very short pages: without keep-with-next some
+        // page would end on a heading.
+        var sections: [KishoSection] = []
+        for i in 1...40 {
+            let body = NSAttributedString(string: String(repeating: "Body text for block \(i). ", count: 3))
+            sections.append(makeSection(title: "Heading \(i)", body: body.string))
+        }
+        let text = PageLayout.printableText(from: sections)
+        let pages = PageLayout.paginate(text, contentSize: CGSize(width: 300, height: 160))
+        XCTAssertGreaterThan(pages.pageCount, 5)
+
+        let storage = pages.storage
+        for (index, range) in pages.pageRanges.enumerated() where index < pages.pageCount - 1 {
+            // The last non-empty line on the page must not be a heading.
+            var end = NSMaxRange(range)
+            let ns = storage.string as NSString
+            while end > range.location, CharacterSet.newlines.contains(Unicode.Scalar(ns.character(at: end - 1))!) { end -= 1 }
+            guard end > range.location else { continue }
+            let lastLine = ns.paragraphRange(for: NSRange(location: end - 1, length: 0))
+            XCTAssertNil(storage.attribute(.kishoHeading, at: lastLine.location, effectiveRange: nil),
+                         "page \(index + 1) ends with heading '\(ns.substring(with: lastLine).trimmingCharacters(in: .newlines))'")
+        }
+        // Every character is on exactly one page, in order.
+        var covered = 0
+        for range in pages.pageRanges { XCTAssertEqual(range.location, covered); covered = NSMaxRange(range) }
+        XCTAssertEqual(covered, storage.length)
+    }
+
+    func testPagedPDFHasOnePagePerContainerWithFooter() throws {
+        let (document, _, _, _, _) = makeDocument()
+        let options = PageLayout.Options(pageSize: CGSize(width: 595, height: 842),
+                                         margins: NSEdgeInsets(top: 72, left: 72, bottom: 72, right: 72),
+                                         title: "Test")
+        let data = try XCTUnwrap(PageLayout.pdfData(from: document.sections, options: options))
+        let pdf = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertEqual(pdf.pageCount, 1)
+        let pageText = pdf.page(at: 0)?.string ?? ""
+        XCTAssertTrue(pageText.contains("A1"))
+        XCTAssertTrue(pageText.contains("1 of 1"), pageText)
+        XCTAssertTrue(pageText.contains("Test"), pageText)
+        XCTAssertEqual(pdf.page(at: 0)?.bounds(for: .mediaBox).size, CGSize(width: 595, height: 842))
     }
 
     func testSubtreeHasTag() throws {
