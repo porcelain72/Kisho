@@ -1238,10 +1238,21 @@ final class KishoTests: XCTestCase {
         let (document, _, _, _, _) = makeDocument()
         let data = Docx.data(from: document.sections, typography: TypographySettings())
         XCTAssertEqual([UInt8](data.prefix(4)), [0x50, 0x4B, 0x03, 0x04], "local file header signature")
-        let text = String(decoding: data, as: UTF8.self)
-        for part in ["[Content_Types].xml", "_rels/.rels", "word/_rels/document.xml.rels", "word/document.xml", "word/styles.xml", "word/settings.xml"] {
-            XCTAssertEqual(text.components(separatedBy: part).count - 1, 2, "\(part) appears in a local header and the central directory")
+        // Walk the local file headers: name length at +26, name at +30,
+        // then the (stored, so uncompressed) data of the size at +18.
+        var names: [String] = []
+        var offset = 0
+        let bytes = [UInt8](data)
+        func u16(_ i: Int) -> Int { Int(bytes[i]) | Int(bytes[i + 1]) << 8 }
+        func u32(_ i: Int) -> Int { u16(i) | u16(i + 2) << 16 }
+        while offset + 30 <= bytes.count, u32(offset) == 0x04034b50 {
+            let nameLength = u16(offset + 26), extraLength = u16(offset + 28), size = u32(offset + 18)
+            names.append(String(decoding: bytes[(offset + 30)..<(offset + 30 + nameLength)], as: UTF8.self))
+            offset += 30 + nameLength + extraLength + size
         }
+        XCTAssertEqual(names, ["[Content_Types].xml", "_rels/.rels", "word/_rels/document.xml.rels",
+                               "word/document.xml", "word/styles.xml", "word/settings.xml"])
+        XCTAssertEqual(u32(offset), 0x02014b50, "central directory follows the last entry")
         // End of central directory: signature then two zero shorts, then the entry count twice.
         let eocd = data.suffix(22)
         XCTAssertEqual([UInt8](eocd.prefix(4)), [0x50, 0x4B, 0x05, 0x06])
