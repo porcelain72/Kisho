@@ -208,6 +208,13 @@ private struct BlockInspectorForm: View {
                     }
                 }
 
+                // Tags
+                VStack(alignment: .leading, spacing: 6) {
+                    label("Tags")
+                    SectionTagsBar(section: section)
+                        .id(section.id)
+                }
+
                 // Synopsis
                 VStack(alignment: .leading, spacing: 6) {
                     label("Synopsis")
@@ -270,7 +277,6 @@ private struct BlockInspectorForm: View {
     private var summaryLine: String {
         var parts = ["\(section.totalWordCount.formatted()) words"]
         if !section.children.isEmpty { parts.append("\(section.children.count) sub-block\(section.children.count == 1 ? "" : "s")") }
-        if !section.tags.isEmpty { parts.append(section.tags.joined(separator: ", ")) }
         return parts.joined(separator: "  ·  ")
     }
 

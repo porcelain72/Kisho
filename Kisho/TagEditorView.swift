@@ -16,10 +16,8 @@ struct TagEditorView: View {
     @State private var currentSuggestion: String?
 
     var body: some View {
+        // The host (the inspector's Tags section) supplies the heading.
         VStack(alignment: .leading, spacing: 8) {
-            Text("Tags")
-                .font(.headline)
-
             FlowLayout(data: tags + ["__add__"], spacing: 6) { tag in
                 if tag == "__add__" {
                     TagInputPill(

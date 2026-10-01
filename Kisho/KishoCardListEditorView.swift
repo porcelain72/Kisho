@@ -83,10 +83,6 @@ struct KishoCardListEditorView: View {
                 }
             }
 
-            if !focusMode, let selected = document.selectedSection {
-                SectionTagsBar(section: selected)
-                    .id(selected.id)
-            }
         }
         // The editor area carries its own theme; the chrome around it follows the system.
         .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
@@ -341,9 +337,9 @@ private struct SectionCard: View {
     }
 }
 
-// MARK: - Tags bar
+// MARK: - Tags editor (hosted by the inspector)
 
-private struct SectionTagsBar: View {
+struct SectionTagsBar: View {
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @ObservedObject var section: KishoSection
