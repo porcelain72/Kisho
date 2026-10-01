@@ -69,6 +69,7 @@ struct ExportCommands: Commands {
     var body: some Commands {
         CommandGroup(after: .importExport) {
             Button("Import Markdown…") { Markdown.importIntoNewDocument() }
+            Button("Import OPML…") { OPML.importIntoNewDocument() }
             Menu("Export As") {
                 ForEach(Exporter.Format.allCases) { format in
                     Button("\(format.title)…") {

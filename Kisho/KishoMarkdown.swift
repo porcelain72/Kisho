@@ -362,32 +362,12 @@ extension Markdown {
     /// File ▸ Import Markdown…: choose a file, parse it, and open the result
     /// as a new untitled document. The chosen file is only read.
     static func importIntoNewDocument() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.markdownText, .plainText]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.message = "Choose a Markdown file. Its headings become blocks in a new document; the file itself is not changed."
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            do {
-                let text = try String(contentsOf: url)
-                let imported = document(from: text)
-                let model = KishoDocumentModel(sections: imported.sections)
-                model.typography = imported.typography
-                KishoDocument.pendingImport = model
-                NSDocumentController.shared.newDocument(nil)
-                // The new window is key by the time this runs. Mark it edited so
-                // closing it asks about saving and the import can't be lost silently.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    if let document = NSApp.keyWindow?.windowController?.document as? NSDocument,
-                       document.fileURL == nil {
-                        document.updateChangeCount(.changeDone)
-                    }
-                }
-            } catch {
-                KishoDocument.pendingImport = nil
-                NSAlert(error: error).runModal()
-            }
+        DocumentImport.run(
+            allowedTypes: [.markdownText, .plainText],
+            message: "Choose a Markdown file. Its headings become blocks in a new document; the file itself is not changed."
+        ) { url in
+            let imported = document(from: try String(contentsOf: url))
+            return (imported.sections, imported.typography)
         }
     }
 }

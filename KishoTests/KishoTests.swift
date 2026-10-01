@@ -1458,6 +1458,67 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(pdf.page(at: 0)?.bounds(for: .mediaBox).size, CGSize(width: 595, height: 842))
     }
 
+    // MARK: - OPML
+
+    func testOPMLExportNestsOutlinesWithNotesAndCategories() throws {
+        let (document, a, a1, _, b) = makeDocument()
+        a.title = "Alpha & <Co>"
+        a.content.attributedString = NSAttributedString(string: "First line.\nSecond \"quoted\" line.\n")
+        a1.tags = ["draft", "to do"]
+        b.content.attributedString = NSAttributedString(string: "")
+
+        let opml = OPML.string(from: document.sections, title: "My Book")
+        XCTAssertTrue(opml.hasPrefix("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<opml version=\"2.0\">\n<head><title>My Book</title></head>\n<body>\n"))
+        XCTAssertTrue(opml.contains("  <outline text=\"Alpha &amp; &lt;Co&gt;\" _note=\"First line.&#10;Second &quot;quoted&quot; line.\">\n"))
+        XCTAssertTrue(opml.contains("    <outline text=\"A1\" _note=\"a1\" category=\"draft,to do\"/>\n"))
+        XCTAssertTrue(opml.contains("  <outline text=\"B\"/>\n"), "empty body → no _note")
+        XCTAssertTrue(opml.hasSuffix("</body>\n</opml>\n"))
+        XCTAssertNoThrow(try XMLDocument(xmlString: opml), "well-formed XML")
+    }
+
+    func testOPMLImportBuildsBlocksFromOutlines() throws {
+        let opml = """
+        <?xml version="1.0"?>
+        <opml version="2.0"><head><title>T</title></head>
+        <body>
+          <outline text="One" _note="Para one.&#10;&#10;Para two." category="x, y">
+            <outline text="One A"/>
+            <outline title="One B (title attr)" _note="  "/>
+          </outline>
+          <outline text="Two"><outline text="Deep"><outline text="Deeper"/></outline></outline>
+          <outline text=""/>
+        </body></opml>
+        """
+        let sections = try OPML.sections(from: Data(opml.utf8))
+        XCTAssertEqual(sections.map(\.title), ["One", "Two", "Untitled"])
+        XCTAssertEqual(sections[0].content.attributedString.string, "Para one.\nPara two.", "blank lines collapse")
+        XCTAssertEqual(sections[0].tags, ["x", "y"])
+        XCTAssertEqual(sections[0].children.map(\.title), ["One A", "One B (title attr)"])
+        XCTAssertEqual(sections[0].children[1].content.attributedString.length, 0, "whitespace-only note is no body")
+        XCTAssertEqual(sections[1].children[0].children.map(\.title), ["Deeper"])
+        XCTAssertEqual(sections[2].children.count, 0)
+
+        let font = sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertEqual(font?.familyName, TypographySettings().baseFont.familyName)
+    }
+
+    func testOPMLRoundTripAndErrors() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        a1.tags = ["t"]
+        a.content.attributedString = NSAttributedString(string: "Line 1\nLine 2")
+        let again = try OPML.sections(from: Data(OPML.string(from: document.sections, title: "x").utf8))
+        XCTAssertEqual(again.map(\.title), ["A", "B"])
+        XCTAssertEqual(again[0].children.map(\.title), ["A1", "A2"])
+        XCTAssertEqual(again[0].children[0].tags, ["t"])
+        XCTAssertEqual(again[0].content.attributedString.string, "Line 1\nLine 2")
+
+        XCTAssertThrowsError(try OPML.sections(from: Data("<html><body>hi</body></html>".utf8))) { error in
+            XCTAssertTrue((error as? OPML.ImportError) != nil)
+        }
+        XCTAssertThrowsError(try OPML.sections(from: Data("<opml><body><outline text='x'>".utf8)), "malformed XML")
+        XCTAssertEqual(try OPML.sections(from: Data("<opml version=\"2.0\"><body/></opml>".utf8)).map(\.title), ["Untitled"])
+    }
+
     func testSubtreeHasTag() throws {
         let (document, a, a1, _, b) = makeDocument()
         a1.tags = ["draft"]
