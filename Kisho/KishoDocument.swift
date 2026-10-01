@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 extension UTType {
     static let kishoDoc = UTType(exportedAs: "com.pm.kisho.document")
     static let kishoSectionID = UTType(exportedAs: "com.pm.kisho.section-id")
-    /// Markdown files, which open as a new (untitled) Kisho document.
+    /// Markdown files, for File ▸ Import Markdown….
     static let markdownText = UTType(importedAs: "net.daringfireball.markdown", conformingTo: .plainText)
 }
 
@@ -25,33 +25,34 @@ extension UTType {
 final class KishoDocument: ReferenceFileDocument {
     typealias Snapshot = Data
 
-    /// Markdown is readable but not writable, so opening a .md file imports
-    /// it into a new untitled document rather than editing the file in place.
-    static var readableContentTypes: [UTType] { [.kishoDoc, .markdownText] }
-    static var writableContentTypes: [UTType] { [.kishoDoc] }
+    static var readableContentTypes: [UTType] { [.kishoDoc] }
 
     let model: KishoDocumentModel
 
-    init(model: KishoDocumentModel = KishoDocumentModel()) {
-        self.model = model
+    /// Content for the next new untitled document, set by File ▸ Import
+    /// Markdown… immediately before asking AppKit for a new document. Going
+    /// through the ordinary new-document path (rather than declaring Markdown
+    /// as a readable type) is what makes Save behave: a document opened from
+    /// a .md would otherwise keep that file as its URL and ⌘S would overwrite
+    /// the Markdown with Kisho's JSON.
+    static var pendingImport: KishoDocumentModel?
+
+    init(model: KishoDocumentModel? = nil) {
+        if let model {
+            self.model = model
+        } else if let pending = KishoDocument.pendingImport {
+            KishoDocument.pendingImport = nil
+            self.model = pending
+        } else {
+            self.model = KishoDocumentModel()
+        }
     }
 
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents else {
             throw CocoaError(.fileReadCorruptFile)
         }
-        if configuration.contentType == .kishoDoc {
-            self.model = try JSONDecoder().decode(KishoDocumentModel.self, from: data)
-        } else {
-            // Markdown (or any plain text): build blocks from the headings.
-            guard let text = String(data: data, encoding: .utf8)
-                    ?? String(data: data, encoding: .utf16) else {
-                throw CocoaError(.fileReadInapplicableStringEncoding)
-            }
-            let imported = Markdown.document(from: text)
-            self.model = KishoDocumentModel(sections: imported.sections)
-            self.model.typography = imported.typography
-        }
+        self.model = try JSONDecoder().decode(KishoDocumentModel.self, from: data)
     }
 
     func snapshot(contentType: UTType) throws -> Data {

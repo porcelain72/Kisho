@@ -49,12 +49,13 @@ struct KishoApp: App {
 }
 
 #if os(macOS)
-/// File ▸ Export as … items, mirroring the toolbar's Export button.
+/// File ▸ Import Markdown… and Export As … items (the latter mirroring the toolbar's Export button).
 struct ExportCommands: Commands {
     @FocusedValue(\.kishoDocumentModel) private var documentModel
 
     var body: some Commands {
         CommandGroup(after: .importExport) {
+            Button("Import Markdown…") { Markdown.importIntoNewDocument() }
             Menu("Export As") {
                 ForEach(Exporter.Format.allCases) { format in
                     Button("\(format.title)…") {
