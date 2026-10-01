@@ -37,10 +37,10 @@
 		A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */; };
 		A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */; };
 		A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */; };
-		A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */; platformFilters = (macos, ); };
-		A1B2C3D42F00001C00KISHO01 /* KishoBlockMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */; };
-		A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */; };
 		A1B2C3D42F00001600KISHO01 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */; };
+		A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */; platformFilters = (macos, ); };
+		A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */; };
+		A1B2C3D42F00001C00KISHO01 /* KishoBlockMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,10 +95,10 @@
 		A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocx.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPreferences.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoHelpView.swift; sourceTree = "<group>"; };
-		A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPrint.swift; sourceTree = "<group>"; };
-		A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoBlockMetadata.swift; sourceTree = "<group>"; };
-		A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoOPML.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPrint.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoOPML.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoBlockMetadata.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
