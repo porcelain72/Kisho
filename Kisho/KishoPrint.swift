@@ -253,20 +253,62 @@ enum Printer {
     }
 }
 
-/// File ▸ Page Setup… and Print…, replacing SwiftUI's placeholders.
-struct PrintCommands: Commands {
-    @FocusedValue(\.kishoDocumentModel) private var documentModel
+/// Which document model each window shows, so commands can act on the
+/// front window without depending on where keyboard focus happens to be
+/// (focused values are nil when focus is in the sidebar or a panel).
+enum WindowDocuments {
+    private static let table = NSMapTable<NSWindow, KishoDocumentModel>(keyOptions: .weakMemory, valueOptions: .weakMemory)
 
+    static func register(_ model: KishoDocumentModel, for window: NSWindow) {
+        table.setObject(model, forKey: window)
+    }
+
+    /// The model in the key (or main) window.
+    static var front: KishoDocumentModel? {
+        if let window = NSApp.keyWindow, let model = table.object(forKey: window) { return model }
+        if let window = NSApp.mainWindow, let model = table.object(forKey: window) { return model }
+        return nil
+    }
+}
+
+/// Invisible view that registers its document model with the window it ends
+/// up in. Dropped into the document view's background.
+struct WindowDocumentRegistrar: NSViewRepresentable {
+    let model: KishoDocumentModel
+
+    func makeNSView(context: Context) -> RegistrarView {
+        let view = RegistrarView()
+        view.model = model
+        return view
+    }
+
+    func updateNSView(_ view: RegistrarView, context: Context) {
+        view.model = model
+        if let window = view.window { WindowDocuments.register(model, for: window) }
+    }
+
+    final class RegistrarView: NSView {
+        var model: KishoDocumentModel?
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if let window, let model { WindowDocuments.register(model, for: window) }
+        }
+        override var isHidden: Bool { get { true } set {} }
+    }
+}
+
+/// File ▸ Page Setup… and Print…, replacing SwiftUI's placeholders. Acts on
+/// the front window's document whatever has keyboard focus.
+struct PrintCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .printItem) {
             Button("Page Setup…") { Printer.pageSetup() }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
             Button("Print…") {
-                guard let documentModel else { return }
-                Printer.printDocument(documentModel, title: Exporter.keyWindowDocumentTitle)
+                guard let model = WindowDocuments.front else { NSSound.beep(); return }
+                Printer.printDocument(model, title: Exporter.keyWindowDocumentTitle)
             }
             .keyboardShortcut("p", modifiers: .command)
-            .disabled(documentModel == nil)
         }
     }
 }

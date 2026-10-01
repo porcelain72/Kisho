@@ -147,6 +147,7 @@ struct KishoDocumentView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+        .background(WindowDocumentRegistrar(model: document))
         .onAppear {
             // First launch: open the one-page guide beside the document.
             guard !hasShownWelcome else { return }
