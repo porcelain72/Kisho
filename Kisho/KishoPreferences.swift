@@ -15,6 +15,7 @@ enum KishoPreferences {
         static let defaultFontSize = "defaultFontSize"
         static let newBlockFocusesBody = "newBlockFocusesBody"
         static let hasShownWelcome = "hasShownWelcome"
+        static let printMargins = "printMargins"
     }
 
     private static var defaults: UserDefaults { .standard }
@@ -24,6 +25,32 @@ enum KishoPreferences {
         let family = defaults.string(forKey: Key.defaultFontFamily) ?? TypographySettings.defaultFontFamily
         let size = defaults.object(forKey: Key.defaultFontSize) as? Double ?? TypographySettings.defaultFontSize
         return TypographySettings(fontFamily: family, fontSize: size)
+    }
+
+    /// Page margins for Print and PDF export. The system Page Setup sheet
+    /// covers paper and orientation only, so this lives here.
+    enum PrintMargins: String, CaseIterable, Identifiable {
+        case narrow, normal, wide
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .narrow: return "Narrow (1.3 cm)"
+            case .normal: return "Normal (2.5 cm)"
+            case .wide: return "Wide (3.5 cm)"
+            }
+        }
+        /// Points on every side.
+        var points: CGFloat {
+            switch self {
+            case .narrow: return 36
+            case .normal: return 72
+            case .wide: return 100
+            }
+        }
+    }
+
+    static var printMargins: PrintMargins {
+        PrintMargins(rawValue: defaults.string(forKey: Key.printMargins) ?? "") ?? .normal
     }
 
     /// Where the keyboard goes when a block is added: its title (default) or
@@ -41,6 +68,7 @@ struct KishoSettingsView: View {
     @AppStorage(KishoPreferences.Key.defaultFontFamily) private var fontFamily = TypographySettings.defaultFontFamily
     @AppStorage(KishoPreferences.Key.defaultFontSize) private var fontSize = TypographySettings.defaultFontSize
     @AppStorage(KishoPreferences.Key.newBlockFocusesBody) private var newBlockFocusesBody = false
+    @AppStorage(KishoPreferences.Key.printMargins) private var printMargins = KishoPreferences.PrintMargins.normal.rawValue
 
     @State private var families: [String] = []
 
@@ -71,6 +99,17 @@ struct KishoSettingsView: View {
                 }
                 .pickerStyle(.radioGroup)
                 Text("Applies to Add Sibling (⌘=), Add Child (⇧⌘=) and ⌘↩.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Print and PDF") {
+                Picker("Margins:", selection: $printMargins) {
+                    ForEach(KishoPreferences.PrintMargins.allCases) { margins in
+                        Text(margins.title).tag(margins.rawValue)
+                    }
+                }
+                Text("Paper size and orientation come from File ▸ Page Setup….")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

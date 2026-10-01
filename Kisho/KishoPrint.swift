@@ -27,12 +27,13 @@ enum PageLayout {
         var title: String
         var pageNumbers = true
 
-        /// The user's paper and margins from Page Setup (A4 or Letter by locale).
+        /// The user's paper from Page Setup (A4 or Letter by locale) and the
+        /// margins from Settings (Page Setup has no margin controls).
         static func fromPrintInfo(_ info: NSPrintInfo = .shared, title: String) -> Options {
-            Options(pageSize: info.paperSize,
-                    margins: NSEdgeInsets(top: info.topMargin, left: info.leftMargin,
-                                          bottom: info.bottomMargin, right: info.rightMargin),
-                    title: title)
+            let m = KishoPreferences.printMargins.points
+            return Options(pageSize: info.paperSize,
+                           margins: NSEdgeInsets(top: m, left: m, bottom: m, right: m),
+                           title: title)
         }
 
         var contentSize: CGSize {
@@ -230,6 +231,8 @@ enum Printer {
     /// what prints is exactly what Export As ▸ PDF would write.
     static func printDocument(_ model: KishoDocumentModel, title: String) {
         let info = NSPrintInfo.shared.copy() as! NSPrintInfo
+        // The PDF already carries the margins; the print operation must not add its own.
+        info.topMargin = 0; info.bottomMargin = 0; info.leftMargin = 0; info.rightMargin = 0
         guard let data = PageLayout.pdfData(from: model.sections, options: .fromPrintInfo(info, title: title)),
               let pdf = PDFDocument(data: data),
               let operation = pdf.printOperation(for: info, scalingMode: .pageScaleNone, autoRotate: false) else {
