@@ -83,108 +83,120 @@ struct KishoDocumentView: View {
             withAnimation(.easeOut(duration: 0.12)) { columns = on ? .detailOnly : .all }
         }
         .toolbar {
-            ToolbarItemGroup {
-              // Focus mode keeps the toolbar (and so the window tabs) but
-              // strips it down to the one way out.
-              if focusMode {
-                Button {
-                    focusMode = false
-                } label: {
-                    Label("Exit Focus Mode", systemImage: "rectangle.inset.filled")
-                }
-                .help("Exit Focus Mode (⌥⌘F)")
-              } else {
-                ToolbarTypographyControlsView()
-          
-                Button {
-                    document.makeChildren(undoManager: undoManager)
-                } label: {
-                    Label("Split", systemImage: "square.fill.text.grid.1x2")
-                }
-                .keyboardShortcut("p", modifiers: [.command, .option])
-                .disabled(document.selectedSection == nil)
-                .help("Split the selected block's paragraphs into sub-blocks (⌥⌘P)")
-                
-                Button {
-                    document.gather(undoManager: undoManager)
-                } label: {
-                    Label("Gather", systemImage: "rectangle.compress.vertical")
-                }
-                .keyboardShortcut("g", modifiers: [.command, .option])
-                .disabled(document.selectedSection?.children.isEmpty ?? true)
-                .help("Gather all sub-block text back into the selected block (⌥⌘G)")
-                
-                Button {
-                    find.show()
-                } label: {
-                    Label("Find", systemImage: "magnifyingglass")
-                }
-                .help("Find and replace across all blocks (⌘F)")
-
-                Button {
-                    showInspector.toggle()
-                } label: {
-                    Label("Inspector", systemImage: "sidebar.right")
-                }
-                .help(showInspector ? "Hide the block inspector (⌥⌘I)" : "Show the block inspector: status, colour, synopsis, notes (⌥⌘I)")
-
-                // Share the .kisho file itself (Mail, AirDrop, Messages…).
-                // Exports to other formats live under File ▸ Export As.
-                if let fileURL {
-                    ShareLink(item: fileURL) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                    .help("Share this document file")
-                } else {
+            // Groups, left to right, in the order they tend to be used:
+            // blocks · restructure · text · history · tools.
+            if focusMode {
+                // Focus mode keeps the toolbar (and so the window tabs) but
+                // strips it down to the one way out.
+                ToolbarItem {
                     Button {
-                        NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
+                        focusMode = false
                     } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label("Exit Focus Mode", systemImage: "rectangle.inset.filled")
                     }
-                    .help("Save the document first to share it")
+                    .help("Exit Focus Mode (⌥⌘F)")
                 }
-         
-                Button {
-                    undoManager?.undo()
-                } label: {
-                    Label("Undo", systemImage: "arrow.uturn.left")
-                }
-                .disabled(!(undoManager?.canUndo ?? false))
-                .help("Undo")
-                 
-                Button {
-                    undoManager?.redo()
-                } label: {
-                    Label("Redo", systemImage: "arrow.uturn.right")
-                }
-                .disabled(!(undoManager?.canRedo ?? false))
-                .help("Redo")
-           
-                Button {
-                    document.addSiblingSection(using: undoManager)
-                } label: {
-                    Label("Add Sibling", systemImage: "plus")
-                }
-                .keyboardShortcut("=", modifiers: [.command])
-                .help("Add a block after the selected one, at the same level (⌘=)")
+            } else {
+                ToolbarItemGroup {
+                    Button {
+                        document.addSiblingSection(using: undoManager)
+                    } label: {
+                        Label("Add Sibling", systemImage: "plus")
+                    }
+                    .keyboardShortcut("=", modifiers: [.command])
+                    .help("Add a block after the selected one, at the same level (⌘=)")
 
-                Button {
-                    document.addChildSection(using: undoManager)
-                } label: {
-                    Label("Add Child", systemImage: "plus.square.on.square")
-                }
-                .keyboardShortcut("=", modifiers: [.command, .shift])
-                .disabled(document.selectedSection == nil)
-                .help("Add a sub-block inside the selected block (⇧⌘=)")
+                    Button {
+                        document.addChildSection(using: undoManager)
+                    } label: {
+                        Label("Add Child", systemImage: "plus.square.on.square")
+                    }
+                    .keyboardShortcut("=", modifiers: [.command, .shift])
+                    .disabled(document.selectedSection == nil)
+                    .help("Add a sub-block inside the selected block (⇧⌘=)")
 
-                Button(role: .destructive) {
-                    showDeleteAlert = true
-                } label: {
-                    Label("Delete Block", systemImage: "trash")
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
+                    } label: {
+                        Label("Delete Block", systemImage: "trash")
+                    }
+                    .disabled(document.selectedSection == nil)
+                    .help("Delete the selected block and its sub-blocks (⇧⌘⌫)")
                 }
-                .disabled(document.selectedSection == nil)
-                .help("Delete the selected block and its sub-blocks (⇧⌘⌫)")
-              }
+
+                ToolbarItemGroup {
+                    Button {
+                        document.makeChildren(undoManager: undoManager)
+                    } label: {
+                        Label("Split", systemImage: "square.fill.text.grid.1x2")
+                    }
+                    .keyboardShortcut("p", modifiers: [.command, .option])
+                    .disabled(document.selectedSection == nil)
+                    .help("Split the selected block's paragraphs into sub-blocks (⌥⌘P)")
+
+                    Button {
+                        document.gather(undoManager: undoManager)
+                    } label: {
+                        Label("Gather", systemImage: "rectangle.compress.vertical")
+                    }
+                    .keyboardShortcut("g", modifiers: [.command, .option])
+                    .disabled(document.selectedSection?.children.isEmpty ?? true)
+                    .help("Gather all sub-block text back into the selected block (⌥⌘G)")
+                }
+
+                ToolbarItemGroup {
+                    ToolbarTypographyControlsView()
+                }
+
+                ToolbarItemGroup {
+                    Button {
+                        undoManager?.undo()
+                    } label: {
+                        Label("Undo", systemImage: "arrow.uturn.left")
+                    }
+                    .disabled(!(undoManager?.canUndo ?? false))
+                    .help("Undo")
+
+                    Button {
+                        undoManager?.redo()
+                    } label: {
+                        Label("Redo", systemImage: "arrow.uturn.right")
+                    }
+                    .disabled(!(undoManager?.canRedo ?? false))
+                    .help("Redo")
+                }
+
+                ToolbarItemGroup {
+                    Button {
+                        find.show()
+                    } label: {
+                        Label("Find", systemImage: "magnifyingglass")
+                    }
+                    .help("Find and replace across all blocks (⌘F)")
+
+                    Button {
+                        showInspector.toggle()
+                    } label: {
+                        Label("Inspector", systemImage: "sidebar.right")
+                    }
+                    .help(showInspector ? "Hide the block inspector (⌥⌘I)" : "Show the block inspector: status, colour, synopsis, notes (⌥⌘I)")
+
+                    // Share the .kisho file itself (Mail, AirDrop, Messages…).
+                    // Exports to other formats live under File ▸ Export As.
+                    if let fileURL {
+                        ShareLink(item: fileURL) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .help("Share this document file")
+                    } else {
+                        Button {
+                            NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .help("Save the document first to share it")
+                    }
+                }
             }
         }
         .background(WindowDocumentRegistrar(model: document))
