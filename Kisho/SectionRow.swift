@@ -13,6 +13,7 @@ struct SectionRow: View {
     @Environment(\.undoManager) private var undoManager
 
     @ObservedObject var section: KishoSection
+    @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
 
     @State private var dropPosition: DropPosition?
 
@@ -43,11 +44,31 @@ struct SectionRow: View {
             dropTargetView(position: .above)
 
             // The row content
-            HStack {
-                Text(section.displayTitle)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+            HStack(spacing: 6) {
+                if let colour = section.colorIndex {
+                    Circle()
+                        .fill(BlockPalette.color(colour))
+                        .frame(width: 7, height: 7)
+                        .help(BlockPalette.names[colour])
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(section.displayTitle)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    if showSynopses, !section.synopsis.isEmpty {
+                        Text(section.synopsis)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                }
                 Spacer()
+                if let status = section.status {
+                    Image(systemName: status.symbol)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(status == .done ? Color.green : Color.secondary)
+                        .help(status.title)
+                }
                 wordCountLabel()
                 if !section.children.isEmpty {
                     showButton()

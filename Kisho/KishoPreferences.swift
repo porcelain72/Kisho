@@ -16,6 +16,8 @@ enum KishoPreferences {
         static let newBlockFocusesBody = "newBlockFocusesBody"
         static let hasShownWelcome = "hasShownWelcome"
         static let printMargins = "printMargins"
+        static let showInspector = "showInspector"
+        static let showSynopses = "showSynopsesInSidebar"
     }
 
     private static var defaults: UserDefaults { .standard }

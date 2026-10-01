@@ -55,7 +55,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
     /// pre-1.0 layout, which reads identically). Bump when a change needs
     /// migration; a newer file than this build understands is refused rather
     /// than half-read and then saved back with its extra data lost.
-    static let currentFormatVersion = 1
+    static let currentFormatVersion = 2   // 2: block status/colour/synopsis/notes
 
     enum FormatError: LocalizedError {
         case newerThanThisVersion(Int)
@@ -695,6 +695,51 @@ final class KishoDocumentModel: ObservableObject, Codable {
         registerReversible(undoManager, name: "Edit Tags",
                            undo: { target in target.objectWillChange.send(); section.tags = old },
                            redo: { target in target.objectWillChange.send(); section.tags = cleaned })
+    }
+
+    // MARK: Block metadata (status, colour, synopsis, notes)
+
+    func setStatus(_ status: BlockStatus?, for section: KishoSection, using undoManager: UndoManager? = nil) {
+        guard status != section.status else { return }
+        let old = section.status
+        objectWillChange.send()
+        section.status = status
+        registerReversible(undoManager, name: "Change Status",
+                           undo: { t in t.objectWillChange.send(); section.status = old },
+                           redo: { t in t.objectWillChange.send(); section.status = status })
+    }
+
+    func setColorIndex(_ index: Int?, for section: KishoSection, using undoManager: UndoManager? = nil) {
+        let index = BlockPalette.isValid(index) ? index : nil
+        guard index != section.colorIndex else { return }
+        let old = section.colorIndex
+        objectWillChange.send()
+        section.colorIndex = index
+        registerReversible(undoManager, name: "Change Colour",
+                           undo: { t in t.objectWillChange.send(); section.colorIndex = old },
+                           redo: { t in t.objectWillChange.send(); section.colorIndex = index })
+    }
+
+    func setSynopsis(_ synopsis: String, for section: KishoSection, using undoManager: UndoManager? = nil) {
+        let cleaned = synopsis.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard cleaned != section.synopsis else { return }
+        let old = section.synopsis
+        objectWillChange.send()
+        section.synopsis = cleaned
+        registerReversible(undoManager, name: "Edit Synopsis",
+                           undo: { t in t.objectWillChange.send(); section.synopsis = old },
+                           redo: { t in t.objectWillChange.send(); section.synopsis = cleaned })
+    }
+
+    func setNotes(_ notes: String, for section: KishoSection, using undoManager: UndoManager? = nil) {
+        let cleaned = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard cleaned != section.notes else { return }
+        let old = section.notes
+        objectWillChange.send()
+        section.notes = cleaned
+        registerReversible(undoManager, name: "Edit Notes",
+                           undo: { t in t.objectWillChange.send(); section.notes = old },
+                           redo: { t in t.objectWillChange.send(); section.notes = cleaned })
     }
 
     // MARK: Typography

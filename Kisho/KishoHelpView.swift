@@ -39,6 +39,9 @@ struct KishoHelpView: View {
                 topic("Tags and filtering",
                       "Add tags to the selected block in the bar below the editor. When any block has tags, a filter appears above the sidebar: pick a tag to see only the blocks carrying it (their parents stay visible, dimmed, for context).")
 
+                topic("Planning with the inspector",
+                      "View ▸ Show Inspector (⌥⌘I) opens a panel for the selected block: a status (Draft, Revised, Final, Done), one of eight colours, a synopsis and private notes. The sidebar shows the colour as a dot and the status as a small symbol, and View ▸ Show Synopses puts each synopsis under its title — so the sidebar doubles as an outline you can plan in. Notes are never exported.")
+
                 topic("Find and replace",
                       "⌘F searches titles, bodies and tags. Return or ⌘G steps through matches, ⇧⌘G steps back, ⌘E uses the selected text as the search term. Replace changes the current match; All changes every match in one undoable step and keeps each word's capitalisation.")
 
@@ -74,6 +77,7 @@ struct KishoHelpView: View {
         ("Find", "⌘F"),
         ("Find next / previous", "⌘G / ⇧⌘G"),
         ("Use selection for find", "⌘E"),
+        ("Inspector", "⌥⌘I"),
         ("This page", "⌘?"),
     ]
 

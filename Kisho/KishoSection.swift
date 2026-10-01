@@ -20,6 +20,13 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         didSet { relinkChildren() }
     }
     @Published var tags : [String]
+    // Planning metadata (see KishoBlockMetadata.swift). All optional in the
+    // file so documents from before they existed still open.
+    @Published var status: BlockStatus?
+    /// Index into `BlockPalette`, or nil for no colour.
+    @Published var colorIndex: Int?
+    @Published var synopsis: String = ""
+    @Published var notes: String = ""
     // NOTE: We do not store `parent` in the file; we rebuild it after decoding
     @Published var inspectorVersion : UUID = UUID()
 
@@ -34,6 +41,7 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     // MARK: - CodingKeys for Codable
     enum CodingKeys: String, CodingKey {
         case id, title, content, children, tags, createdAt, modifiedAt
+        case status, colorIndex, synopsis, notes
     }
 
     // MARK: - Initializers
@@ -72,6 +80,11 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         // only one level needs linking here.
         children = try container.decode([KishoSection].self, forKey: .children)
         tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        status = try container.decodeIfPresent(BlockStatus.self, forKey: .status)
+        let colour = try container.decodeIfPresent(Int.self, forKey: .colorIndex)
+        colorIndex = BlockPalette.isValid(colour) ? colour : nil
+        synopsis = try container.decodeIfPresent(String.self, forKey: .synopsis) ?? ""
+        notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
 
         relinkChildren()
     }
@@ -85,6 +98,11 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         try container.encode(modifiedAt,  forKey: .modifiedAt)
         try container.encode(children,  forKey: .children)
         try container.encode(tags, forKey: .tags)
+        // Only written when set, so untouched documents don't change shape.
+        try container.encodeIfPresent(status, forKey: .status)
+        try container.encodeIfPresent(colorIndex, forKey: .colorIndex)
+        if !synopsis.isEmpty { try container.encode(synopsis, forKey: .synopsis) }
+        if !notes.isEmpty { try container.encode(notes, forKey: .notes) }
     }
 
     private func relinkChildren() {

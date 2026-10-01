@@ -34,6 +34,15 @@ enum Markdown {
                 if !section.tags.isEmpty {
                     out.append("<!-- tags: " + section.tags.joined(separator: ", ") + " -->")
                 }
+                // Planning metadata, invisible when rendered, read back on import.
+                if let status = section.status { out.append("<!-- kisho: status \(status.rawValue) -->") }
+                if let colour = section.colorIndex { out.append("<!-- kisho: colour \(colour) -->") }
+                if !section.synopsis.isEmpty {
+                    out.append("<!-- synopsis: " + commentSafe(section.synopsis.replacingOccurrences(of: "\n", with: " ")) + " -->")
+                }
+                if !section.notes.isEmpty {
+                    out.append("<!-- notes:\n" + commentSafe(section.notes) + "\n-->")
+                }
                 let body = paragraphs(section.content.attributedString)
                 out.append(contentsOf: body)
                 walk(section.children, depth: depth + 1)
@@ -127,6 +136,11 @@ enum Markdown {
         return line
     }
 
+    /// A comment may not contain "--"; soften it so the file stays valid.
+    private static func commentSafe(_ s: String) -> String {
+        s.replacingOccurrences(of: "--", with: "—")
+    }
+
     private static func formatted(_ size: Double) -> String {
         size == size.rounded() ? String(Int(size)) : String(size)
     }
@@ -170,6 +184,10 @@ enum Markdown {
         var paragraphLines: [String] = []
         var bodyParagraphs: [NSAttributedString] = []
         var pendingTags: [String] = []
+        var pendingStatus: BlockStatus?
+        var pendingColour: Int?
+        var pendingSynopsis = ""
+        var pendingNotes = ""
 
         func flushParagraph() {
             guard !paragraphLines.isEmpty else { return }
@@ -193,8 +211,13 @@ enum Markdown {
             }
             section.content.attributedString = join(bodyParagraphs)
             section.tags = pendingTags
+            section.status = pendingStatus
+            section.colorIndex = BlockPalette.isValid(pendingColour) ? pendingColour : nil
+            section.synopsis = pendingSynopsis
+            section.notes = pendingNotes
             bodyParagraphs.removeAll()
             pendingTags.removeAll()
+            pendingStatus = nil; pendingColour = nil; pendingSynopsis = ""; pendingNotes = ""
         }
 
         func openBlock(title: String, level: Int) {
@@ -215,16 +238,36 @@ enum Markdown {
             let raw = lines[index]
             let line = raw.trimmingCharacters(in: .whitespaces)
 
-            // Tags comment (Kisho export) or any other HTML comment on its own line.
-            if line.hasPrefix("<!--"), line.hasSuffix("-->") {
-                let inner = line.dropFirst(4).dropLast(3).trimmingCharacters(in: .whitespaces)
-                if inner.lowercased().hasPrefix("tags:") {
+            // HTML comments: Kisho's own metadata, or anything else (dropped).
+            // A comment may span lines (notes do).
+            if line.hasPrefix("<!--") {
+                var commentLines = [String(line.dropFirst(4))]
+                var endIndex = index
+                while !(commentLines.last ?? "").contains("-->"), endIndex + 1 < lines.count {
+                    endIndex += 1
+                    commentLines.append(lines[endIndex])
+                }
+                if let last = commentLines.last, let close = last.range(of: "-->") {
+                    commentLines[commentLines.count - 1] = String(last[..<close.lowerBound])
+                }
+                let inner = commentLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+                let lower = inner.lowercased()
+                if lower.hasPrefix("tags:") {
                     pendingTags = inner.dropFirst(5).split(separator: ",")
                         .map { $0.trimmingCharacters(in: .whitespaces) }
                         .filter { !$0.isEmpty }
+                } else if lower.hasPrefix("kisho: status ") {
+                    pendingStatus = BlockStatus(rawValue: inner.dropFirst(14).trimmingCharacters(in: .whitespaces).lowercased())
+                } else if lower.hasPrefix("kisho: colour ") || lower.hasPrefix("kisho: color ") {
+                    let digits = inner.split(separator: " ").last.map(String.init) ?? ""
+                    pendingColour = Int(digits)
+                } else if lower.hasPrefix("synopsis:") {
+                    pendingSynopsis = inner.dropFirst(9).trimmingCharacters(in: .whitespaces)
+                } else if lower.hasPrefix("notes:") {
+                    pendingNotes = inner.dropFirst(6).trimmingCharacters(in: .whitespacesAndNewlines)
                 }
                 flushParagraph()
-                index += 1
+                index = endIndex + 1
                 continue
             }
 

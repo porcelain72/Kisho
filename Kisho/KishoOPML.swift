@@ -32,6 +32,12 @@ enum OPML {
                 let note = section.content.attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !note.isEmpty { attributes += " _note=\"\(escape(note))\"" }
                 if !section.tags.isEmpty { attributes += " category=\"\(escape(section.tags.joined(separator: ",")))\"" }
+                // Planning metadata: `_status="checked"` is the outliner convention
+                // for done; the rest ride along as kisho-prefixed attributes.
+                if section.status == .done { attributes += " _status=\"checked\"" }
+                if let status = section.status { attributes += " kisho_status=\"\(status.rawValue)\"" }
+                if let colour = section.colorIndex { attributes += " kisho_colour=\"\(colour)\"" }
+                if !section.synopsis.isEmpty { attributes += " kisho_synopsis=\"\(escape(section.synopsis))\"" }
                 if section.children.isEmpty {
                     out += "\(pad)<outline\(attributes)/>\n"
                 } else {
@@ -115,6 +121,15 @@ enum OPML {
                 if let category = attributes["category"] {
                     section.tags = category.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                 }
+                if let raw = attributes["kisho_status"], let status = BlockStatus(rawValue: raw.lowercased()) {
+                    section.status = status
+                } else if attributes["_status"]?.lowercased() == "checked" || attributes["_complete"]?.lowercased() == "true" {
+                    section.status = .done
+                }
+                if let colour = attributes["kisho_colour"].flatMap(Int.init), BlockPalette.isValid(colour) {
+                    section.colorIndex = colour
+                }
+                if let synopsis = attributes["kisho_synopsis"], !synopsis.isEmpty { section.synopsis = synopsis }
                 if let parent = stack.last { parent.children.append(section) } else { roots.append(section) }
                 stack.append(section)
             default: break

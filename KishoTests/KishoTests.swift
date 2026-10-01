@@ -1519,6 +1519,87 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(try OPML.sections(from: Data("<opml version=\"2.0\"><body/></opml>".utf8)).map(\.title), ["Untitled"])
     }
 
+    // MARK: - Block metadata
+
+    func testBlockMetadataRoundTripsAndOldFilesStillOpen() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        a.status = .revised; a.colorIndex = 3; a.synopsis = "Where it starts"; a.notes = "Check\nthe dates"
+        a1.status = .done
+
+        let data = try JSONEncoder().encode(document)
+        let json = String(decoding: data, as: UTF8.self)
+        XCTAssertTrue(json.contains("\"status\":\"revised\""))
+        XCTAssertTrue(json.contains("\"colorIndex\":3"))
+        XCTAssertFalse(json.contains("\"synopsis\":\"\""), "empty metadata isn't written")
+
+        let again = try JSONDecoder().decode(KishoDocumentModel.self, from: data)
+        let a2 = again.sections[0]
+        XCTAssertEqual(a2.status, .revised); XCTAssertEqual(a2.colorIndex, 3)
+        XCTAssertEqual(a2.synopsis, "Where it starts"); XCTAssertEqual(a2.notes, "Check\nthe dates")
+        XCTAssertEqual(a2.children[0].status, .done)
+        XCTAssertNil(a2.children[1].status); XCTAssertNil(a2.children[1].colorIndex)
+
+        // A block with an out-of-range colour (from a future palette) opens colourless.
+        let hacked = json.replacingOccurrences(of: "\"colorIndex\":3", with: "\"colorIndex\":42")
+        XCTAssertNil(try JSONDecoder().decode(KishoDocumentModel.self, from: Data(hacked.utf8)).sections[0].colorIndex)
+        XCTAssertEqual(KishoDocumentModel.currentFormatVersion, 2)
+    }
+
+    func testBlockMetadataSettersAreUndoableAndTrim() throws {
+        let (document, a, _, _, _) = makeDocument()
+        let undo = manualUndoManager()
+        func grouped(_ action: () -> Void) { undo.beginUndoGrouping(); action(); undo.endUndoGrouping() }
+
+        grouped { document.setStatus(.draft, for: a, using: undo) }
+        grouped { document.setColorIndex(5, for: a, using: undo) }
+        grouped { document.setSynopsis("  A synopsis.  ", for: a, using: undo) }
+        grouped { document.setNotes("note\n", for: a, using: undo) }
+        XCTAssertEqual(a.status, .draft); XCTAssertEqual(a.colorIndex, 5)
+        XCTAssertEqual(a.synopsis, "A synopsis."); XCTAssertEqual(a.notes, "note")
+
+        grouped { document.setColorIndex(99, for: a, using: undo) }
+        XCTAssertNil(a.colorIndex, "invalid palette index clears the colour")
+        grouped { document.setSynopsis("A synopsis.", for: a, using: undo) }   // no change → no undo entry
+
+        undo.undo(); XCTAssertEqual(a.colorIndex, 5)
+        undo.undo(); XCTAssertEqual(a.notes, "")
+        undo.undo(); XCTAssertEqual(a.synopsis, "")
+        undo.undo(); XCTAssertNil(a.colorIndex)
+        undo.undo(); XCTAssertNil(a.status)
+        XCTAssertFalse(undo.canUndo)
+        undo.redo(); XCTAssertEqual(a.status, .draft)
+    }
+
+    func testMarkdownAndOPMLCarryBlockMetadata() throws {
+        let (document, a, a1, _, _) = makeDocument()
+        a.status = .final; a.colorIndex = 1; a.synopsis = "Opening\nmove"; a.notes = "Line one -- dashes\nLine two"
+        a1.status = .done
+
+        let md = Markdown.string(from: document.sections)
+        XCTAssertTrue(md.contains("<!-- kisho: status final -->"))
+        XCTAssertTrue(md.contains("<!-- kisho: colour 1 -->"))
+        XCTAssertTrue(md.contains("<!-- synopsis: Opening move -->"), "synopsis is one line")
+        XCTAssertTrue(md.contains("<!-- notes:\nLine one — dashes\nLine two\n-->"), md)
+        let back = Markdown.sections(from: md)
+        XCTAssertEqual(back[0].status, .final); XCTAssertEqual(back[0].colorIndex, 1)
+        XCTAssertEqual(back[0].synopsis, "Opening move")
+        XCTAssertEqual(back[0].notes, "Line one — dashes\nLine two")
+        XCTAssertEqual(back[0].children[0].status, .done)
+        XCTAssertNil(back[1].status)
+        XCTAssertEqual(back[0].content.attributedString.string, "a", "comments add no body text")
+
+        let opml = OPML.string(from: document.sections, title: "t")
+        XCTAssertTrue(opml.contains("kisho_status=\"final\" kisho_colour=\"1\" kisho_synopsis=\"Opening&#10;move\""))
+        XCTAssertTrue(opml.contains("_status=\"checked\" kisho_status=\"done\""))
+        let fromOPML = try OPML.sections(from: Data(opml.utf8))
+        XCTAssertEqual(fromOPML[0].status, .final); XCTAssertEqual(fromOPML[0].colorIndex, 1)
+        XCTAssertEqual(fromOPML[0].synopsis, "Opening\nmove")
+        XCTAssertEqual(fromOPML[0].children[0].status, .done)
+        // Another outliner's checked item reads as Done.
+        let other = try OPML.sections(from: Data("<opml><body><outline text=\"x\" _status=\"checked\"/></body></opml>".utf8))
+        XCTAssertEqual(other[0].status, .done)
+    }
+
     func testSubtreeHasTag() throws {
         let (document, a, a1, _, b) = makeDocument()
         a1.tags = ["draft"]

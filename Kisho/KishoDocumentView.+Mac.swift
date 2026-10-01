@@ -16,6 +16,7 @@ struct KishoDocumentView: View {
     @Environment(\.undoManager) private var undoManager
     @Environment(\.openWindow) private var openWindow
     @AppStorage(KishoPreferences.Key.hasShownWelcome) private var hasShownWelcome = false
+    @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = false
 
     @EnvironmentObject var document : KishoDocumentModel
 
@@ -49,13 +50,22 @@ struct KishoDocumentView: View {
                 .frame(minWidth: 220)
     
         } detail: {
-            KishoCardListEditorView()
-                .environmentObject(self.document)
-                .environmentObject(find)
-                .focusedValue(\.kishoFindState, find)
-                .focusedValue(\.kishoDocumentModel, document)
-                .focusedValue(\.selectedSectionID , $document.selectedSectionID)
-                .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+            HStack(spacing: 0) {
+                KishoCardListEditorView()
+                    .environmentObject(self.document)
+                    .environmentObject(find)
+                    .focusedValue(\.kishoFindState, find)
+                    .focusedValue(\.kishoDocumentModel, document)
+                    .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                    .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                if showInspector {
+                    Divider()
+                    BlockInspectorView()
+                        .environmentObject(self.document)
+                        .focusedValue(\.kishoDocumentModel, document)
+                        .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                }
+            }
         }
         .toolbar {
             ToolbarItemGroup {
@@ -85,6 +95,13 @@ struct KishoDocumentView: View {
                     Label("Find", systemImage: "magnifyingglass")
                 }
                 .help("Find and replace across all blocks (⌘F)")
+
+                Button {
+                    showInspector.toggle()
+                } label: {
+                    Label("Inspector", systemImage: "sidebar.right")
+                }
+                .help(showInspector ? "Hide the block inspector (⌥⌘I)" : "Show the block inspector: status, colour, synopsis, notes (⌥⌘I)")
 
                 Button {
                     showingExportOptions = true
