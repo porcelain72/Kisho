@@ -178,8 +178,8 @@ struct FormatCommands: Commands {
                         .tag(TypographyPreset?.some(preset))
                 }
                 Divider()
-                // Ticked when the toolbar's family/size match no preset.
-                Text("Custom (from the toolbar)").tag(TypographyPreset?.none)
+                // Ticked when the inspector's family/size match no preset.
+                Text("Custom (from the inspector)").tag(TypographyPreset?.none)
             }
             .disabled(documentModel == nil)
         }

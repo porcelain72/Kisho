@@ -91,7 +91,7 @@ struct KishoSettingsView: View {
                         Text("\(Int(size)) pt").tag(size)
                     }
                 }
-                Text("Existing documents keep their own font; change it from the toolbar.")
+                Text("Existing documents keep their own font; change it in the inspector (⌥⌘I).")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

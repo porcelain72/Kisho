@@ -34,7 +34,7 @@ struct KishoHelpView: View {
                       "Split (⌥⌘P) turns each paragraph of the selected block into its own child block, titled from its first sentence. Gather (⌥⌘G) does the reverse: it pulls the text of all sub-blocks back into the parent, in order, and removes them. Use them to go from a rough draft to a structure and back.")
 
                 topic("Writing",
-                      "Type in any card; the body grows as you write. ⌘B, ⌘I and ⌘U apply bold, italic and underline to the selection. The toolbar's font and size apply to the whole document and keep your bold/italic/underline. ⌘↩ in a body adds a new block right after the current one.")
+                      "Type in any card; the body grows as you write. ⌘B, ⌘I and ⌘U apply bold, italic and underline to the selection. The document's font and size are set in the inspector's Document section (or Format ▸ Document Font) and keep your bold/italic/underline. ⌘↩ in a body adds a new block right after the current one.")
 
                 topic("Tags and filtering",
                       "Add tags to the selected block in the bar below the editor. When any block has tags, a filter appears above the sidebar: pick a tag to see only the blocks carrying it (their parents stay visible, dimmed, for context).")
@@ -43,7 +43,7 @@ struct KishoHelpView: View {
                       "View ▸ Show Inspector (⌥⌘I) opens a panel for the selected block: a status (Draft, Revised, Final, Done), one of eight colours, a synopsis and private notes. The sidebar shows the colour as a dot and the status as a small symbol, and View ▸ Show Synopses puts each synopsis under its title — so the sidebar doubles as an outline you can plan in. Notes are never exported.")
 
                 topic("Focus Mode and typewriter scrolling",
-                      "View ▸ Enter Focus Mode (⌥⌘F) hides the sidebar, toolbar and inspector, narrows the cards to a reading width and dims every block but the one you're in. Typewriter Scrolling (⌥⌘T) keeps the line you're typing at the centre of the window. View ▸ Editor Theme sets the editor to light, dark or sepia independently of the system; the Format menu has Bold, Italic, Underline and Document Font presets.")
+                      "View ▸ Enter Focus Mode (⌥⌘F) hides the sidebar and inspector and empties the toolbar, narrows the cards to a reading width and dims every block but the one you're in. Typewriter Scrolling (⌥⌘T) keeps the line you're typing at the centre of the window. View ▸ Editor Theme sets the editor to light, dark or sepia independently of the system; the Format menu has Bold, Italic, Underline and Document Font presets.")
 
                 topic("Find and replace",
                       "⌘F searches titles, bodies and tags. Return or ⌘G steps through matches, ⇧⌘G steps back, ⌘E uses the selected text as the search term. Replace changes the current match; All changes every match in one undoable step and keeps each word's capitalisation.")
