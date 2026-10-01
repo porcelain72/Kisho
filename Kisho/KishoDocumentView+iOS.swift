@@ -1,339 +1,97 @@
 //
-//  KishoDocumentView.swift
+//  KishoDocumentView+iOS.swift
 //  Kisho
 //
-//  Created by Peter Macdonald on 30/05/2025.
+//  Phase A placeholder for the iOS document window: the outline as a list
+//  and the selected block's text, read-only. Enough to prove the model,
+//  file format and exporters build and run on iOS; Phases B–D replace it
+//  with the card editor, structure editing and the rest.
 //
+
+#if os(iOS)
 import SwiftUI
-import Combine
-import UniformTypeIdentifiers
 
 struct KishoDocumentView: View {
-  //  @Binding var document: KishoDocumentModel
-
-    
-    @State private var showDeleteAlert = false
-    @Environment(\.undoManager) private var undoManager
-
-    @EnvironmentObject var document : KishoDocumentModel
-
-    @State private var focusTitle: Bool = false
-    // Track whether to show the export‐choice sheet:
-    @State private var showingExportOptions = false
-
-    @State private var treeShowing = true
-    
-    let fileURL : URL?
-    
-    /// A computed “title” that tracks the file’s name if available,
-      /// otherwise falls back to your model’s internal title (or “Untitled”).
-    private var documentTitle: String {
-        if let url = fileURL {
-            return url.deletingPathExtension().lastPathComponent
-        }
-        return  "Untitled"
-       
-    }
-    
-    @ViewBuilder private func treeView() -> some View {
-        
-    }
-    
-   
-    var body: some View {
-        Group{
-        if treeShowing == true {
-            KishoSidebarOutlineView(showDeleteAlert: $showDeleteAlert)
-                .transition(.move(edge: .leading))
-                
-                .environmentObject(self.document)
-        } else {
-            if let sectionID = document.selectedSectionID,
-               let sectionObject = document.section(withID:sectionID, inSections: document.sections) {
-                KishoSectionEditorView(section: sectionObject)
-                    .transition(.move(edge: .trailing))
-
-                    .environmentObject(self.document)
-            } else {
-                Text("No selection")
-            }
-        }
-   
-
-        }
-        .animation(.easeInOut, value: treeShowing)
-        .onChange(of: document.selectedSectionID, { oldValue, newValue in
-            self.treeShowing = false
-        })
-        
-        
-       
-        
-      
-        /*
-        NavigationSplitView {
-            
-          
-                
-    
-        } content: {
-            if let sectionObject = document.selectedSection {
-                KishoSectionEditorView(section: sectionObject, focusTitle: $focusTitle)
-                    .environmentObject(self.document)
-                   
-            }else {
-                Text("Select a section")
-                    .foregroundStyle(.secondary)
-              
-            }
-            
-        } detail: {
-            
-            if  let section = document.selectedSection {
-                KishoInspectorView(section: section)
-                               .environmentObject(self.document)
-    } else {
-                Text("Select a section")
-                    .foregroundStyle(.secondary)
-              
-            }
-        }
-         */
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    //showingExportOptions = true
-                    treeShowing.toggle()
-                } label: {
-                    Label("Show outline…", systemImage: "list.number")
-                }
-
-                .help("Create new subsections from paragraphs")
-                
-            }
-            
-            ToolbarItem {
-                Button {
-                    //showingExportOptions = true
-                    document.makeChildren(undoManager: undoManager)
-                } label: {
-                    Label("Split…", systemImage: "square.fill.text.grid.1x2")
-                }
-
-                .help("Create new subsections from paragraphs")
-                
-            }
-            ToolbarItem {
-                Button {
-                    showingExportOptions = true
-                } label: {
-                    Label("Export…", systemImage: "square.and.arrow.up")
-                }
-                .help("Export document as Plaintext or pdf")
-                
-            }
-            ToolbarItem {
-              Button {
-                undoManager?.undo()
-              } label: {
-                Label("Undo", systemImage: "arrow.uturn.left")
-              }
-              .disabled(!(undoManager?.canUndo ?? false))
-            }
-
-            ToolbarItem {
-                 
-              Button {
-                undoManager?.redo()
-              } label: {
-                Label("Redo", systemImage: "arrow.uturn.right")
-              }
-              .disabled(!(undoManager?.canRedo ?? false))
-            }
-            
-            ToolbarItem {
-                Button {
-                    document.addSiblingSection(using: undoManager)
-                    focusTitle = true
-
-                } label: {
-                
-                    Label("Add Child", systemImage: "plus")
-                }
-                .help("Add section at same level as selected")
-
-            }
-            ToolbarItem {
-                Button {
-                    document.addChildSection(using: undoManager)
-                    focusTitle = true
-
-                } label: {
-                    Label("Add Sibling", systemImage: "plus.square.on.square")
-                }
-                .disabled(document.selectedSection == nil)
-                .help("Add child section")
-
-            }
-            ToolbarItem {
-                Button(role: .destructive) {
-                    showDeleteAlert = true
-                } label: {
-                    Label("Delete Section", systemImage: "trash")
-                }
-                .disabled(document.selectedSection == nil)
-            }
-            ToolbarItem {
-                Button {
-                    //showingExportOptions = true
-                    document.gather(undoManager: undoManager)
-                } label: {
-                    Label("Gather…", systemImage: "rectangle.compress.vertical")
-                }
-
-                .help("Gather all child content into section")
-                
-            }
-            
-            
-        }
-        .confirmationDialog(
-            "Choose Export Format",
-            isPresented: $showingExportOptions,
-            titleVisibility: .visible
-        ) {
-            Button("Plain Text") {
-                exportAsPlainText()
-            }
-            Button("PDF") {
-                exportAsPDF()
-            }
-            Button("HTML") {
-                let html = Exporter.htmlString(from: document.sections)
-                let data = Data(html.utf8)
-                let filename = "\(documentTitle).html"
-                #if os(macOS)
-                showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["html", "htm"])
-                #else
-                #endif
-            }
-            Button("Cancel", role: .cancel) { }
-        }
-    
-
-        .alert("Delete Section?",
-               isPresented: $showDeleteAlert,
-               actions: {
-            Button("Delete") {
-             
-                document.deleteSelectedSection(using: undoManager)
-                }
-            .keyboardShortcut(.defaultAction)
-            
-            
-            Button("Cancel", role: .cancel) { }
-        },
-               message: {
-            Text("Are you sure you want to delete the selected section? All child sections will be deleted.")
-        }
-        )
-        
-    }
-
-    
-
-    // MARK: –– Export Actions
-
-    private func exportAsPlainText() {
-        let fullText = Exporter.plainText(from: document.sections)
-        let data = Data(fullText.utf8)
-        let filename = "\(documentTitle).txt"
-        #if os(macOS)
-        showSavePanel(for: data, defaultFileName: filename, allowedTypes: ["txt"])
-        #else
-        #endif
-    }
-
-    private func exportAsPDF() {
-        let fullAttr = Exporter.attributedText(from: document.sections)
-        guard let pdfData = Exporter.pdfData(from: fullAttr) else {
-            // Handle PDF generation failure if needed
-            return
-        }
-        let filename = "\(documentTitle).pdf"
-        #if os(macOS)
-        showSavePanel(for: pdfData, defaultFileName: filename, allowedTypes: ["pdf"])
-        #else
-        
-        #endif
-    }
-
-
-    #if os(macOS)
-    /// Presents the standard NSSavePanel and writes the given data to the chosen file URL.
-    private func showSavePanel(
-        for data: Data,
-        defaultFileName: String,
-        allowedTypes: [String]
-    ) {
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = defaultFileName
-        panel.allowedContentTypes = allowedTypes.compactMap { UTType(filenameExtension: $0) }
-        panel.canCreateDirectories = true
-        panel.isExtensionHidden = false
-        panel.begin { response in
-            if response == .OK, let url = panel.url {
-                do {
-                    try data.write(to: url)
-                } catch {
-                    // Present an alert if write fails
-                    let alert = NSAlert(error: error)
-                    alert.runModal()
-                }
-            }
-        }
-    }
-    #endif
-    
-    // Anywhere in your code (e.g. in DocumentView.swift)
-
-    /// Walks the entire hierarchy and returns the KishoSection whose `id` matches.
-    func findSection(
-        with targetID: UUID,
-        in sections: [KishoSection]
-    ) -> KishoSection? {
-        for s in sections {
-            if s.id == targetID { return s }
-            if let childMatch = findSection(with: targetID, in: s.children) {
-                return childMatch
-            }
-        }
-        return nil
-    }
-
-}
-
-
-
-
-// Helper for deep bindings
-extension Array where Element: Identifiable {
-    var binding: Binding<[Element]> {
-        .constant(self)
-    }
-}
-
-struct SectionEditor: View {
-    @Binding var section: KishoSection
+    let fileURL: URL?
+    @EnvironmentObject var document: KishoDocumentModel
 
     var body: some View {
-        VStack(alignment: .leading) {
-            TextField("Title", text: $section.title)
-                .font(.title)
-            // Add more section editing UI here
+        NavigationStack {
+            List(document.sections, children: \.childrenOrNil) { section in
+                NavigationLink(value: section.id) {
+                    SectionListRow(section: section)
+                }
+            }
+            .listStyle(.plain)
+            .navigationTitle(fileURL?.deletingPathExtension().lastPathComponent ?? "Untitled")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: UUID.self) { id in
+                if let section = document.section(withID: id) {
+                    SectionReadingView(section: section)
+                }
+            }
+            .overlay {
+                if document.sections.isEmpty {
+                    ContentUnavailableView("No Blocks", systemImage: "square.stack.3d.up",
+                                           description: Text("This document has no blocks yet."))
+                }
+            }
         }
-        .padding()
     }
 }
 
+private struct SectionListRow: View {
+    @ObservedObject var section: KishoSection
 
+    var body: some View {
+        HStack(spacing: 8) {
+            if let colour = section.colorIndex {
+                Circle().fill(BlockPalette.color(colour)).frame(width: 8, height: 8)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(section.displayTitle).lineLimit(1)
+                if !section.synopsis.isEmpty {
+                    Text(section.synopsis).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
+            }
+            Spacer()
+            if let status = section.status {
+                Image(systemName: status.symbol)
+                    .font(.caption)
+                    .foregroundStyle(status == .done ? Color.green : Color.secondary)
+            }
+            let words = section.totalWordCount
+            if words > 0 {
+                Text("\(words)").font(.caption2).monospacedDigit().foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+private struct SectionReadingView: View {
+    @ObservedObject var section: KishoSection
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(section.displayTitle)
+                    .font(.title2.weight(.semibold))
+                if !section.tags.isEmpty {
+                    Text(section.tags.joined(separator: " · "))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text(AttributedString(section.content.attributedString))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding()
+        }
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private extension KishoSection {
+    /// `List(_:children:)` wants nil, not an empty array, for a leaf.
+    var childrenOrNil: [KishoSection]? { children.isEmpty ? nil : children }
+}
+#endif

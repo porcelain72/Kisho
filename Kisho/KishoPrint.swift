@@ -10,8 +10,12 @@
 //
 
 import SwiftUI
+#if canImport(AppKit)
 import AppKit
 import PDFKit
+#else
+import UIKit
+#endif
 import RichTextEditor
 
 extension NSAttributedString.Key {
@@ -23,17 +27,36 @@ enum PageLayout {
 
     struct Options {
         var pageSize: CGSize
-        var margins: NSEdgeInsets
+        var margins: PlatformEdgeInsets
         var title: String
         var pageNumbers = true
 
+        #if os(macOS)
         /// The user's paper from Page Setup (A4 or Letter by locale) and the
         /// margins from Settings (Page Setup has no margin controls).
         static func fromPrintInfo(_ info: NSPrintInfo = .shared, title: String) -> Options {
             let m = KishoPreferences.printMargins.points
             return Options(pageSize: info.paperSize,
-                           margins: NSEdgeInsets(top: m, left: m, bottom: m, right: m),
+                           margins: PlatformEdgeInsets(top: m, left: m, bottom: m, right: m),
                            title: title)
+        }
+        #endif
+
+        /// A4 or US Letter by the current locale, with the margins from
+        /// Settings. On the Mac this is what Page Setup starts from; on iOS,
+        /// which has no Page Setup, it is the paper.
+        static func standard(title: String) -> Options {
+            #if os(macOS)
+            return fromPrintInfo(title: title)
+            #else
+            let m = KishoPreferences.printMargins.points
+            let letterRegions: Set<String> = ["US", "CA", "MX", "PH"]
+            let region = Locale.current.region?.identifier ?? "US"
+            let paper = letterRegions.contains(region) ? CGSize(width: 612, height: 792) : CGSize(width: 595, height: 842)
+            return Options(pageSize: paper,
+                           margins: PlatformEdgeInsets(top: m, left: m, bottom: m, right: m),
+                           title: title)
+            #endif
         }
 
         var contentSize: CGSize {
@@ -57,8 +80,8 @@ enum PageLayout {
             style.paragraphSpacingBefore = first ? 0 : (depth == 1 ? 22 : 16)
             style.paragraphSpacing = 6
             return NSAttributedString(string: title + "\n", attributes: [
-                .font: NSFont.systemFont(ofSize: size, weight: .semibold),
-                .foregroundColor: NSColor.black,
+                .font: PlatformFont.systemFont(ofSize: size, weight: .semibold),
+                .foregroundColor: PlatformColor.black,
                 .paragraphStyle: style,
                 .kishoHeading: depth
             ])
@@ -73,7 +96,7 @@ enum PageLayout {
                 mutable.addAttribute(.paragraphStyle, value: style, range: range)
             }
             mutable.removeAttribute(.kishoHeading, range: full)
-            mutable.addAttribute(.foregroundColor, value: NSColor.black, range: full)
+            mutable.addAttribute(.foregroundColor, value: PlatformColor.black, range: full)
             // The text view keeps a trailing newline at times; one is enough.
             while mutable.length > 0, mutable.string.hasSuffix("\n") {
                 mutable.deleteCharacters(in: NSRange(location: mutable.length - 1, length: 1))
@@ -184,17 +207,21 @@ enum PageLayout {
         guard let consumer = CGDataConsumer(data: data as CFMutableData) else { return nil }
         var mediaBox = CGRect(origin: .zero, size: options.pageSize)
         guard let context = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { return nil }
-        let graphics = NSGraphicsContext(cgContext: context, flipped: true)
 
         let footerAttributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 9),
-            .foregroundColor: NSColor(white: 0.45, alpha: 1)
+            .font: PlatformFont.systemFont(ofSize: 9),
+            .foregroundColor: PlatformColor(white: 0.45, alpha: 1)
         ]
 
         for (index, container) in pages.containers.enumerated() {
             context.beginPDFPage(nil)
+            // TextKit draws into the current graphics context; make it ours.
+            #if os(macOS)
             NSGraphicsContext.saveGraphicsState()
-            NSGraphicsContext.current = graphics
+            NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: true)
+            #else
+            UIGraphicsPushContext(context)
+            #endif
             context.saveGState()
             // Flip to top-left origin, then step in by the margins.
             context.translateBy(x: 0, y: options.pageSize.height)
@@ -216,13 +243,19 @@ enum PageLayout {
             }
 
             context.restoreGState()
+            #if os(macOS)
             NSGraphicsContext.restoreGraphicsState()
+            #else
+            UIGraphicsPopContext()
+            #endif
             context.endPDFPage()
         }
         context.closePDF()
         return data as Data
     }
 }
+
+#if os(macOS)
 
 // MARK: - Printing
 
@@ -315,3 +348,4 @@ struct PrintCommands: Commands {
         }
     }
 }
+#endif

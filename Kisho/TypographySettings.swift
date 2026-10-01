@@ -72,20 +72,13 @@ struct TypographySettings: Equatable, Codable {
 }
 
 
-#if os(macOS)
 extension TypographySettings {
     /// The document's body font: family and size only. Bold/italic are
     /// per-selection attributes, not document settings.
-    var baseFont: NSFont {
-        if fontFamily.hasPrefix(".") {
-            return NSFont.systemFont(ofSize: CGFloat(fontSize))
-        }
-        let descriptor = NSFontDescriptor(fontAttributes: [.family: fontFamily])
-        return NSFont(descriptor: descriptor, size: CGFloat(fontSize))
-            ?? NSFont.systemFont(ofSize: CGFloat(fontSize))
+    var baseFont: PlatformFont {
+        PlatformFont.kisho(family: fontFamily, size: CGFloat(fontSize))
     }
 }
-#endif
 
 extension Color {
     init(hex: String) {
@@ -104,18 +97,11 @@ extension Color {
     }
 
     func toHexString() -> String {
-        #if os(macOS)
-        let nsColor = NSColor(self)
-        #else
-        let uiColor = UIColor(self)
-        let nsColor = NSColor(cgColor: uiColor.cgColor) ?? .black
-        #endif
+        guard let rgb = PlatformColor(self).srgbComponents else { return "000000" }
 
-        guard let rgb = nsColor.usingColorSpace(.sRGB) else { return "000000" }
-
-        let r = Int(rgb.redComponent * 255)
-        let g = Int(rgb.greenComponent * 255)
-        let b = Int(rgb.blueComponent * 255)
+        let r = Int(rgb.red * 255)
+        let g = Int(rgb.green * 255)
+        let b = Int(rgb.blue * 255)
 
         return String(format: "%02X%02X%02X", r, g, b)
     }

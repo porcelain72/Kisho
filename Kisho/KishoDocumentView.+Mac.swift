@@ -4,6 +4,7 @@
 //
 //  Created by Peter Macdonald on 30/05/2025.
 //
+#if os(macOS)
 import SwiftUI
 import Combine
 import UniformTypeIdentifiers
@@ -235,3 +236,4 @@ struct KishoDocumentView: View {
  
 
 }
+#endif

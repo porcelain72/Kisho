@@ -5,6 +5,7 @@
 //  Created by Peter Macdonald on 02/06/2025.
 //
 
+#if os(macOS)
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -213,18 +214,4 @@ struct CellModifier : ViewModifier {
             .padding(.horizontal, 6.0)
     }
 }
-
-extension Color {
-    func shiftedHue(by amount: CGFloat) -> Color {
-        guard let nsColor = NSColor(self).usingColorSpace(.deviceRGB) else {
-            return self
-        }
-
-        var hue: CGFloat = 0, sat: CGFloat = 0, bri: CGFloat = 0, alpha: CGFloat = 0
-        nsColor.getHue(&hue, saturation: &sat, brightness: &bri, alpha: &alpha)
-
-        let newHue = fmod(hue + amount, 1.0)
-        let shifted = NSColor(hue: newHue, saturation: sat, brightness: bri, alpha: alpha)
-        return Color(shifted)
-    }
-}
+#endif

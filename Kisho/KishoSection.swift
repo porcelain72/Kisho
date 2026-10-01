@@ -142,12 +142,11 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         return result
     }
 
-    /// Splits this section's body (or its live composite body, when given) into
-    /// one new section per paragraph. Each new section is named after the
-    /// paragraph's first sentence and carries the full paragraph, with its
-    /// formatting, as its body.
-    func asSections(fromComposite composite: NSAttributedString? = nil) -> [KishoSection] {
-        KishoSection.paragraphModelsForSplit(section: self, composite: composite)
+    /// Splits this section's body into one new section per paragraph. Each
+    /// new section is named after the paragraph's first sentence and carries
+    /// the full paragraph, with its formatting, as its body.
+    func asSections() -> [KishoSection] {
+        KishoSection.paragraphModelsForSplit(section: self)
             .map { paragraph in
                 let body = RichTextModel()
                 body.attributedString = KishoSection.trimmedParagraph(paragraph.attributedString)
@@ -229,7 +228,7 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
         children.reduce(wordCount) { $0 + $1.totalWordCount }
     }
 
-    func applyTypographyToSelfAndDescendants(font: NSFont, color: NSColor? = nil) {
+    func applyTypographyToSelfAndDescendants(font: PlatformFont, color: PlatformColor? = nil) {
         // Apply to this section, keeping any bold/italic the writer applied to runs.
         self.content.attributedString = KishoSection.retypeset(content.attributedString, base: font, color: color)
 
@@ -247,18 +246,15 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
 extension KishoSection {
     /// Re-sets every run to `base` (family/size) while preserving each run's
     /// bold/italic traits, and optionally forces a colour.
-    static func retypeset(_ source: NSAttributedString, base: NSFont, color: NSColor?) -> NSAttributedString {
+    static func retypeset(_ source: NSAttributedString, base: PlatformFont, color: PlatformColor?) -> NSAttributedString {
         let result = NSMutableAttributedString(attributedString: source)
         let full = NSRange(location: 0, length: result.length)
         guard full.length > 0 else { return result }
-        let fm = NSFontManager.shared
         result.beginEditing()
         result.enumerateAttribute(.font, in: full) { value, range, _ in
             var font = base
-            if let old = value as? NSFont {
-                let traits = fm.traits(of: old)
-                if traits.contains(.boldFontMask) { font = fm.convert(font, toHaveTrait: .boldFontMask) }
-                if traits.contains(.italicFontMask) { font = fm.convert(font, toHaveTrait: .italicFontMask) }
+            if let old = value as? PlatformFont {
+                font = font.addingTraits(bold: old.isBoldTrait, italic: old.isItalicTrait)
             }
             result.addAttribute(.font, value: font, range: range)
         }

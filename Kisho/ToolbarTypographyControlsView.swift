@@ -4,6 +4,7 @@
 //
 //  Created by Peter Macdonald on 23/07/2025.
 //
+#if os(macOS)
 import SwiftUI
 import AppKit
 
@@ -30,3 +31,4 @@ struct ToolbarTypographyControlsView: View {
         }
     }
 }
+#endif

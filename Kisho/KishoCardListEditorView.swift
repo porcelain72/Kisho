@@ -357,34 +357,6 @@ struct SectionTagsBar: View {
 
 // MARK: - Theme
 
-/// Outline-based look built on system semantic colours, so light and dark
-/// mode need no special handling. Nesting is shown by indentation and
-/// heading size alone.
-enum Theme {
-    static let cornerRadius: CGFloat = 8
-
-    /// Hairline for outlines and dividers.
-    static var hairline: Color {
-        EditorTheme.current == .sepia ? Color(red: 0.62, green: 0.54, blue: 0.42).opacity(0.45) : Color(nsColor: .separatorColor)
-    }
-
-    /// Card face: the text background, so cards sit flush with the editor.
-    static var cardBackground: Color {
-        EditorTheme.current == .sepia ? Color(red: 0.985, green: 0.962, blue: 0.905) : Color(nsColor: .textBackgroundColor)
-    }
-
-    /// Editor canvas behind the cards: a step away from the card face so the
-    /// outlines have something to sit against in both appearances.
-    static var canvas: Color {
-        EditorTheme.current == .sepia ? Color(red: 0.945, green: 0.912, blue: 0.838) : Color(nsColor: .windowBackgroundColor)
-    }
-
-    /// Text view background for the card body (AppKit side of `cardBackground`).
-    static var cardBackgroundNSColor: NSColor {
-        EditorTheme.current == .sepia ? NSColor(red: 0.985, green: 0.962, blue: 0.905, alpha: 1) : .textBackgroundColor
-    }
-}
-
 // MARK: - Title field
 
 /// Lets the card focus its title field from a focus request.
@@ -678,7 +650,7 @@ private struct CardTextView: NSViewRepresentable {
         if context.coordinator.appliedTheme != theme {
             context.coordinator.appliedTheme = theme
             textView.appearance = theme.appearance
-            textView.backgroundColor = Theme.cardBackgroundNSColor
+            textView.backgroundColor = Theme.cardBackgroundPlatformColor
             applyDisplayColour(textView)
         }
     }

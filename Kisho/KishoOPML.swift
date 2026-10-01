@@ -10,7 +10,11 @@
 //
 
 import Foundation
+#if canImport(AppKit)
 import AppKit
+#else
+import UIKit
+#endif
 import RichTextEditor
 
 enum OPML {
@@ -99,13 +103,13 @@ enum OPML {
     }
 
     private final class Delegate: NSObject, XMLParserDelegate {
-        let baseFont: NSFont
+        let baseFont: PlatformFont
         var roots: [KishoSection] = []
         private var stack: [KishoSection] = []
         var sawOPML = false
         private var inBody = false
 
-        init(baseFont: NSFont) { self.baseFont = baseFont }
+        init(baseFont: PlatformFont) { self.baseFont = baseFont }
 
         func parser(_ parser: XMLParser, didStartElement name: String, namespaceURI: String?,
                     qualifiedName: String?, attributes: [String: String]) {
@@ -147,13 +151,13 @@ enum OPML {
 
     /// Note text as body paragraphs (line breaks kept as paragraph breaks,
     /// runs of blank lines collapsed).
-    static func body(_ note: String, baseFont: NSFont) -> NSAttributedString {
+    static func body(_ note: String, baseFont: PlatformFont) -> NSAttributedString {
         let lines = note.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
             .components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
         return NSAttributedString(string: lines.joined(separator: "\n"),
-                                  attributes: [.font: baseFont, .foregroundColor: NSColor.labelColor])
+                                  attributes: [.font: baseFont, .foregroundColor: PlatformColor.label])
     }
 }
 

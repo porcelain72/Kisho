@@ -14,7 +14,11 @@
 //
 
 import Foundation
+#if canImport(AppKit)
 import AppKit
+#else
+import UIKit
+#endif
 import RichTextEditor
 
 enum Markdown {
@@ -86,10 +90,10 @@ enum Markdown {
     private static func inline(_ text: NSAttributedString) -> String {
         var runs: [Run] = []
         text.enumerateAttributes(in: NSRange(location: 0, length: text.length)) { attrs, range, _ in
-            let traits = (attrs[.font] as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
+            let font = attrs[.font] as? PlatformFont
             let run = Run(text: (text.string as NSString).substring(with: range),
-                          bold: traits.contains(.boldFontMask),
-                          italic: traits.contains(.italicFontMask),
+                          bold: font?.isBoldTrait ?? false,
+                          italic: font?.isItalicTrait ?? false,
                           underline: ((attrs[.underlineStyle] as? Int) ?? 0) != 0)
             if let last = runs.last, last.bold == run.bold, last.italic == run.italic, last.underline == run.underline {
                 runs[runs.count - 1].text += run.text
@@ -318,13 +322,13 @@ enum Markdown {
 
     /// Inline Markdown with emphasis and escapes removed (for titles).
     static func plain(_ s: String) -> String {
-        attributed(s, base: NSFont.systemFont(ofSize: 12)).string
+        attributed(s, base: PlatformFont.systemFont(ofSize: 12)).string
     }
 
     /// Inline parse: `***`/`**`/`*`/`__`/`_` toggle traits, `<u>`/`</u>`
     /// toggle underline, backslash escapes the next character, everything
     /// else is literal.
-    static func attributed(_ s: String, base: NSFont) -> NSAttributedString {
+    static func attributed(_ s: String, base: PlatformFont) -> NSAttributedString {
         let out = NSMutableAttributedString()
         var bold = false, italic = false, underline = false
         var buffer = ""
@@ -333,7 +337,7 @@ enum Markdown {
         func flush() {
             guard !buffer.isEmpty else { return }
             var attrs: [NSAttributedString.Key: Any] = [.font: font(base, bold: bold, italic: italic),
-                                                        .foregroundColor: NSColor.labelColor]
+                                                        .foregroundColor: PlatformColor.label]
             if underline { attrs[.underlineStyle] = NSUnderlineStyle.single.rawValue }
             out.append(NSAttributedString(string: buffer, attributes: attrs))
             buffer = ""
@@ -380,12 +384,8 @@ enum Markdown {
         return out
     }
 
-    private static func font(_ base: NSFont, bold: Bool, italic: Bool) -> NSFont {
-        var font = base
-        let manager = NSFontManager.shared
-        if bold { font = manager.convert(font, toHaveTrait: .boldFontMask) }
-        if italic { font = manager.convert(font, toHaveTrait: .italicFontMask) }
-        return font
+    private static func font(_ base: PlatformFont, bold: Bool, italic: Bool) -> PlatformFont {
+        base.addingTraits(bold: bold, italic: italic)
     }
 
     private static func join(_ paragraphs: [NSAttributedString]) -> NSAttributedString {

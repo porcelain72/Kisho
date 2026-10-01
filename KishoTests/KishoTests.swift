@@ -7,7 +7,11 @@
 
 import XCTest
 import Combine
+#if canImport(AppKit)
 import AppKit
+#else
+import UIKit
+#endif
 import PDFKit
 import RichTextEditor
 @testable import Kisho
@@ -18,38 +22,6 @@ final class KishoTests: XCTestCase {
         let model = RichTextModel()
         model.attributedString = NSAttributedString(string: body)
         return KishoSection(title: title, content: model, children: children)
-    }
-    
-    func testCompositeContainsAllNestedSections() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA")
-        let childB = makeSection(title: "Bravo", body: "BBB")
-        let root = makeSection(title: "Root", body: "ROOT", children: [childA, childB])
-        
-        let composite = root.compositeAttributedString()
-        let plain = composite.string
-        
-        print("COMPOSITE PLAIN >>>\n\(plain)\n<<<")
-        
-        XCTAssertTrue(plain.contains("ROOT"), "root body missing")
-        XCTAssertTrue(plain.contains("Alpha"), "child A title missing")
-        XCTAssertTrue(plain.contains("AAA"), "child A body missing")
-        XCTAssertTrue(plain.contains("Bravo"), "child B title missing")
-        XCTAssertTrue(plain.contains("BBB"), "child B body missing")
-    }
-    
-    func testCompositeRoundTripPreservesEachSection() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA")
-        let childB = makeSection(title: "Bravo", body: "BBB")
-        let root = makeSection(title: "Root", body: "ROOT", children: [childA, childB])
-        
-        let composite = root.compositeAttributedString()
-        root.applyCompositeAttributedString(composite)
-        
-        XCTAssertEqual(root.content.attributedString.string, "ROOT")
-        XCTAssertEqual(childA.content.attributedString.string, "AAA")
-        XCTAssertEqual(childB.content.attributedString.string, "BBB")
-        XCTAssertEqual(childA.title, "Alpha")
-        XCTAssertEqual(childB.title, "Bravo")
     }
     
     func testFullSaveOpenCycleShowsAllSections() throws {
@@ -70,104 +42,10 @@ final class KishoTests: XCTestCase {
             return XCTFail("no selected section after reopen")
         }
         
-        let composite = selected.compositeAttributedString()
-        let plain = composite.string
-        print("REOPENED COMPOSITE >>>\n\(plain)\n<<<")
-        print("REOPENED children count: \(selected.children.count)")
-        
         XCTAssertEqual(selected.children.count, 3, "children lost on reopen")
-        XCTAssertTrue(plain.contains("ROOT body"))
-        XCTAssertTrue(plain.contains("AAA body"))
-        XCTAssertTrue(plain.contains("BBB body"))
-        XCTAssertTrue(plain.contains("CCC body"))
-    }
-    
-    func testDocumentCompositeShowsAllTopLevelSections() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA body")
-        let s1 = makeSection(title: "One", body: "ONE body", children: [childA])
-        let s2 = makeSection(title: "Two", body: "TWO body")
-        let s3 = makeSection(title: "Three", body: "THREE body")
-        
-        let composite = KishoSection.documentCompositeAttributedString(sections: [s1, s2, s3])
-        let plain = composite.string
-        print("DOC COMPOSITE >>>\n\(plain)\n<<<")
-        
-        for token in ["One", "ONE body", "Alpha", "AAA body", "Two", "TWO body", "Three", "THREE body"] {
-            XCTAssertTrue(plain.contains(token), "missing \(token)")
-        }
-    }
-    
-    func testDocumentCompositeRoundTrip() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA body")
-        let s1 = makeSection(title: "One", body: "ONE body", children: [childA])
-        let s2 = makeSection(title: "Two", body: "TWO body")
-        let sections = [s1, s2]
-        
-        let composite = KishoSection.documentCompositeAttributedString(sections: sections)
-        KishoSection.applyDocumentComposite(composite, to: sections)
-        
-        XCTAssertEqual(s1.title, "One")
-        XCTAssertEqual(s1.content.attributedString.string, "ONE body")
-        XCTAssertEqual(childA.title, "Alpha")
-        XCTAssertEqual(childA.content.attributedString.string, "AAA body")
-        XCTAssertEqual(s2.title, "Two")
-        XCTAssertEqual(s2.content.attributedString.string, "TWO body")
-    }
-    
-    func testCompositeCaretIndexAtEndOfSectionContent() throws {
-        let childA = makeSection(title: "Alpha", body: "AAA body")
-        let childB = makeSection(title: "Bravo", body: "BBB body")
-        let root = makeSection(title: "Root", body: "ROOT body", children: [childA, childB])
-        
-        let composite = KishoSection.documentCompositeAttributedString(sections: [root])
-        let plain = composite.string as NSString
-        
-        guard let caretA = KishoSection.compositeCaretIndex(forSectionID: childA.id, in: composite) else {
-            return XCTFail("no caret for childA")
-        }
-        // Caret should sit immediately after "AAA body".
-        let bodyRange = plain.range(of: "AAA body")
-        XCTAssertEqual(caretA, bodyRange.location + bodyRange.length)
-    }
-    
-    func testCompositeCaretIndexEmptyContentFallsBackToHeading() throws {
-        let empty = makeSection(title: "Empty", body: "")
-        let root = makeSection(title: "Root", body: "ROOT body", children: [empty])
-        
-        let composite = KishoSection.documentCompositeAttributedString(sections: [root])
-        guard let caret = KishoSection.compositeCaretIndex(forSectionID: empty.id, in: composite) else {
-            return XCTFail("no caret for empty section")
-        }
-        XCTAssertLessThanOrEqual(caret, composite.length)
-        XCTAssertGreaterThan(caret, 0)
-    }
-    
-    func testEmptySectionCaretStaysInsideHeadingBlock() throws {
-        let empty = makeSection(title: "Empty", body: "")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [empty])
-        guard let caret = KishoSection.compositeCaretIndex(forSectionID: empty.id, in: composite) else {
-            return XCTFail("no caret for empty section")
-        }
-        XCTAssertGreaterThan(caret, 0)
-        let probe = min(caret, composite.length) - 1
-        let attrs = composite.attributes(at: probe, effectiveRange: nil)
-        XCTAssertEqual(attrs[.kishoSectionID] as? String, empty.id.uuidString)
-        let before = (composite.string as NSString).substring(with: NSRange(location: probe, length: 1))
-        XCTAssertNotEqual(before, "\n", "caret after a paragraph break sits in a hanging box below the wash")
-    }
-    
-    func testDeeplyNestedComposite() throws {
-        let grandchild = makeSection(title: "Gamma", body: "GGG")
-        let child = makeSection(title: "Beta", body: "BBB", children: [grandchild])
-        let root = makeSection(title: "Root", body: "ROOT", children: [child])
-        
-        let composite = root.compositeAttributedString()
-        let plain = composite.string
-        print("DEEP COMPOSITE PLAIN >>>\n\(plain)\n<<<")
-        
-        XCTAssertTrue(plain.contains("ROOT"))
-        XCTAssertTrue(plain.contains("BBB"))
-        XCTAssertTrue(plain.contains("GGG"))
+        let bodies = selected.subtree.map { $0.content.attributedString.string }
+        XCTAssertEqual(bodies, ["ROOT body", "AAA body", "BBB body", "CCC body"])
+        XCTAssertEqual(selected.children.map { $0.title }, ["Alpha", "Bravo", "Charlie"])
     }
     
     func testMakeChildrenSplitsBodyParagraphs() throws {
@@ -216,21 +94,6 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(root.children[2].title, "Third paragraph.")
     }
     
-    func testDistributeKeepsUntaggedTrailingParagraphs() throws {
-        let root = makeSection(title: "Root", body: "First paragraph.")
-        let composite = NSMutableAttributedString(
-            attributedString: KishoSection.documentCompositeAttributedString(sections: [root])
-        )
-        composite.append(NSAttributedString(string: "\nSecond paragraph.\nThird paragraph."))
-        
-        KishoSection.applyDocumentComposite(composite, to: [root])
-        
-        let body = root.content.attributedString.string
-        XCTAssertTrue(body.contains("First paragraph."), body)
-        XCTAssertTrue(body.contains("Second paragraph."), body)
-        XCTAssertTrue(body.contains("Third paragraph."), body)
-    }
-    
     func testSplitParagraphsHandlesLineSeparators() throws {
         let source = NSAttributedString(string: "One\u{2028}Two\u{2029}Three")
         let parts = KishoSection.splitParagraphs(from: source)
@@ -246,171 +109,6 @@ final class KishoTests: XCTestCase {
         
         XCTAssertEqual(root.children.count, 0)
         XCTAssertEqual(document.selectedSectionID, root.id)
-    }
-    
-    func testEmptySectionCompositeHasContentRun() throws {
-        let empty = makeSection(title: "Empty", body: "")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [empty])
-        
-        var sawContent = false
-        var index = 0
-        while index < composite.length {
-            var effectiveRange = NSRange(location: 0, length: 0)
-            let attrs = composite.attributes(at: index, effectiveRange: &effectiveRange)
-            if let id = attrs[.kishoSectionID] as? String, id == empty.id.uuidString,
-               let role = attrs[.kishoSectionRole] as? String,
-               role == KishoSectionRole.content.rawValue {
-                sawContent = true
-                break
-            }
-            index = effectiveRange.location + effectiveRange.length
-        }
-        XCTAssertTrue(sawContent, "empty sections must emit a content-tagged run so typing stays in the body")
-    }
-    
-    func testCompositeShowsExtraTitleLinesAsBody() throws {
-        let section = makeSection(title: "Heading\nBody line", body: "")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [section])
-        let plain = composite.string
-        
-        XCTAssertTrue(plain.contains("Heading"))
-        XCTAssertTrue(plain.contains("Body line"))
-        
-        KishoSection.applyDocumentComposite(composite, to: [section])
-        XCTAssertEqual(section.title, "Heading")
-        XCTAssertTrue(section.content.attributedString.string.contains("Body line"))
-    }
-    
-    func testCompositeIndentsNestedSections() throws {
-        let child = makeSection(title: "Child", body: "child body")
-        let root = makeSection(title: "Root", body: "root body", children: [child])
-        let composite = KishoSection.documentCompositeAttributedString(sections: [root])
-        let plain = composite.string as NSString
-        
-        func gutterWidth(at location: Int) -> CGFloat {
-            let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            let blocks = para?.textBlocks ?? []
-            guard blocks.count >= 2 else { return 0 }
-            return blocks[0].width(for: .padding, edge: .minX)
-        }
-        
-        func nestedTablesAreDistinct(at location: Int) -> Bool {
-            let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            let tables = (para?.textBlocks ?? []).compactMap { ($0 as? NSTextTableBlock)?.table }
-            return Set(tables.map { ObjectIdentifier($0) }).count == tables.count
-        }
-        
-        let rootLoc = plain.range(of: "Root").location
-        let childLoc = plain.range(of: "Child").location
-        XCTAssertNotEqual(rootLoc, NSNotFound)
-        XCTAssertNotEqual(childLoc, NSNotFound)
-        XCTAssertEqual(gutterWidth(at: rootLoc), 0)
-        XCTAssertEqual(gutterWidth(at: childLoc), 20)
-        XCTAssertTrue(nestedTablesAreDistinct(at: childLoc), "nested blocks must belong to different tables")
-        
-        func headIndent(at location: Int) -> CGFloat {
-            let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            return para?.headIndent ?? -1
-        }
-        XCTAssertEqual(headIndent(at: rootLoc), 0)
-        XCTAssertEqual(headIndent(at: childLoc), 0)
-    }
-    
-    /// Runs a real layout pass over a nested composite. TextKit used to stop
-    /// laying out at the first nested card, leaving everything after it
-    /// undrawn (and un-clickable), so this checks every glyph gets placed and
-    /// that later blocks sit below earlier ones.
-    func testNestedCompositeLaysOutCompletely() throws {
-        let grandchild = makeSection(title: "Gamma", body: "gamma body")
-        let child = makeSection(title: "Beta", body: "beta body", children: [grandchild])
-        let root = makeSection(title: "Root", body: "root body", children: [child])
-        let tail = makeSection(title: "Tail", body: "tail body")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [root, tail])
-        
-        let storage = NSTextStorage(attributedString: composite)
-        let layoutManager = NSLayoutManager()
-        storage.addLayoutManager(layoutManager)
-        let container = NSTextContainer(size: CGSize(width: 600, height: 100_000))
-        layoutManager.addTextContainer(container)
-        layoutManager.ensureLayout(for: container)
-        
-        let laidOut = layoutManager.glyphRange(for: container)
-        XCTAssertEqual(NSMaxRange(laidOut), layoutManager.numberOfGlyphs, "layout stopped early")
-        
-        let plain = composite.string as NSString
-        func top(of token: String) -> CGFloat {
-            let charRange = plain.range(of: token)
-            XCTAssertNotEqual(charRange.location, NSNotFound, token)
-            let glyphRange = layoutManager.glyphRange(forCharacterRange: charRange, actualCharacterRange: nil)
-            return layoutManager.boundingRect(forGlyphRange: glyphRange, in: container).minY
-        }
-        XCTAssertLessThan(top(of: "Root"), top(of: "Beta"))
-        XCTAssertLessThan(top(of: "Beta"), top(of: "Gamma"))
-        XCTAssertLessThan(top(of: "Gamma"), top(of: "Tail"))
-        
-        func left(of token: String) -> CGFloat {
-            let glyphRange = layoutManager.glyphRange(forCharacterRange: plain.range(of: token), actualCharacterRange: nil)
-            return layoutManager.boundingRect(forGlyphRange: glyphRange, in: container).minX
-        }
-        XCTAssertLessThan(left(of: "Root"), left(of: "Beta"), "nested cards should be inset")
-        XCTAssertLessThan(left(of: "Beta"), left(of: "Gamma"))
-    }
-    
-    func testDistributeStripsSectionChrome() throws {
-        let child = makeSection(title: "Child", body: "child body")
-        let root = makeSection(title: "Root", body: "root body", children: [child])
-        let composite = KishoSection.documentCompositeAttributedString(sections: [root])
-        KishoSection.applyDocumentComposite(composite, to: [root])
-        
-        let stored = child.content.attributedString
-        XCTAssertGreaterThan(stored.length, 0)
-        let para = stored.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle
-        XCTAssertEqual(para?.headIndent ?? 0, 0)
-        XCTAssertTrue(para?.textBlocks.isEmpty ?? true)
-        XCTAssertNil(stored.attribute(.kishoSectionDepth, at: 0, effectiveRange: nil))
-        XCTAssertNil(stored.attribute(.kishoSectionID, at: 0, effectiveRange: nil))
-    }
-    
-    func testHeadingAndBodyHaveDistinctWashes() throws {
-        let section = makeSection(title: "Heading", body: "Body text")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [section])
-        let plain = composite.string as NSString
-        
-        func textBlock(at location: Int) -> NSTextBlock? {
-            let para = composite.attribute(.paragraphStyle, at: location, effectiveRange: nil) as? NSParagraphStyle
-            return para?.textBlocks.first as? NSTextBlock
-        }
-        
-        let headingLoc = plain.range(of: "Heading").location
-        let bodyLoc = plain.range(of: "Body text").location
-        let headingBlock = textBlock(at: headingLoc)
-        let bodyBlock = textBlock(at: bodyLoc)
-        XCTAssertNotNil(headingBlock, "heading should have a wash")
-        XCTAssertNotNil(bodyBlock, "body should have a wash")
-        XCTAssertNotEqual(
-            headingBlock?.backgroundColor,
-            bodyBlock?.backgroundColor,
-            "heading wash should be distinct from body wash"
-        )
-    }
-    
-    func testCompositeEndsWithOneUntaggedBreak() throws {
-        let s1 = makeSection(title: "One", body: "AAA")
-        let s2 = makeSection(title: "Two", body: "")
-        let composite = KishoSection.documentCompositeAttributedString(sections: [s1, s2])
-        XCTAssertTrue(composite.string.hasSuffix("\n"))
-        XCTAssertFalse(composite.string.hasSuffix("\n\n"))
-        let last = composite.length - 1
-        XCTAssertNil(composite.attribute(.kishoSectionID, at: last, effectiveRange: nil), "closing break must not belong to a card")
-        let para = composite.attribute(.paragraphStyle, at: last, effectiveRange: nil) as? NSParagraphStyle
-        XCTAssertTrue(para?.textBlocks.isEmpty ?? true)
-        
-        // Round-tripping must not fold the closing break into the last body.
-        KishoSection.applyDocumentComposite(composite, to: [s1, s2])
-        XCTAssertEqual(s1.content.attributedString.string, "AAA")
-        XCTAssertEqual(s2.content.attributedString.string, "")
-        let again = KishoSection.documentCompositeAttributedString(sections: [s1, s2])
-        XCTAssertEqual(again.string, composite.string, "composite must be stable across rebuilds")
     }
     
     // MARK: - Tree operations
@@ -434,7 +132,7 @@ final class KishoTests: XCTestCase {
     
     func testSplitTitleUsesFirstSentenceAndKeepsFormatting() throws {
         let body = NSMutableAttributedString(string: "Short one. And the rest of it.")
-        body.addAttribute(.font, value: NSFont.boldSystemFont(ofSize: 14), range: NSRange(location: 0, length: 5))
+        body.addAttribute(.font, value: PlatformFont.boldSystemFont(ofSize: 14), range: NSRange(location: 0, length: 5))
         let model = RichTextModel()
         model.attributedString = body
         let root = KishoSection(title: "Root", content: model)
@@ -445,7 +143,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(root.children.count, 1)
         XCTAssertEqual(root.children[0].title, "Short one.")
         XCTAssertEqual(root.children[0].content.attributedString.string, "Short one. And the rest of it.")
-        let font = root.children[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        let font = root.children[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
         XCTAssertTrue(font?.fontDescriptor.symbolicTraits.contains(.bold) ?? false, "formatting must survive a split")
     }
     
@@ -768,22 +466,22 @@ final class KishoTests: XCTestCase {
         undo.beginUndoGrouping()
         document.setTypography(settings, undoManager: undo)
         undo.endUndoGrouping()
-        let big = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        let big = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
         XCTAssertEqual(big?.pointSize, 30)
         
         undo.undo()
-        let restored = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        let restored = root.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
         XCTAssertNotEqual(restored?.pointSize, 30)
         XCTAssertEqual(document.typography.fontSize, TypographySettings.defaultFontSize, "undo restores the previous settings too")
     }
     
     func testExportedAttributedTextIsBlack() throws {
         let root = makeSection(title: "Root", body: "Hello")
-        root.content.applyTypography(font: NSFont.systemFont(ofSize: 12), color: NSColor.labelColor)
+        root.content.applyTypography(font: PlatformFont.systemFont(ofSize: 12), color: PlatformColor.label)
         let exported = Exporter.attributedText(from: [root])
         var allBlack = true
         exported.enumerateAttribute(.foregroundColor, in: NSRange(location: 0, length: exported.length)) { value, _, _ in
-            if (value as? NSColor) != NSColor.black { allBlack = false }
+            if (value as? PlatformColor) != PlatformColor.black { allBlack = false }
         }
         XCTAssertTrue(allBlack, "export must not carry the appearance-adaptive label colour")
     }
@@ -864,22 +562,21 @@ final class KishoTests: XCTestCase {
     }
     
     func testRetypesetPreservesBoldAndItalicPerRun() throws {
-        let fm = NSFontManager.shared
         let text = NSMutableAttributedString(string: "plain bold italic")
-        let base = NSFont.systemFont(ofSize: 12)
+        let base = PlatformFont.systemFont(ofSize: 12)
         text.addAttribute(.font, value: base, range: NSRange(location: 0, length: 17))
-        text.addAttribute(.font, value: fm.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 6, length: 4))
-        text.addAttribute(.font, value: fm.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 11, length: 6))
+        text.addAttribute(.font, value: base.addingTraits(bold: true, italic: false), range: NSRange(location: 6, length: 4))
+        text.addAttribute(.font, value: base.addingTraits(bold: false, italic: true), range: NSRange(location: 11, length: 6))
         
-        let newBase = NSFont(name: "Helvetica", size: 16) ?? NSFont.systemFont(ofSize: 16)
+        let newBase = PlatformFont(name: "Helvetica", size: 16) ?? PlatformFont.systemFont(ofSize: 16)
         let result = KishoSection.retypeset(text, base: newBase, color: nil)
         
-        func font(at i: Int) -> NSFont { result.attribute(.font, at: i, effectiveRange: nil) as! NSFont }
+        func font(at i: Int) -> PlatformFont { result.attribute(.font, at: i, effectiveRange: nil) as! PlatformFont }
         XCTAssertEqual(font(at: 0).pointSize, 16)
-        XCTAssertFalse(fm.traits(of: font(at: 0)).contains(.boldFontMask))
-        XCTAssertTrue(fm.traits(of: font(at: 7)).contains(.boldFontMask), "bold run must stay bold")
+        XCTAssertFalse(font(at: 0).isBoldTrait)
+        XCTAssertTrue(font(at: 7).isBoldTrait, "bold run must stay bold")
         XCTAssertEqual(font(at: 7).pointSize, 16)
-        XCTAssertTrue(fm.traits(of: font(at: 12)).contains(.italicFontMask), "italic run must stay italic")
+        XCTAssertTrue(font(at: 12).isItalicTrait, "italic run must stay italic")
     }
     
     func testDocumentTotalWordCount() throws {
@@ -965,7 +662,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(settings.fontFamily, "Georgia")
         XCTAssertEqual(settings.fontSize, 14)
         XCTAssertFalse(settings.fontFamily.hasPrefix("."), "default must be a real family, not the system font's internal name")
-        XCTAssertTrue(NSFontManager.shared.availableFontFamilies.contains(settings.fontFamily))
+        XCTAssertTrue(PlatformFont.availableFamilyNames.contains(settings.fontFamily))
         XCTAssertEqual(TypographySettings.displayName(forFamily: ".AppleSystemUIFont"), "System Font")
         XCTAssertEqual(TypographySettings.displayName(forFamily: "Georgia"), "Georgia")
         XCTAssertEqual(KishoDocumentModel().typography, settings)
@@ -996,15 +693,15 @@ final class KishoTests: XCTestCase {
     func testReplaceSingleBodyMatchKeepsFormattingAndIsUndoable() throws {
         let (document, a, _, _, _) = makeDocument()
         let body = NSMutableAttributedString(string: "keep the colour")
-        body.addAttribute(.font, value: NSFont.boldSystemFont(ofSize: 12), range: NSRange(location: 9, length: 6))
+        body.addAttribute(.font, value: PlatformFont.boldSystemFont(ofSize: 12), range: NSRange(location: 9, length: 6))
         a.content.attributedString = body
         let undo = manualUndoManager()
         
         let match = document.findMatches("colour").first!
         XCTAssertTrue(document.replace(match, with: "color", using: undo))
         XCTAssertEqual(a.content.attributedString.string, "keep the color")
-        let font = a.content.attributedString.attribute(.font, at: 9, effectiveRange: nil) as? NSFont
-        XCTAssertTrue(NSFontManager.shared.traits(of: font!).contains(.boldFontMask), "replacement inherits the run's attributes")
+        let font = a.content.attributedString.attribute(.font, at: 9, effectiveRange: nil) as? PlatformFont
+        XCTAssertTrue(font!.isBoldTrait, "replacement inherits the run's attributes")
         
         undo.undo()
         XCTAssertEqual(a.content.attributedString.string, "keep the colour")
@@ -1066,9 +763,12 @@ final class KishoTests: XCTestCase {
     
     // MARK: - Phase 2: Markdown export / import
     
-    private func traits(_ text: NSAttributedString, at index: Int) -> NSFontTraitMask {
-        let font = text.attribute(.font, at: index, effectiveRange: nil) as! NSFont
-        return NSFontManager.shared.traits(of: font)
+    private func isBold(_ text: NSAttributedString, at index: Int) -> Bool {
+        (text.attribute(.font, at: index, effectiveRange: nil) as! PlatformFont).isBoldTrait
+    }
+    
+    private func isItalic(_ text: NSAttributedString, at index: Int) -> Bool {
+        (text.attribute(.font, at: index, effectiveRange: nil) as! PlatformFont).isItalicTrait
     }
     
     func testMarkdownExportUsesHeadingDepthEmphasisAndTags() throws {
@@ -1076,10 +776,10 @@ final class KishoTests: XCTestCase {
         a.title = "Chapter One"
         a.tags = ["draft", "rewrite"]
         let body = NSMutableAttributedString(string: "Plain then bold and italic.\nSecond paragraph.")
-        let base = NSFont(name: "Georgia", size: 14)!
+        let base = PlatformFont(name: "Georgia", size: 14)!
         body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 11, length: 4))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 20, length: 6))
+        body.addAttribute(.font, value: base.addingTraits(bold: true, italic: false), range: NSRange(location: 11, length: 4))
+        body.addAttribute(.font, value: base.addingTraits(bold: false, italic: true), range: NSRange(location: 20, length: 6))
         a.content.attributedString = body
         a1.title = "Scene"
         a1.content.attributedString = NSAttributedString(string: "# not a heading")
@@ -1138,12 +838,11 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(one.children[0].children.map(\.title), ["Deep"])
         let text = one.content.attributedString
         XCTAssertEqual(text.string, "First paragraph with bold and italic and both. continues on the next line.\nSecond paragraph with snake_case and a *literal star*.")
-        XCTAssertTrue(traits(text, at: 21).contains(.boldFontMask))
-        XCTAssertFalse(traits(text, at: 21).contains(.italicFontMask))
-        XCTAssertTrue(traits(text, at: 30).contains(.italicFontMask))
-        let both = traits(text, at: 41)
-        XCTAssertTrue(both.contains(.boldFontMask) && both.contains(.italicFontMask))
-        XCTAssertTrue(traits(text, at: 0).isEmpty || !traits(text, at: 0).contains(.boldFontMask))
+        XCTAssertTrue(isBold(text, at: 21))
+        XCTAssertFalse(isItalic(text, at: 21))
+        XCTAssertTrue(isItalic(text, at: 30))
+        XCTAssertTrue(isBold(text, at: 41) && isItalic(text, at: 41))
+        XCTAssertFalse(isBold(text, at: 0))
         
         let two = sections[2]
         XCTAssertEqual(two.children.map(\.title), ["Setext Title"])
@@ -1157,7 +856,7 @@ final class KishoTests: XCTestCase {
         let body = NSMutableAttributedString(string: "Some bold words here.")
         let base = TypographySettings().baseFont
         body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 5, length: 4))
+        body.addAttribute(.font, value: base.addingTraits(bold: true, italic: false), range: NSRange(location: 5, length: 4))
         a1.content.attributedString = body
         
         let again = Markdown.sections(from: Markdown.string(from: document.sections))
@@ -1166,8 +865,8 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(again[0].children[0].tags, ["x"])
         let text = again[0].children[0].content.attributedString
         XCTAssertEqual(text.string, "Some bold words here.")
-        XCTAssertTrue(traits(text, at: 6).contains(.boldFontMask))
-        XCTAssertFalse(traits(text, at: 12).contains(.boldFontMask))
+        XCTAssertTrue(isBold(text, at: 6))
+        XCTAssertFalse(isBold(text, at: 12))
         XCTAssertEqual(again[1].content.attributedString.string, "b")
     }
     
@@ -1181,7 +880,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(imported.typography.fontFamily, "Palatino")
         XCTAssertEqual(imported.typography.fontSize, 16)
         XCTAssertEqual(imported.sections.map(\.title), ["A", "B"], "the comment adds no block")
-        let font = imported.sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        let font = imported.sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
         XCTAssertEqual(font?.familyName, "Palatino")
         XCTAssertEqual(font?.pointSize, 16)
         
@@ -1204,10 +903,10 @@ final class KishoTests: XCTestCase {
         let (document, a, a1, _, b) = makeDocument()
         a.title = "Chapter <One> & Co"
         let body = NSMutableAttributedString(string: "Plain bold italic.\nSecond\tline")
-        let base = NSFont(name: "Georgia", size: 14)!
+        let base = PlatformFont(name: "Georgia", size: 14)!
         body.addAttribute(.font, value: base, range: NSRange(location: 0, length: body.length))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 6, length: 4))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask), range: NSRange(location: 11, length: 6))
+        body.addAttribute(.font, value: base.addingTraits(bold: true, italic: false), range: NSRange(location: 6, length: 4))
+        body.addAttribute(.font, value: base.addingTraits(bold: false, italic: true), range: NSRange(location: 11, length: 6))
         a.content.attributedString = body
         a1.content.attributedString = NSAttributedString(string: "")
         b.content.attributedString = NSAttributedString(string: "\n\n")
@@ -1265,6 +964,7 @@ final class KishoTests: XCTestCase {
 
     // MARK: - Phase 2: underline
 
+    #if os(macOS)
     func testSelectionFormattingAttributeHelpersCoverAllThreeTraits() throws {
         let base: [NSAttributedString.Key: Any] = [.font: NSFont(name: "Georgia", size: 14)!]
         XCTAssertFalse(SelectionFormatting.attributes(base, have: .underline))
@@ -1283,6 +983,7 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(SelectionFormatting.attributes(bold, have: .underline), "bold keeps the underline")
         XCTAssertEqual((bold[.font] as? NSFont)?.familyName, "Georgia")
     }
+    #endif
 
     func testUnderlineSurvivesRetypesetMarkdownAndWord() throws {
         let (document, a, _, _, _) = makeDocument()
@@ -1290,11 +991,11 @@ final class KishoTests: XCTestCase {
         let body = NSMutableAttributedString(string: "under and both here", attributes: [.font: base])
         body.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: 5))
         body.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 10, length: 4))
-        body.addAttribute(.font, value: NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask), range: NSRange(location: 10, length: 4))
+        body.addAttribute(.font, value: base.addingTraits(bold: true, italic: false), range: NSRange(location: 10, length: 4))
         a.content.attributedString = body
 
         // Changing the document font keeps the underline.
-        let retyped = KishoSection.retypeset(body, base: NSFont(name: "Palatino", size: 16)!, color: nil)
+        let retyped = KishoSection.retypeset(body, base: PlatformFont(name: "Palatino", size: 16)!, color: nil)
         XCTAssertEqual(retyped.attribute(.underlineStyle, at: 0, effectiveRange: nil) as? Int, NSUnderlineStyle.single.rawValue)
         XCTAssertNil(retyped.attribute(.underlineStyle, at: 6, effectiveRange: nil))
 
@@ -1306,8 +1007,8 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(again.attribute(.underlineStyle, at: 2, effectiveRange: nil) as? Int, NSUnderlineStyle.single.rawValue)
         XCTAssertNil(again.attribute(.underlineStyle, at: 7, effectiveRange: nil))
         XCTAssertEqual(again.attribute(.underlineStyle, at: 11, effectiveRange: nil) as? Int, NSUnderlineStyle.single.rawValue)
-        let bothFont = again.attribute(.font, at: 11, effectiveRange: nil) as! NSFont
-        XCTAssertTrue(NSFontManager.shared.traits(of: bothFont).contains(.boldFontMask))
+        let bothFont = again.attribute(.font, at: 11, effectiveRange: nil) as! PlatformFont
+        XCTAssertTrue(bothFont.isBoldTrait)
 
         // Word: a w:u run property.
         let xml = Docx.runsXML(body)
@@ -1408,10 +1109,10 @@ final class KishoTests: XCTestCase {
         let a1Index = (string as NSString).range(of: "A1\n").location
         XCTAssertEqual(text.attribute(.kishoHeading, at: a1Index, effectiveRange: nil) as? Int, 2)
         XCTAssertNil(text.attribute(.kishoHeading, at: 2, effectiveRange: nil), "bodies are not headings")
-        let h1 = text.attribute(.font, at: 0, effectiveRange: nil) as! NSFont
-        let h2 = text.attribute(.font, at: a1Index, effectiveRange: nil) as! NSFont
+        let h1 = text.attribute(.font, at: 0, effectiveRange: nil) as! PlatformFont
+        let h2 = text.attribute(.font, at: a1Index, effectiveRange: nil) as! PlatformFont
         XCTAssertGreaterThan(h1.pointSize, h2.pointSize)
-        XCTAssertEqual(text.attribute(.foregroundColor, at: 2, effectiveRange: nil) as? NSColor, .black)
+        XCTAssertEqual(text.attribute(.foregroundColor, at: 2, effectiveRange: nil) as? PlatformColor, .black)
     }
 
     func testPaginationNeverLeavesAHeadingAtTheFootOfAPage() throws {
@@ -1446,7 +1147,7 @@ final class KishoTests: XCTestCase {
     func testPagedPDFHasOnePagePerContainerWithFooter() throws {
         let (document, _, _, _, _) = makeDocument()
         let options = PageLayout.Options(pageSize: CGSize(width: 595, height: 842),
-                                         margins: NSEdgeInsets(top: 72, left: 72, bottom: 72, right: 72),
+                                         margins: PlatformEdgeInsets(top: 72, left: 72, bottom: 72, right: 72),
                                          title: "Test")
         let data = try XCTUnwrap(PageLayout.pdfData(from: document.sections, options: options))
         let pdf = try XCTUnwrap(PDFDocument(data: data))
@@ -1498,7 +1199,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(sections[1].children[0].children.map(\.title), ["Deeper"])
         XCTAssertEqual(sections[2].children.count, 0)
 
-        let font = sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        let font = sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
         XCTAssertEqual(font?.familyName, TypographySettings().baseFont.familyName)
     }
 
@@ -1617,7 +1318,7 @@ final class KishoTests: XCTestCase {
         document.setTypography(TypographyPreset.typewriter.settings, undoManager: undo)
         undo.endUndoGrouping()
         XCTAssertEqual(document.typography, TypographyPreset.typewriter.settings)
-        XCTAssertEqual((a.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.familyName, "Menlo")
+        XCTAssertEqual((a.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont)?.familyName, "Menlo")
         undo.undo()
         XCTAssertEqual(document.typography, TypographySettings())
     }

@@ -763,7 +763,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
         // Use the appearance-adaptive label color so text follows light/dark mode
         // instead of baking a static black into the rich text.
-        let nsColor = NSColor.labelColor
+        let nsColor = PlatformColor.label
 
         // Flush live typing first so the snapshot (and the fonts) include it.
         withStructureEdit {
@@ -836,16 +836,9 @@ extension NSAttributedString {
     /// or if that fails, return a default [font: systemFont(12), color: labelColor].
     func defaultAttributes() -> [NSAttributedString.Key: Any] {
         guard length > 0 else {
-            #if os(macOS)
-            let fallbackFont = NSFont.systemFont(ofSize: 12)
-            let fallbackColor = NSColor.labelColor
-            #else
-            let fallbackFont = UIFont.systemFont(ofSize: 12)
-            let fallbackColor = UIColor.label
-            #endif
             return [
-                .font: fallbackFont,
-                .foregroundColor: fallbackColor
+                .font: PlatformFont.systemFont(ofSize: 12),
+                .foregroundColor: PlatformColor.label
             ]
         }
         return attributes(at: 0, effectiveRange: nil)

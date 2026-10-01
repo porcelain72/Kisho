@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AppKit
 
 struct FlowLayout<Content: View>: View {
     let data: [String]

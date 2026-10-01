@@ -11,7 +11,11 @@
 //
 
 import Foundation
+#if canImport(AppKit)
 import AppKit
+#else
+import UIKit
+#endif
 import RichTextEditor
 
 enum Docx {
@@ -174,8 +178,8 @@ enum Docx {
             pending = nil
         }
         text.enumerateAttributes(in: NSRange(location: 0, length: text.length)) { attrs, range, _ in
-            let traits = (attrs[.font] as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
-            let bold = traits.contains(.boldFontMask), italic = traits.contains(.italicFontMask)
+            let font = attrs[.font] as? PlatformFont
+            let bold = font?.isBoldTrait ?? false, italic = font?.isItalicTrait ?? false
             let underline = ((attrs[.underlineStyle] as? Int) ?? 0) != 0
             let piece = (text.string as NSString).substring(with: range)
             if let p = pending, p.bold == bold, p.italic == italic, p.underline == underline {

@@ -5,33 +5,17 @@
 //  Created by Peter Macdonald on 30/05/2025.
 //
 
+#if os(macOS)
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// The Mac sidebar: tag filter, the outline, word/block totals. The iOS
+/// outline is its own view (Phase C of the iOS plan).
 struct KishoSidebarOutlineView: View {
     @EnvironmentObject var document : KishoDocumentModel
     @Binding var showDeleteAlert : Bool
 
     var body: some View {
-        Group{
-#if os(iOS)
-            bodyIOS()
-#else
-            bodyMAC()
-#endif
-        }
-    }
-#if os(iOS)
-    @ViewBuilder func bodyIOS() -> some View {
-        List {
-            ForEach(document.sections) { section in
-                SectionRow(section: section, depth: 0)
-            }
-        }
-        .listStyle(.plain)
-    }
-#else
-    @ViewBuilder func bodyMAC() -> some View {
         VStack(spacing: 0) {
             TagFilterBar()
             ScrollViewReader { proxy in
@@ -55,10 +39,8 @@ struct KishoSidebarOutlineView: View {
             DocumentStatsFooter(stats: document.stats)
         }
     }
-#endif
 }
 
-#if os(macOS)
 /// Word/block totals. Observes the model's lightweight `stats` signal so it
 /// refreshes on every keystroke without re-rendering the outline.
 private struct DocumentStatsFooter: View {
@@ -81,9 +63,7 @@ private struct DocumentStatsFooter: View {
         .padding(.vertical, 6)
     }
 }
-#endif
 
-#if os(macOS)
 /// Picker above the outline that narrows the rows to blocks carrying a tag.
 private struct TagFilterBar: View {
     @EnvironmentObject var document: KishoDocumentModel
