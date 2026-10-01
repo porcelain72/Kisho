@@ -23,14 +23,16 @@ struct ToolbarTypographyControlsView: View {
 
         HStack(spacing: 8) {
             // Font Family Picker
+            // Items in the system font: a popup that shows the selected family in
+            // its own typeface takes that face's line height and stands taller
+            // than the toolbar's other controls.
             Picker("", selection: binding.fontFamily) {
                 ForEach(fontFamilies, id: \.self) { family in
                     Text(TypographySettings.displayName(forFamily: family))
-                        .font(family.hasPrefix(".") ? .system(size: 13) : .custom(family, size: 13))
                         .tag(family)
                 }
             }
-            .frame(width: 140)
+            .frame(width: 150)
             .labelsHidden()
             .help("Font Family")
 
