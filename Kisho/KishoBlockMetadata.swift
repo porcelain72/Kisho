@@ -64,18 +64,21 @@ enum BlockPalette {
 
 // MARK: - Inspector
 
-/// The right-hand panel: metadata for the selected block.
+/// The right-hand panel: the document's typography at the top, then the
+/// metadata of the selected block.
 struct BlockInspectorView: View {
     @EnvironmentObject var document: KishoDocumentModel
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            DocumentInspectorSection()
+            Divider()
             if let section = document.selectedSection {
                 BlockInspectorForm(section: section)
                     .id(section.id)   // fresh drafts per block
             } else {
                 VStack(spacing: 8) {
-                    Image(systemName: "sidebar.right")
+                    Image(systemName: "rectangle.stack")
                         .font(.title2)
                         .foregroundStyle(.tertiary)
                     Text("No block selected")
@@ -86,6 +89,73 @@ struct BlockInspectorView: View {
         }
         .frame(width: 270)
         .background(Color(nsColor: .windowBackgroundColor))
+    }
+}
+
+/// Document-wide settings: the font family and size every block uses
+/// (per-word bold/italic/underline are kept when these change) and the
+/// named presets from the Format menu.
+private struct DocumentInspectorSection: View {
+    @EnvironmentObject var document: KishoDocumentModel
+    @Environment(\.undoManager) private var undoManager
+    @State private var families: [String] = []
+
+    private let sizes: [Double] = [10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24, 28]
+
+    var body: some View {
+        let typography = Binding<TypographySettings>(
+            get: { document.typography },
+            set: { document.setTypography($0, undoManager: undoManager) }
+        )
+        VStack(alignment: .leading, spacing: 8) {
+            Text("DOCUMENT")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .kerning(0.6)
+
+            Picker("Font", selection: typography.fontFamily) {
+                ForEach(families, id: \.self) { family in
+                    Text(TypographySettings.displayName(forFamily: family)).tag(family)
+                }
+            }
+            .labelsHidden()
+            .help("Font family for the whole document")
+
+            HStack(spacing: 8) {
+                Picker("Size", selection: typography.fontSize) {
+                    ForEach(sizes, id: \.self) { size in
+                        Text("\(Int(size)) pt").tag(size)
+                    }
+                    if !sizes.contains(document.typography.fontSize) {
+                        Text("\(Int(document.typography.fontSize)) pt").tag(document.typography.fontSize)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 84)
+                .help("Font size for the whole document")
+
+                Picker("Preset", selection: Binding<TypographyPreset?>(
+                    get: { TypographyPreset.matching(document.typography) },
+                    set: { if let preset = $0 { document.setTypography(preset.settings, undoManager: undoManager) } }
+                )) {
+                    Text("Preset…").tag(TypographyPreset?.none)
+                    ForEach(TypographyPreset.allCases) { preset in
+                        Text(preset.title).tag(TypographyPreset?.some(preset))
+                    }
+                }
+                .labelsHidden()
+                .help("Named font and size combinations (also in Format ▸ Document Font)")
+            }
+            Text("\(document.totalWordCount.formatted()) words  ·  \(document.orderedSections.count) blocks")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(16)
+        .onAppear {
+            var list = NSFontManager.shared.availableFontFamilies.sorted()
+            if !list.contains(document.typography.fontFamily) { list.insert(document.typography.fontFamily, at: 0) }
+            families = list
+        }
     }
 }
 
