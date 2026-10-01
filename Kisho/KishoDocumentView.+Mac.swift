@@ -16,7 +16,7 @@ struct KishoDocumentView: View {
     @Environment(\.undoManager) private var undoManager
     @Environment(\.openWindow) private var openWindow
     @AppStorage(KishoPreferences.Key.hasShownWelcome) private var hasShownWelcome = false
-    @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = false
+    @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = true
     @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
     /// Focus Mode is per window: just the cards, the current block bright.
     @State private var focusMode = false
@@ -71,8 +71,13 @@ struct KishoDocumentView: View {
                         .focusedValue(\.kishoDocumentModel, document)
                         .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                         .focusedValue(\.kishoFocusMode, $focusMode)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
+            // Slide the inspector in and out rather than snapping.
+            .animation(.easeInOut(duration: 0.22), value: showInspector)
+            .animation(.easeInOut(duration: 0.22), value: focusMode)
+            .clipped()
             .environment(\.kishoFocusMode, focusMode)
             .environment(\.kishoEditorTheme, editorTheme)
         }

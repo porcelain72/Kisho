@@ -311,7 +311,7 @@ private struct BlockInspectorForm: View {
 /// View ▸ Show Inspector / Show Synopses in Sidebar. Both are app-wide
 /// preferences, so they live in UserDefaults rather than the document.
 struct InspectorCommands: Commands {
-    @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = false
+    @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = true
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
 
     var body: some Commands {
