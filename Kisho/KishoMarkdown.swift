@@ -21,8 +21,13 @@ enum Markdown {
 
     // MARK: - Export
 
-    static func string(from sections: [KishoSection]) -> String {
+    static func string(from sections: [KishoSection], typography: TypographySettings? = nil) -> String {
         var out: [String] = []
+        if let typography {
+            // Markdown has no fonts; carry the document font the same way as
+            // tags so a Kisho→Kisho round trip keeps it. Invisible when rendered.
+            out.append("<!-- kisho: font \(typography.fontFamily) \(formatted(typography.fontSize)) -->")
+        }
         func walk(_ list: [KishoSection], depth: Int) {
             for section in list {
                 out.append(String(repeating: "#", count: min(depth, 6)) + " " + escapeInline(section.displayTitle))
@@ -119,7 +124,32 @@ enum Markdown {
         return line
     }
 
+    private static func formatted(_ size: Double) -> String {
+        size == size.rounded() ? String(Int(size)) : String(size)
+    }
+
     // MARK: - Import
+
+    /// Everything a Markdown file gives a new document: the block tree and,
+    /// if the file came from Kisho, the document font.
+    static func document(from markdown: String) -> (sections: [KishoSection], typography: TypographySettings) {
+        let typography = fontComment(in: markdown) ?? TypographySettings()
+        return (sections(from: markdown, typography: typography), typography)
+    }
+
+    /// `<!-- kisho: font Family Name 14 -->` anywhere in the file.
+    static func fontComment(in markdown: String) -> TypographySettings? {
+        guard let range = markdown.range(of: "<!-- kisho: font ") else { return nil }
+        let rest = markdown[range.upperBound...]
+        guard let end = rest.range(of: "-->") else { return nil }
+        let spec = rest[..<end.lowerBound].trimmingCharacters(in: .whitespaces)
+        // Last token is the size; the family may contain spaces.
+        guard let lastSpace = spec.lastIndex(of: " "),
+              let size = Double(spec[spec.index(after: lastSpace)...]), size > 0 else { return nil }
+        let family = String(spec[..<lastSpace]).trimmingCharacters(in: .whitespaces)
+        guard !family.isEmpty else { return nil }
+        return TypographySettings(fontFamily: family, fontSize: size)
+    }
 
     /// Parse Markdown into a block tree. Headings open blocks (depth from the
     /// heading level, nested under the nearest shallower heading); text

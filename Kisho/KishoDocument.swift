@@ -48,9 +48,9 @@ final class KishoDocument: ReferenceFileDocument {
                     ?? String(data: data, encoding: .utf16) else {
                 throw CocoaError(.fileReadInapplicableStringEncoding)
             }
-            let typography = TypographySettings()
-            self.model = KishoDocumentModel(sections: Markdown.sections(from: text, typography: typography))
-            self.model.typography = typography
+            let imported = Markdown.document(from: text)
+            self.model = KishoDocumentModel(sections: imported.sections)
+            self.model.typography = imported.typography
         }
     }
 

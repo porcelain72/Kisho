@@ -271,7 +271,7 @@ extension Exporter {
         case .plainText:
             data = Data(plainText(from: document.sections).utf8)
         case .markdown:
-            data = Data(Markdown.string(from: document.sections).utf8)
+            data = Data(Markdown.string(from: document.sections, typography: document.typography).utf8)
         case .pdf:
             data = pdfData(from: attributedText(from: document.sections))
         case .html:

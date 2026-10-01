@@ -1169,6 +1169,26 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(again[1].content.attributedString.string, "b")
     }
 
+    func testMarkdownCarriesDocumentFontInAComment() throws {
+        let (document, _, _, _, _) = makeDocument()
+        let typography = TypographySettings(fontFamily: "Palatino", fontSize: 16)
+        let md = Markdown.string(from: document.sections, typography: typography)
+        XCTAssertTrue(md.hasPrefix("<!-- kisho: font Palatino 16 -->\n\n# A"))
+
+        let imported = Markdown.document(from: md)
+        XCTAssertEqual(imported.typography.fontFamily, "Palatino")
+        XCTAssertEqual(imported.typography.fontSize, 16)
+        XCTAssertEqual(imported.sections.map(\.title), ["A", "B"], "the comment adds no block")
+        let font = imported.sections[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertEqual(font?.familyName, "Palatino")
+        XCTAssertEqual(font?.pointSize, 16)
+
+        XCTAssertEqual(Markdown.fontComment(in: "<!-- kisho: font Helvetica Neue 13.5 -->")?.fontFamily, "Helvetica Neue")
+        XCTAssertEqual(Markdown.fontComment(in: "<!-- kisho: font Helvetica Neue 13.5 -->")?.fontSize, 13.5)
+        XCTAssertNil(Markdown.fontComment(in: "# No comment here"))
+        XCTAssertEqual(Markdown.document(from: "# Plain").typography, TypographySettings(), "no comment → defaults")
+    }
+
     func testMarkdownImportOfEmptyOrHeadinglessTextStillYieldsADocument() throws {
         XCTAssertEqual(Markdown.sections(from: "").map(\.title), ["Untitled"])
         let plain = Markdown.sections(from: "just a line\n\nand another")
