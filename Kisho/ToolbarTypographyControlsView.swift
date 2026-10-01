@@ -37,8 +37,8 @@ struct ToolbarTypographyControlsView: View {
             // Font Size Picker with Chevrons
             FontSizePicker(fontSize: binding.fontSize) { }
 
-            // Bold / Italic / Underline apply to the selected text (shortcuts live in the Format menu) (or the caret) in the
-            // focused block, like any text editor.
+            // Bold / Italic / Underline apply to the selected text (or the caret) in
+            // the focused block; the shortcuts live in the Format menu.
             Button(action: { SelectionFormatting.toggle(.bold) }) {
                 Image(systemName: "bold")
             }

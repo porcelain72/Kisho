@@ -15,43 +15,25 @@ struct FontSizePicker: View {
     private let maxSize: Double = 72
 
     var body: some View {
+        // A field plus a native stepper: both are standard toolbar height, so
+        // the text group lines up with the buttons either side of it.
         HStack(spacing: 4) {
-            // Text Field
             TextField("", value: $fontSize, formatter: NumberFormatter.integer, onCommit: {
                 fontSize = clamped(fontSize)
                 apply()
             })
             .frame(width: 40)
             .multilineTextAlignment(.trailing)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .textFieldStyle(.roundedBorder)
             .help("Font Size (points)")
 
-            // Up/Down Chevron Buttons
-            VStack(spacing: 2) {
-                Button(action: {
-                    fontSize = clamped(fontSize + 1)
-                    apply()
-                }) {
-                    Image(systemName: "chevron.up")
-                        .font(.system(size: 10, weight: .semibold))
-                        .frame(width: 16, height: 12)
-                }
-                .buttonStyle(BorderlessButtonStyle())
-
-                Button(action: {
-                    fontSize = clamped(fontSize - 1)
-                    apply()
-                }) {
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .semibold))
-                        .frame(width: 16, height: 12)
-                }
-                .buttonStyle(BorderlessButtonStyle())
-            }
-            .frame(height: 28)
-            .padding(.trailing, 4)
+            Stepper("Font Size", value: Binding(
+                get: { fontSize },
+                set: { fontSize = clamped($0); apply() }
+            ), in: minSize...maxSize, step: 1)
+            .labelsHidden()
+            .help("Font Size (points)")
         }
-        .frame(width: 80, alignment: .leading)
     }
 
     private func clamped(_ value: Double) -> Double {
