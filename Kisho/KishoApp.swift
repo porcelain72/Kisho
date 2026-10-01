@@ -103,13 +103,13 @@ struct SectionEditCommands: Commands {
     var body: some Commands {
         CommandGroup(after: .pasteboard) {
 
-            Button("Next Section") {
+            Button("Next Block") {
                 documentModel?.selectNext()
             }
             .keyboardShortcut(.downArrow, modifiers: [.command, .control])
             .disabled(documentModel == nil)
 
-            Button("Previous Section") {
+            Button("Previous Block") {
                 documentModel?.selectPrevious()
             }
             .keyboardShortcut(.upArrow, modifiers: [.command, .control])
@@ -130,22 +130,22 @@ struct SectionEditCommands: Commands {
             Divider()
 
             // Toolbar buttons carry the ⌘= / ⇧⌘= shortcuts.
-            Button("Add Sibling Section") {
+            Button("Add Sibling Block") {
                 documentModel?.addSiblingSection(using: activeUndoManager)
             }
             .disabled(documentModel == nil)
 
-            Button("Add Child Section") {
+            Button("Add Child Block") {
                 documentModel?.addChildSection(using: activeUndoManager)
             }
             .disabled(selectedSectionID == nil)
 
-            Button("Split Paragraphs into Sections") {
+            Button("Split Paragraphs into Blocks") {
                 documentModel?.makeChildren(undoManager: activeUndoManager)
             }
             .disabled(selectedSectionID == nil)
 
-            Button("Gather Sub-sections") {
+            Button("Gather Sub-blocks") {
                 documentModel?.gather(undoManager: activeUndoManager)
             }
             .disabled(selectedSectionID == nil)
@@ -168,7 +168,7 @@ struct SectionEditCommands: Commands {
             Divider()
 
             // ⇧⌘⌫ — plain ⌘⌫ is "delete to beginning of line" in the text editor.
-            Button("Delete Section…") {
+            Button("Delete Block…") {
                 showDelete = true
             }
             .keyboardShortcut(.delete, modifiers: [.command, .shift])

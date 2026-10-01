@@ -330,16 +330,16 @@ final class KishoDocumentModel: ObservableObject, Codable {
             parent = nil
             index = sections.count
         }
-        insertNewSection(into: parent, at: index, name: "Add Section", using: undoManager)
+        insertNewSection(into: parent, at: index, name: "Add Block", using: undoManager)
     }
 
     /// Appends a new section as the last child of the selected one. With
     /// nothing selected it goes at the end of the top level.
     func addChildSection(using undoManager: UndoManager? = nil) {
         if let selected = selectedSection {
-            insertNewSection(into: selected, at: selected.children.count, name: "Add Child Section", using: undoManager)
+            insertNewSection(into: selected, at: selected.children.count, name: "Add Child Block", using: undoManager)
         } else {
-            insertNewSection(into: nil, at: sections.count, name: "Add Section", using: undoManager)
+            insertNewSection(into: nil, at: sections.count, name: "Add Block", using: undoManager)
         }
     }
 
@@ -370,7 +370,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let parent = loc.parent
         let index = loc.index
         let previousSelection = selectedSectionID
-        perform("Delete Section", using: undoManager, forward: { target in
+        perform("Delete Block", using: undoManager, forward: { target in
             target.rawRemove(section)
             if target.selectedSectionID == id || target.selectedSectionID.map({ section.contains(sectionID: $0) }) == true {
                 target.selectedSectionID = target.selectionAfterRemoving(parent: parent, index: index)
@@ -446,7 +446,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         if target.parent === origin.parent, target.index == origin.index { return }
 
         let previousSelection = selectedSectionID
-        perform("Move Section", using: undoManager, forward: { t in
+        perform("Move Block", using: undoManager, forward: { t in
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: target.parent, at: target.index)
             t.selectedSectionID = dragged.id
@@ -558,7 +558,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             let gathered = section.joinedChildrenContent().attributedString
             let previousSelection = selectedSectionID
 
-            perform("Gather Sections", using: undoManager, forward: { target in
+            perform("Gather Blocks", using: undoManager, forward: { target in
                 section.content.attributedString = gathered
                 section.children = []
                 section.modifiedAt = Date()
@@ -584,7 +584,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         let old = section.title
         section.title = cleaned
         section.modifiedAt = Date()
-        registerReversible(undoManager, name: "Rename Section",
+        registerReversible(undoManager, name: "Rename Block",
                            undo: { t in section.title = old; t.selectedSectionID = section.id; t.requestFocus(section.id, .title) },
                            redo: { t in section.title = cleaned; t.selectedSectionID = section.id; t.requestFocus(section.id, .title) })
     }

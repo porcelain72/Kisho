@@ -68,7 +68,7 @@ struct KishoDocumentView: View {
                 }
                 .keyboardShortcut("p", modifiers: [.command, .option])
                 .disabled(document.selectedSection == nil)
-                .help("Split the selected section's paragraphs into sub-sections (⌥⌘P)")
+                .help("Split the selected block's paragraphs into sub-blocks (⌥⌘P)")
                 
                 Button {
                     document.gather(undoManager: undoManager)
@@ -77,7 +77,7 @@ struct KishoDocumentView: View {
                 }
                 .keyboardShortcut("g", modifiers: [.command, .option])
                 .disabled(document.selectedSection?.children.isEmpty ?? true)
-                .help("Gather all sub-section text back into the selected section (⌥⌘G)")
+                .help("Gather all sub-block text back into the selected block (⌥⌘G)")
                 
                 Button {
                     find.show()
@@ -115,7 +115,7 @@ struct KishoDocumentView: View {
                     Label("Add Sibling", systemImage: "plus")
                 }
                 .keyboardShortcut("=", modifiers: [.command])
-                .help("Add a section after the selected one, at the same level (⌘=)")
+                .help("Add a block after the selected one, at the same level (⌘=)")
 
                 Button {
                     document.addChildSection(using: undoManager)
@@ -124,15 +124,15 @@ struct KishoDocumentView: View {
                 }
                 .keyboardShortcut("=", modifiers: [.command, .shift])
                 .disabled(document.selectedSection == nil)
-                .help("Add a sub-section inside the selected section (⇧⌘=)")
+                .help("Add a sub-block inside the selected block (⇧⌘=)")
 
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
-                    Label("Delete Section", systemImage: "trash")
+                    Label("Delete Block", systemImage: "trash")
                 }
                 .disabled(document.selectedSection == nil)
-                .help("Delete the selected section and its sub-sections (⇧⌘⌫)")
+                .help("Delete the selected block and its sub-blocks (⇧⌘⌫)")
             }
         }
         .confirmationDialog(
@@ -155,7 +155,7 @@ struct KishoDocumentView: View {
                 openWindow(id: KishoHelpView.windowID)
             }
         }
-        .alert("Delete Section?",
+        .alert("Delete Block?",
                isPresented: $showDeleteAlert,
                actions: {
             Button("Delete") {
@@ -168,7 +168,7 @@ struct KishoDocumentView: View {
             Button("Cancel", role: .cancel) { }
         },
                message: {
-            Text("Are you sure you want to delete the selected section? All child sections will be deleted.")
+            Text("Are you sure you want to delete the selected block? Its sub-blocks will be deleted with it.")
         }
         )
         

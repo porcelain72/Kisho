@@ -111,7 +111,7 @@ struct SectionRow: View {
         .buttonStyle(.plain)
         .opacity(0.4)
         .frame(width: 24.0, height: 24.0)
-        .help(showsSubSections ? "Hide sub-sections" : "Show sub-sections")
+        .help(showsSubSections ? "Hide sub-blocks" : "Show sub-blocks")
     }
 
     // Drop target for above/below sibling insert
