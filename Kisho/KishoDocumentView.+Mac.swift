@@ -14,6 +14,8 @@ struct KishoDocumentView: View {
     @State private var showDeleteAlert = false
     @StateObject private var find = FindState()
     @Environment(\.undoManager) private var undoManager
+    @Environment(\.openWindow) private var openWindow
+    @AppStorage(KishoPreferences.Key.hasShownWelcome) private var hasShownWelcome = false
 
     @EnvironmentObject var document : KishoDocumentModel
 
@@ -89,7 +91,7 @@ struct KishoDocumentView: View {
                 } label: {
                     Label("Export…", systemImage: "arrow.up.doc")
                 }
-                .help("Export document as plain text, PDF or HTML (also in the File menu)")
+                .help("Export document as plain text, Markdown, Word, PDF or HTML (also in the File menu)")
          
                 Button {
                     undoManager?.undo()
@@ -144,6 +146,14 @@ struct KishoDocumentView: View {
                 }
             }
             Button("Cancel", role: .cancel) { }
+        }
+        .onAppear {
+            // First launch: open the one-page guide beside the document.
+            guard !hasShownWelcome else { return }
+            hasShownWelcome = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                openWindow(id: KishoHelpView.windowID)
+            }
         }
         .alert("Delete Section?",
                isPresented: $showDeleteAlert,

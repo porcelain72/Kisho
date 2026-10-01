@@ -49,7 +49,28 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     private var structureEditDepth = 0
 
-    enum CodingKeys: String, CodingKey { case sections, typography, selectedSectionID }
+    enum CodingKeys: String, CodingKey { case formatVersion, sections, typography, selectedSectionID }
+
+    /// Version of the on-disk JSON. Files without the key are version 0 (the
+    /// pre-1.0 layout, which reads identically). Bump when a change needs
+    /// migration; a newer file than this build understands is refused rather
+    /// than half-read and then saved back with its extra data lost.
+    static let currentFormatVersion = 1
+
+    enum FormatError: LocalizedError {
+        case newerThanThisVersion(Int)
+        var errorDescription: String? {
+            switch self {
+            case .newerThanThisVersion:
+                return "This document was saved by a newer version of Kisho. Update Kisho to open it."
+            }
+        }
+    }
+
+    /// Which field a newly added block puts the keyboard in. Read from the
+    /// preferences each time so a change in Settings applies at once;
+    /// tests replace the closure.
+    var newBlockFocus: () -> EditorFocusRequest.Field = { KishoPreferences.newBlockFocus }
 
     var selectedSection : KishoSection? {
         guard let id = self.selectedSectionID else { return nil }
@@ -64,6 +85,10 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        let version = try container.decodeIfPresent(Int.self, forKey: .formatVersion) ?? 0
+        guard version <= Self.currentFormatVersion else {
+            throw FormatError.newerThanThisVersion(version)
+        }
         let decoded = try container.decode([KishoSection].self, forKey: .sections)
         typography = try container.decodeIfPresent(TypographySettings.self, forKey: .typography) ?? TypographySettings()
         sections = decoded
@@ -82,6 +107,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(Self.currentFormatVersion, forKey: .formatVersion)
         try container.encode(sections, forKey: .sections)
         try container.encode(selectedSectionID, forKey: .selectedSectionID)
         try container.encode(typography, forKey: .typography)
@@ -318,7 +344,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         perform(name, using: undoManager, forward: { target in
             target.rawInsert(newSection, into: parent, at: index)
             target.selectedSectionID = newSection.id
-            target.requestFocus(newSection.id, .title)
+            target.requestFocus(newSection.id, target.newBlockFocus())
         }, inverse: { target in
             target.rawRemove(newSection)
             target.selectedSectionID = previousSelection.flatMap { target.section(withID: $0) }?.id
@@ -378,7 +404,8 @@ final class KishoDocumentModel: ObservableObject, Codable {
     /// Moves a section before/after another section or into it as its last
     /// child. Invalid moves (onto itself, into its own subtree, unknown IDs)
     /// are ignored and the tree is left untouched.
-    func move(sectionID draggedID: UUID, to destination: MoveDestination, using undoManager: UndoManager? = nil) {
+    func move(sectionID draggedID: UUID, to destination: MoveDestination,
+              focusing field: EditorFocusRequest.Field = .body, using undoManager: UndoManager? = nil) {
         guard canMove(sectionID: draggedID, to: destination),
               let dragged = section(withID: draggedID),
               let origin = location(ofSectionID: draggedID) else { return }
@@ -418,13 +445,53 @@ final class KishoDocumentModel: ObservableObject, Codable {
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: target.parent, at: target.index)
             t.selectedSectionID = dragged.id
-            t.requestFocus(dragged.id, .body)
+            t.requestFocus(dragged.id, field)
         }, inverse: { t in
             t.rawRemove(dragged)
             t.rawInsert(dragged, into: origin.parent, at: origin.index)
             t.selectedSectionID = previousSelection
-            t.requestFocus(previousSelection, .body)
+            t.requestFocus(previousSelection, field)
         })
+    }
+
+    // MARK: Indent / outdent (outliner Tab / ⇧Tab)
+
+    /// Whether the block can become the last child of the sibling above it.
+    func canIndent(sectionID id: UUID) -> Bool {
+        guard let loc = location(ofSectionID: id), loc.index > 0 else { return false }
+        return true
+    }
+
+    /// Whether the block can move out to sit after its parent.
+    func canOutdent(sectionID id: UUID) -> Bool {
+        location(ofSectionID: id)?.parent != nil
+    }
+
+    /// Makes the block the last child of the sibling above it (its own
+    /// children come along). The first child of a parent has nowhere to go.
+    func indentSection(withID id: UUID, focusing field: EditorFocusRequest.Field = .body,
+                       using undoManager: UndoManager? = nil) {
+        guard let loc = location(ofSectionID: id), loc.index > 0 else { return }
+        let siblings = loc.parent?.children ?? sections
+        move(sectionID: id, to: .into(siblings[loc.index - 1].id), focusing: field, using: undoManager)
+    }
+
+    /// Moves the block out of its parent to sit directly after it. Siblings
+    /// that followed it stay with the parent. Top-level blocks can't outdent.
+    func outdentSection(withID id: UUID, focusing field: EditorFocusRequest.Field = .body,
+                        using undoManager: UndoManager? = nil) {
+        guard let parent = location(ofSectionID: id)?.parent else { return }
+        move(sectionID: id, to: .after(parent.id), focusing: field, using: undoManager)
+    }
+
+    func indentSelectedSection(using undoManager: UndoManager? = nil) {
+        guard let id = selectedSectionID else { return }
+        indentSection(withID: id, using: undoManager)
+    }
+
+    func outdentSelectedSection(using undoManager: UndoManager? = nil) {
+        guard let id = selectedSectionID else { return }
+        outdentSection(withID: id, using: undoManager)
     }
 
     // Compatibility wrappers for existing call sites.

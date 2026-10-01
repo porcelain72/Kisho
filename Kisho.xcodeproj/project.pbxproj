@@ -35,6 +35,8 @@
 		A1B2C3D42F00000C00KISHO01 /* KishoFindReplace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000B00KISHO01 /* KishoFindReplace.swift */; };
 		A1B2C3D42F00000E00KISHO01 /* KishoMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000D00KISHO01 /* KishoMarkdown.swift */; };
 		A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */; };
+		A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */; };
+		A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,11 +84,13 @@
 		98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionRow.swift; sourceTree = "<group>"; };
 		98EA654D2DEF5BAF00B4AEFE /* KishoDocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocumentModel.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00000100KISHO01 /* KishoSection+Composite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSection+Composite.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SectionSubtreeEditorModel.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoCardListEditorView.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00000B00KISHO01 /* KishoFindReplace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoFindReplace.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00000D00KISHO01 /* KishoMarkdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoMarkdown.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocx.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionSubtreeEditorModel.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoCardListEditorView.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00000B00KISHO01 /* KishoFindReplace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoFindReplace.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00000D00KISHO01 /* KishoMarkdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoMarkdown.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocx.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPreferences.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoHelpView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +155,8 @@
 				A1B2C3D42F00000900KISHO01 /* KishoCardListEditorView.swift */,
 				A1B2C3D42F00000B00KISHO01 /* KishoFindReplace.swift */,
 				A1B2C3D42F00000D00KISHO01 /* KishoMarkdown.swift */,
+				A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */,
+				A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */,
 				A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */,
 				A1B2C3D42F00000300KISHO01 /* SectionSubtreeEditorModel.swift */,
 				A1B2C3D42F00000100KISHO01 /* KishoSection+Composite.swift */,
@@ -336,6 +342,8 @@
 				A1B2C3D42F00000A00KISHO01 /* KishoCardListEditorView.swift in Sources */,
 				A1B2C3D42F00000C00KISHO01 /* KishoFindReplace.swift in Sources */,
 				A1B2C3D42F00000E00KISHO01 /* KishoMarkdown.swift in Sources */,
+				A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */,
+				A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */,
 				A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */,
 				A1B2C3D42F00000400KISHO01 /* SectionSubtreeEditorModel.swift in Sources */,
 				A1B2C3D42F00000200KISHO01 /* KishoSection+Composite.swift in Sources */,

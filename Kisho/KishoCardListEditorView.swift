@@ -29,14 +29,18 @@ struct KishoCardListEditorView: View {
             }
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
-                        ForEach(document.sections) { section in
-                            SectionCardTree(section: section, depth: 0)
+                    if document.sections.isEmpty {
+                        EmptyDocumentPrompt()
+                    } else {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(document.sections) { section in
+                                SectionCardTree(section: section, depth: 0)
+                            }
+                            // Room to scroll the last card up into comfortable view.
+                            Color.clear.frame(height: 160)
                         }
-                        // Room to scroll the last card up into comfortable view.
-                        Color.clear.frame(height: 160)
+                        .padding(20)
                     }
-                    .padding(20)
                 }
                 .background(Theme.canvas)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -88,6 +92,40 @@ private struct SectionCardTree: View {
     }
 }
 
+// MARK: - Empty document
+
+/// What a document with no blocks shows instead of a blank canvas.
+private struct EmptyDocumentPrompt: View {
+    @EnvironmentObject var document: KishoDocumentModel
+    @Environment(\.undoManager) private var undoManager
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "rectangle.stack.badge.plus")
+                .font(.system(size: 44, weight: .light))
+                .foregroundStyle(.secondary)
+            Text("No blocks yet")
+                .font(.title2.weight(.semibold))
+            Text("A Kisho document is a stack of named blocks. Add one and start writing; split it into more as the shape emerges.")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: 380)
+            Button {
+                document.addSiblingSection(using: undoManager)
+            } label: {
+                Label("Add a Block", systemImage: "plus")
+            }
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+            Text("⌘=  ·  Help ▸ How Kisho Works")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(60)
+        .frame(maxWidth: .infinity, minHeight: 420)
+    }
+}
+
 // MARK: - Card
 
 private struct SectionCard: View {
@@ -98,7 +136,9 @@ private struct SectionCard: View {
     let depth: Int
 
     @State private var draftTitle: String
-    @FocusState private var isTitleFocused: Bool
+    /// Mirrors the AppKit title field's first-responder state.
+    @State private var isTitleFocused = false
+    @StateObject private var titleHandle = TitleFieldHandle()
     @StateObject private var bodyHandle = CardTextViewHandle()
 
     init(section: KishoSection, depth: Int) {
@@ -115,8 +155,6 @@ private struct SectionCard: View {
         let hits = find.bodyHighlights(for: section.id)
         return BodyHighlight(ranges: hits.all, current: hits.current)
     }
-
-    private var titleFont: Font { .system(size: headingSize, weight: .semibold) }
 
     /// Search hits in the title, drawn as a wash behind the field's text.
     /// Only while the field shows the model's title (not a draft being typed).
@@ -152,14 +190,20 @@ private struct SectionCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Heading
             HStack(spacing: 8) {
-                TextField("Untitled", text: $draftTitle)
-                    .textFieldStyle(.plain)
-                    .font(titleFont)
-                    .foregroundStyle(.primary)
-                    .background(alignment: .leading) { titleHighlightBackdrop }
-                    .focused($isTitleFocused)
-                    .onSubmit { commitTitle(); bodyHandle.focus(atEnd: true) }
-                    .onExitCommand { draftTitle = section.title; isTitleFocused = false }
+                TitleField(
+                    text: $draftTitle,
+                    placeholder: "Untitled",
+                    fontSize: headingSize,
+                    handle: titleHandle,
+                    onFocusChange: { isTitleFocused = $0 },
+                    onSubmit: { commitTitle(); bodyHandle.focus(atEnd: true) },
+                    onEscape: { draftTitle = section.title; bodyHandle.focus(atEnd: false) },
+                    // Outliner habit: Tab nests the block under the one above, ⇧Tab moves it out.
+                    onTab: { commitTitle(); document.indentSection(withID: section.id, focusing: .title, using: undoManager) },
+                    onBacktab: { commitTitle(); document.outdentSection(withID: section.id, focusing: .title, using: undoManager) },
+                    onCommandReturn: { commitTitle(); document.addSiblingSection(using: undoManager) }
+                )
+                .background(alignment: .leading) { titleHighlightBackdrop }
                 Spacer(minLength: 0)
                 if section.totalWordCount > 0 {
                     Text("\(section.totalWordCount)")
@@ -187,7 +231,8 @@ private struct SectionCard: View {
                 onBeginEditing: { selectFromEditor() },
                 onChange: { old, new, location in
                     document.recordBodyEdit(for: section, from: old, to: new, editLocation: location, using: undoManager)
-                }
+                },
+                onCommandReturn: { document.addSiblingSection(using: undoManager) }
             )
             .frame(maxWidth: .infinity)
             .frame(height: bodyHandle.height)
@@ -226,7 +271,7 @@ private struct SectionCard: View {
                 }
                 switch request.field {
                 case .title:
-                    isTitleFocused = true
+                    titleHandle.focus()
                 case .body:
                     if let selection = request.selection {
                         bodyHandle.focus(selecting: selection)
@@ -307,6 +352,123 @@ enum Theme {
     /// Editor canvas behind the cards: a step away from the card face so the
     /// outlines have something to sit against in both appearances.
     static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
+}
+
+// MARK: - Title field
+
+/// Lets the card focus its title field from a focus request.
+final class TitleFieldHandle: ObservableObject {
+    weak var field: NSTextField?
+    func focus() {
+        guard let field, let window = field.window else { return }
+        window.makeFirstResponder(field)
+    }
+}
+
+/// The block title. An AppKit field rather than SwiftUI's `TextField` so Tab
+/// and ⇧Tab can indent/outdent the block instead of moving focus, Escape can
+/// revert, and ⌘↩ can add a block — the deployment target predates
+/// `onKeyPress`.
+private struct TitleField: NSViewRepresentable {
+    @Binding var text: String
+    let placeholder: String
+    let fontSize: CGFloat
+    let handle: TitleFieldHandle
+    let onFocusChange: (Bool) -> Void
+    let onSubmit: () -> Void
+    let onEscape: () -> Void
+    let onTab: () -> Void
+    let onBacktab: () -> Void
+    let onCommandReturn: () -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeNSView(context: Context) -> TitleNSTextField {
+        let field = TitleNSTextField()
+        field.isBordered = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        field.isBezeled = false
+        field.textColor = .labelColor
+        field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        field.placeholderString = placeholder
+        field.lineBreakMode = .byTruncatingTail
+        field.usesSingleLineMode = true
+        field.cell?.isScrollable = true
+        field.cell?.wraps = false
+        field.stringValue = text
+        field.delegate = context.coordinator
+        field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        field.onBecomeFirstResponder = { [weak coordinator = context.coordinator] in
+            coordinator?.parent.onFocusChange(true)
+        }
+        field.onCommandReturn = { [weak coordinator = context.coordinator] in
+            coordinator?.parent.onCommandReturn()
+        }
+        handle.field = field
+        return field
+    }
+
+    func updateNSView(_ field: TitleNSTextField, context: Context) {
+        context.coordinator.parent = self
+        handle.field = field
+        if field.stringValue != text { field.stringValue = text }
+        if field.font?.pointSize != fontSize {
+            field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        }
+    }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: TitleField
+        init(_ parent: TitleField) { self.parent = parent }
+
+        func controlTextDidChange(_ notification: Notification) {
+            guard let field = notification.object as? NSTextField else { return }
+            parent.text = field.stringValue
+        }
+
+        func controlTextDidEndEditing(_ notification: Notification) {
+            parent.onFocusChange(false)
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
+            switch selector {
+            case #selector(NSResponder.insertNewline(_:)):   parent.onSubmit();   return true
+            case #selector(NSResponder.cancelOperation(_:)): parent.onEscape();   return true
+            case #selector(NSResponder.insertTab(_:)):       parent.onTab();      return true
+            case #selector(NSResponder.insertBacktab(_:)):   parent.onBacktab();  return true
+            default: return false
+            }
+        }
+    }
+}
+
+final class TitleNSTextField: NSTextField {
+    var onBecomeFirstResponder: (() -> Void)?
+    var onCommandReturn: (() -> Void)?
+
+    override func becomeFirstResponder() -> Bool {
+        let ok = super.becomeFirstResponder()
+        if ok { onBecomeFirstResponder?() }
+        return ok
+    }
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.isCommandReturn, let onCommandReturn, currentEditor() != nil {
+            onCommandReturn()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+}
+
+extension NSEvent {
+    /// Return (or keypad Enter) with only the Command key held.
+    var isCommandReturn: Bool {
+        guard type == .keyDown, keyCode == 36 || keyCode == 76 else { return false }
+        return modifierFlags.intersection(.deviceIndependentFlagsMask) == .command
+    }
 }
 
 // MARK: - Self-sizing text view
@@ -401,6 +563,8 @@ private struct CardTextView: NSViewRepresentable {
     /// Called with the text before and after a user edit, and the character
     /// index where the edit happened.
     let onChange: (NSAttributedString, NSAttributedString, Int) -> Void
+    /// ⌘↩ in the body: add a block after this one.
+    let onCommandReturn: () -> Void
 
     private static let insets = NSSize(width: 4, height: 4)
 
@@ -439,6 +603,9 @@ private struct CardTextView: NSViewRepresentable {
         textView.contentModel = content
         textView.onBecomeFirstResponder = { [weak coordinator = context.coordinator] in
             coordinator?.parent.onBeginEditing()
+        }
+        textView.onCommandReturn = { [weak coordinator = context.coordinator] in
+            coordinator?.parent.onCommandReturn()
         }
         textView.textStorage?.setAttributedString(content.attributedString)
         applyDisplayColour(textView)
@@ -547,6 +714,17 @@ private struct CardTextView: NSViewRepresentable {
 final class CardNSTextView: NSTextView {
     var onBecomeFirstResponder: (() -> Void)?
     var onHeightChange: ((CGFloat) -> Void)?
+    var onCommandReturn: (() -> Void)?
+
+    /// ⌘↩ adds a block; nothing else about the event is ours. The window
+    /// offers key equivalents to every view, so only the focused body acts.
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.isCommandReturn, let onCommandReturn, window?.firstResponder === self {
+            onCommandReturn()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
     /// The block body this view edits, so find actions can be routed to the
     /// right document when several windows are open.
     weak var contentModel: RichTextModel?

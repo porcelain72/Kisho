@@ -44,7 +44,9 @@ final class KishoDocument: ReferenceFileDocument {
             KishoDocument.pendingImport = nil
             self.model = pending
         } else {
+            // A brand-new document: the font from Settings.
             self.model = KishoDocumentModel()
+            self.model.typography = KishoPreferences.defaultTypography
         }
     }
 

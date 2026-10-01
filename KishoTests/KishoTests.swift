@@ -1313,6 +1313,75 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(xml.contains("<w:rPr><w:b/><w:bCs/><w:u w:val=\"single\"/></w:rPr><w:t xml:space=\"preserve\">both</w:t>"), xml)
     }
 
+    // MARK: - Phase 3: format version, indent/outdent, new-block focus
+
+    func testDocumentFormatVersionIsWrittenAndNewerFilesAreRefused() throws {
+        let (document, _, _, _, _) = makeDocument()
+        let data = try JSONEncoder().encode(document)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(json["formatVersion"] as? Int, KishoDocumentModel.currentFormatVersion)
+
+        // Files from before the key read as version 0.
+        var legacy = json
+        legacy.removeValue(forKey: "formatVersion")
+        let reopened = try JSONDecoder().decode(KishoDocumentModel.self, from: JSONSerialization.data(withJSONObject: legacy))
+        XCTAssertEqual(reopened.sections.map(\.title), ["A", "B"])
+
+        var future = json
+        future["formatVersion"] = KishoDocumentModel.currentFormatVersion + 1
+        XCTAssertThrowsError(try JSONDecoder().decode(KishoDocumentModel.self, from: JSONSerialization.data(withJSONObject: future))) { error in
+            XCTAssertTrue(error is KishoDocumentModel.FormatError)
+            XCTAssertFalse(error.localizedDescription.isEmpty)
+        }
+    }
+
+    func testIndentAndOutdentMoveBlocksLikeAnOutliner() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        let undo = manualUndoManager()
+
+        XCTAssertFalse(document.canIndent(sectionID: a.id), "first block has nothing above it")
+        XCTAssertFalse(document.canOutdent(sectionID: a.id), "top level can't go further out")
+        XCTAssertTrue(document.canIndent(sectionID: a2.id))
+        XCTAssertTrue(document.canOutdent(sectionID: a1.id))
+
+        document.indentSection(withID: a2.id, focusing: .title, using: undo)
+        XCTAssertEqual(a1.children.map(\.title), ["A2"], "indent nests under the sibling above")
+        XCTAssertEqual(a.children.map(\.title), ["A1"])
+        XCTAssertEqual(document.selectedSectionID, a2.id)
+        XCTAssertEqual(document.focusRequest?.field, .title, "Tab in a title keeps focus in titles")
+
+        document.outdentSection(withID: a2.id, using: undo)
+        XCTAssertEqual(a.children.map(\.title), ["A1", "A2"], "outdent puts it straight after its parent")
+
+        document.outdentSection(withID: a1.id, using: undo)
+        XCTAssertEqual(document.sections.map(\.title), ["A", "A1", "B"], "A1 leaves A")
+        XCTAssertEqual(a.children.map(\.title), ["A2"], "A2 stays with A")
+        XCTAssertEqual(titles(document), ["A", "A2", "A1", "B"])
+
+        document.indentSection(withID: b.id, using: undo)
+        XCTAssertEqual(document.sections.map(\.title), ["A", "A1"])
+        XCTAssertEqual(a1.children.map(\.title), ["B"])
+
+        undo.undo(); undo.undo(); undo.undo(); undo.undo()
+        XCTAssertEqual(document.sections.map(\.title), ["A", "B"])
+        XCTAssertEqual(a.children.map(\.title), ["A1", "A2"])
+        XCTAssertTrue(a1.children.isEmpty)
+
+        document.indentSection(withID: a.id, using: undo)
+        XCTAssertEqual(document.sections.map(\.title), ["A", "B"], "no-op leaves the tree alone")
+    }
+
+    func testNewBlockFocusFollowsPreference() throws {
+        let (document, _, _, _, _) = makeDocument()
+        XCTAssertEqual(KishoPreferences.newBlockFocus, .title, "default is the title")
+        document.newBlockFocus = { .body }
+        document.addSiblingSection()
+        XCTAssertEqual(document.focusRequest?.field, .body)
+        document.newBlockFocus = { .title }
+        document.addChildSection()
+        XCTAssertEqual(document.focusRequest?.field, .title)
+    }
+
     func testSubtreeHasTag() throws {
         let (document, a, a1, _, b) = makeDocument()
         a1.tags = ["draft"]

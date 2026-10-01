@@ -43,7 +43,19 @@ struct KishoApp: App {
             SectionEditCommands()
             ExportCommands()
             FindCommands()
+            HelpCommands()
         }
+        #endif
+
+        #if os(macOS)
+        Settings {
+            KishoSettingsView()
+        }
+
+        Window("How Kisho Works", id: KishoHelpView.windowID) {
+            KishoHelpView()
+        }
+        .defaultSize(width: 620, height: 720)
         #endif
     }
 }
@@ -84,6 +96,9 @@ struct SectionEditCommands: Commands {
     private var activeUndoManager: UndoManager? {
         NSApp.keyWindow?.undoManager
     }
+
+    /// The focused binding is doubly optional (no focused window / nothing selected).
+    private var currentSectionID: UUID? { selectedSectionID ?? nil }
 
     var body: some Commands {
         CommandGroup(after: .pasteboard) {
@@ -134,6 +149,21 @@ struct SectionEditCommands: Commands {
                 documentModel?.gather(undoManager: activeUndoManager)
             }
             .disabled(selectedSectionID == nil)
+
+            Divider()
+
+            // Outliner moves. Tab / ⇧Tab in a block title do the same.
+            Button("Indent Block") {
+                documentModel?.indentSelectedSection(using: activeUndoManager)
+            }
+            .keyboardShortcut("]", modifiers: .command)
+            .disabled(currentSectionID.flatMap { documentModel?.canIndent(sectionID: $0) } != true)
+
+            Button("Outdent Block") {
+                documentModel?.outdentSelectedSection(using: activeUndoManager)
+            }
+            .keyboardShortcut("[", modifiers: .command)
+            .disabled(currentSectionID.flatMap { documentModel?.canOutdent(sectionID: $0) } != true)
 
             Divider()
 
