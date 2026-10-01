@@ -85,7 +85,7 @@ struct BlockInspectorView: View {
             }
         }
         .frame(width: 270)
-        .background(Theme.canvas)
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 }
 
@@ -146,8 +146,8 @@ private struct BlockInspectorForm: View {
                         .frame(minHeight: 64, maxHeight: 110)
                         .scrollContentBackground(.hidden)
                         .padding(4)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.cardBackground))
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.hairline))
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
                         .focused($focus, equals: .synopsis)
                     Text("One or two lines: what this block is for. Shown in the sidebar when View ▸ Show Synopses is on.")
                         .font(.caption2)
@@ -162,8 +162,8 @@ private struct BlockInspectorForm: View {
                         .frame(minHeight: 140)
                         .scrollContentBackground(.hidden)
                         .padding(4)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.cardBackground))
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.hairline))
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
                         .focused($focus, equals: .notes)
                     Text("Research, to-dos, things to remember. Never exported.")
                         .font(.caption2)
@@ -220,7 +220,7 @@ private struct BlockInspectorForm: View {
                 if let index {
                     Circle().fill(BlockPalette.color(index))
                 } else {
-                    Circle().strokeBorder(Theme.hairline, lineWidth: 1)
+                    Circle().strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
                     Image(systemName: "slash.circle")
                         .font(.system(size: 11))
                         .foregroundStyle(.tertiary)

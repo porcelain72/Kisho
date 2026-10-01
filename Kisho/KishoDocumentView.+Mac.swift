@@ -18,7 +18,6 @@ struct KishoDocumentView: View {
     @AppStorage(KishoPreferences.Key.hasShownWelcome) private var hasShownWelcome = false
     @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = false
     @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
-    @Environment(\.colorScheme) private var systemColorScheme
     /// Focus Mode is per window: just the cards, the current block bright.
     @State private var focusMode = false
     @State private var columns: NavigationSplitViewVisibility = .all
@@ -78,16 +77,25 @@ struct KishoDocumentView: View {
             }
             .environment(\.kishoFocusMode, focusMode)
             .environment(\.kishoEditorTheme, editorTheme)
-            // The editor area follows its own theme; the chrome follows the system.
-            .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
-            .background(Theme.canvas)
         }
-        .toolbar(focusMode ? .hidden : .visible, for: .windowToolbar)
+        .focusedSceneObject(document)
         .onChange(of: focusMode) { on in
-            withAnimation(.easeInOut(duration: 0.25)) { columns = on ? .detailOnly : .all }
+            // Quick rather than animated: the sidebar, toolbar items and card
+            // width all change at once and animating them together looks messy.
+            withAnimation(.easeOut(duration: 0.12)) { columns = on ? .detailOnly : .all }
         }
         .toolbar {
             ToolbarItemGroup {
+              // Focus mode keeps the toolbar (and so the window tabs) but
+              // strips it down to the one way out.
+              if focusMode {
+                Button {
+                    focusMode = false
+                } label: {
+                    Label("Exit Focus Mode", systemImage: "rectangle.inset.filled")
+                }
+                .help("Exit Focus Mode (⌥⌘F)")
+              } else {
                 ToolbarTypographyControlsView()
           
                 Button {
@@ -169,6 +177,7 @@ struct KishoDocumentView: View {
                 }
                 .disabled(document.selectedSection == nil)
                 .help("Delete the selected block and its sub-blocks (⇧⌘⌫)")
+              }
             }
         }
         .confirmationDialog(

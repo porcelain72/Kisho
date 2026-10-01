@@ -409,7 +409,8 @@ struct FindBar: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Theme.canvas)
-        .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).strokeBorder(Theme.hairline, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.hairline, lineWidth: 1))
         .onAppear {
             find.attach(to: document)
             find.refresh()

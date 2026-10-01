@@ -23,6 +23,7 @@ struct KishoCardListEditorView: View {
     @Environment(\.undoManager) private var undoManager
     @Environment(\.kishoFocusMode) private var focusMode
     @Environment(\.kishoEditorTheme) private var editorTheme
+    @Environment(\.colorScheme) private var systemColorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -66,6 +67,14 @@ struct KishoCardListEditorView: View {
                         }
                     }
                 }
+                .onChange(of: focusMode) { _ in
+                    // The column width and sidebar change under the scroll view;
+                    // bring the block being worked on back into the middle.
+                    guard let id = document.selectedSectionID else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(id, anchor: .center) }
+                    }
+                }
                 .onAppear {
                     // Otherwise AppKit hands initial key focus to the first title field.
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -79,7 +88,8 @@ struct KishoCardListEditorView: View {
                     .id(selected.id)
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: focusMode)
+        // The editor area carries its own theme; the chrome around it follows the system.
+        .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
         .padding()
     }
 }
@@ -263,7 +273,6 @@ private struct SectionCard: View {
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
         // Focus mode: everything but the block you're in recedes.
         .opacity(focusMode && !isSelected ? 0.32 : 1)
-        .animation(.easeInOut(duration: 0.2), value: focusMode)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
         .onChange(of: section.title) { newValue in
             // Undo/redo may change the title while the field has focus; the

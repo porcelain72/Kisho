@@ -143,11 +143,23 @@ struct ViewModeCommands: Commands {
     }
 }
 
-/// Format menu: selection formatting and the document font presets.
+/// Format menu: selection formatting and the document font presets. The
+/// document is a focused *object* here, so the tick follows the font as it
+/// changes (a focused value would only refresh when focus moves).
 struct FormatCommands: Commands {
-    @FocusedValue(\.kishoDocumentModel) private var documentModel
+    @FocusedObject private var documentModel: KishoDocumentModel?
 
     private var activeUndoManager: UndoManager? { NSApp.keyWindow?.undoManager }
+
+    private var presetSelection: Binding<TypographyPreset?> {
+        Binding(
+            get: { documentModel.flatMap { TypographyPreset.matching($0.typography) } },
+            set: { preset in
+                guard let preset, let documentModel else { return }
+                documentModel.setTypography(preset.settings, undoManager: activeUndoManager)
+            }
+        )
+    }
 
     var body: some Commands {
         CommandMenu("Format") {
@@ -160,17 +172,14 @@ struct FormatCommands: Commands {
 
             Divider()
 
-            Menu("Document Font") {
+            Picker("Document Font", selection: presetSelection) {
                 ForEach(TypographyPreset.allCases) { preset in
-                    Button {
-                        documentModel?.setTypography(preset.settings, undoManager: activeUndoManager)
-                    } label: {
-                        let current = documentModel.map { TypographyPreset.matching($0.typography) == preset } ?? false
-                        Text((current ? "✓ " : "") + "\(preset.title) — \(TypographySettings.displayName(forFamily: preset.settings.fontFamily)) \(Int(preset.settings.fontSize))")
-                    }
+                    Text("\(preset.title) — \(TypographySettings.displayName(forFamily: preset.settings.fontFamily)) \(Int(preset.settings.fontSize))")
+                        .tag(TypographyPreset?.some(preset))
                 }
                 Divider()
-                Text("Any family and size can be chosen in the toolbar.")
+                // Ticked when the toolbar's family/size match no preset.
+                Text("Custom (from the toolbar)").tag(TypographyPreset?.none)
             }
             .disabled(documentModel == nil)
         }
