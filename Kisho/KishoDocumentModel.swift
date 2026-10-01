@@ -59,12 +59,17 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     enum FormatError: LocalizedError {
         case newerThanThisVersion(Int)
-        var errorDescription: String? {
+        // AppKit's "could not be opened" alert shows the failure reason and
+        // recovery suggestion under its own title line; the description is
+        // what callers see when they present the error themselves.
+        var errorDescription: String? { "This document was saved by a newer version of Kisho." }
+        var failureReason: String? {
             switch self {
-            case .newerThanThisVersion:
-                return "This document was saved by a newer version of Kisho. Update Kisho to open it."
+            case .newerThanThisVersion(let version):
+                return "It uses document format \(version); this version of Kisho reads up to \(KishoDocumentModel.currentFormatVersion)."
             }
         }
+        var recoverySuggestion: String? { "Update Kisho to open it." }
     }
 
     /// Which field a newly added block puts the keyboard in. Read from the

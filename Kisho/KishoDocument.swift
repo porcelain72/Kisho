@@ -58,7 +58,10 @@ final class KishoDocument: ReferenceFileDocument {
     }
 
     func snapshot(contentType: UTType) throws -> Data {
-        try JSONEncoder().encode(model)
+        // Sorted keys: formatVersion comes first and saved files diff cleanly.
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try encoder.encode(model)
     }
 
     func fileWrapper(snapshot: Data, configuration: WriteConfiguration) throws -> FileWrapper {
