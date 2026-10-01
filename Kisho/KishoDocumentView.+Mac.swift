@@ -26,8 +26,6 @@ struct KishoDocumentView: View {
 
     @EnvironmentObject var document : KishoDocumentModel
 
-    // Track whether to show the export‐choice sheet:
-    @State private var showingExportOptions = false
     
 
     
@@ -130,12 +128,21 @@ struct KishoDocumentView: View {
                 }
                 .help(showInspector ? "Hide the block inspector (⌥⌘I)" : "Show the block inspector: status, colour, synopsis, notes (⌥⌘I)")
 
-                Button {
-                    showingExportOptions = true
-                } label: {
-                    Label("Export…", systemImage: "arrow.up.doc")
+                // Share the .kisho file itself (Mail, AirDrop, Messages…).
+                // Exports to other formats live under File ▸ Export As.
+                if let fileURL {
+                    ShareLink(item: fileURL) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .help("Share this document file")
+                } else {
+                    Button {
+                        NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .help("Save the document first to share it")
                 }
-                .help("Export document as plain text, Markdown, Word, PDF or HTML (also in the File menu)")
          
                 Button {
                     undoManager?.undo()
@@ -179,18 +186,6 @@ struct KishoDocumentView: View {
                 .help("Delete the selected block and its sub-blocks (⇧⌘⌫)")
               }
             }
-        }
-        .confirmationDialog(
-            "Choose Export Format",
-            isPresented: $showingExportOptions,
-            titleVisibility: .visible
-        ) {
-            ForEach(Exporter.Format.allCases) { format in
-                Button(format.title) {
-                    Exporter.export(document, as: format, title: documentTitle)
-                }
-            }
-            Button("Cancel", role: .cancel) { }
         }
         .background(WindowDocumentRegistrar(model: document))
         .onAppear {

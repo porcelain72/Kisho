@@ -65,7 +65,7 @@ struct KishoApp: App {
 }
 
 #if os(macOS)
-/// File ▸ Import Markdown… and Export As … items (the latter mirroring the toolbar's Export button).
+/// File ▸ Import Markdown… / Import OPML… and Export As … items.
 struct ExportCommands: Commands {
     @FocusedValue(\.kishoDocumentModel) private var documentModel
 
