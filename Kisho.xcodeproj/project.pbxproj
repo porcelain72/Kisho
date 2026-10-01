@@ -41,6 +41,7 @@
 		A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */; platformFilters = (macos, ); };
 		A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */; };
 		A1B2C3D42F00001C00KISHO01 /* KishoBlockMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */; };
+		A1B2C3D42F00001E00KISHO01 /* KishoFocusMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001D00KISHO01 /* KishoFocusMode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,7 @@
 		A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoPrint.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoOPML.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoBlockMetadata.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00001D00KISHO01 /* KishoFocusMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoFocusMode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +169,7 @@
 				A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */,
 				A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */,
 				A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */,
+				A1B2C3D42F00001D00KISHO01 /* KishoFocusMode.swift */,
 				A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */,
 				A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */,
 				A1B2C3D42F00000F00KISHO01 /* KishoDocx.swift */,
@@ -359,6 +362,7 @@
 				A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */,
 				A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */,
 				A1B2C3D42F00001C00KISHO01 /* KishoBlockMetadata.swift in Sources */,
+				A1B2C3D42F00001E00KISHO01 /* KishoFocusMode.swift in Sources */,
 				A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */,
 				A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */,
 				A1B2C3D42F00000400KISHO01 /* SectionSubtreeEditorModel.swift in Sources */,

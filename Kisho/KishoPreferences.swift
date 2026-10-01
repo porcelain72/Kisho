@@ -18,6 +18,8 @@ enum KishoPreferences {
         static let printMargins = "printMargins"
         static let showInspector = "showInspector"
         static let showSynopses = "showSynopsesInSidebar"
+        static let typewriterScrolling = "typewriterScrolling"
+        static let editorTheme = "editorTheme"
     }
 
     private static var defaults: UserDefaults { .standard }

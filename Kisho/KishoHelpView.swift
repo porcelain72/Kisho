@@ -42,6 +42,9 @@ struct KishoHelpView: View {
                 topic("Planning with the inspector",
                       "View ▸ Show Inspector (⌥⌘I) opens a panel for the selected block: a status (Draft, Revised, Final, Done), one of eight colours, a synopsis and private notes. The sidebar shows the colour as a dot and the status as a small symbol, and View ▸ Show Synopses puts each synopsis under its title — so the sidebar doubles as an outline you can plan in. Notes are never exported.")
 
+                topic("Focus Mode and typewriter scrolling",
+                      "View ▸ Enter Focus Mode (⌥⌘F) hides the sidebar, toolbar and inspector, narrows the cards to a reading width and dims every block but the one you're in. Typewriter Scrolling (⌥⌘T) keeps the line you're typing at the centre of the window. View ▸ Editor Theme sets the editor to light, dark or sepia independently of the system; the Format menu has Bold, Italic, Underline and Document Font presets.")
+
                 topic("Find and replace",
                       "⌘F searches titles, bodies and tags. Return or ⌘G steps through matches, ⇧⌘G steps back, ⌘E uses the selected text as the search term. Replace changes the current match; All changes every match in one undoable step and keeps each word's capitalisation.")
 
@@ -78,6 +81,7 @@ struct KishoHelpView: View {
         ("Find next / previous", "⌘G / ⇧⌘G"),
         ("Use selection for find", "⌘E"),
         ("Inspector", "⌥⌘I"),
+        ("Focus Mode / Typewriter Scrolling", "⌥⌘F / ⌥⌘T"),
         ("This page", "⌘?"),
     ]
 

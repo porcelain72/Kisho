@@ -46,6 +46,8 @@ struct KishoApp: App {
             HelpCommands()
             PrintCommands()
             InspectorCommands()
+            ViewModeCommands()
+            FormatCommands()
         }
         #endif
 

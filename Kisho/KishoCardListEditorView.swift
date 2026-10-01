@@ -21,6 +21,8 @@ struct KishoCardListEditorView: View {
     @EnvironmentObject var document: KishoDocumentModel
     @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
+    @Environment(\.kishoFocusMode) private var focusMode
+    @Environment(\.kishoEditorTheme) private var editorTheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -36,10 +38,15 @@ struct KishoCardListEditorView: View {
                             ForEach(document.sections) { section in
                                 SectionCardTree(section: section, depth: 0)
                             }
-                            // Room to scroll the last card up into comfortable view.
-                            Color.clear.frame(height: 160)
+                            // Room to scroll the last card up into comfortable view —
+                            // half a screen in focus mode so the typewriter line can
+                            // stay centred to the end of the text.
+                            Color.clear.frame(height: focusMode ? 420 : 160)
                         }
                         .padding(20)
+                        // Focus mode: a reading measure, centred.
+                        .frame(maxWidth: focusMode ? 760 : .infinity)
+                        .frame(maxWidth: .infinity)
                     }
                 }
                 .background(Theme.canvas)
@@ -67,11 +74,12 @@ struct KishoCardListEditorView: View {
                 }
             }
 
-            if let selected = document.selectedSection {
+            if !focusMode, let selected = document.selectedSection {
                 SectionTagsBar(section: selected)
                     .id(selected.id)
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: focusMode)
         .padding()
     }
 }
@@ -132,6 +140,8 @@ private struct SectionCard: View {
     @EnvironmentObject var document: KishoDocumentModel
     @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
+    @Environment(\.kishoFocusMode) private var focusMode
+    @Environment(\.kishoEditorTheme) private var editorTheme
     @ObservedObject var section: KishoSection
     let depth: Int
 
@@ -227,6 +237,7 @@ private struct SectionCard: View {
                 content: section.content,
                 handle: bodyHandle,
                 typography: document.typography,
+                theme: editorTheme,
                 highlight: bodyHighlight,
                 onBeginEditing: { selectFromEditor() },
                 onChange: { old, new, location in
@@ -250,6 +261,10 @@ private struct SectionCard: View {
         )
         .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 24)
+        // Focus mode: everything but the block you're in recedes.
+        .opacity(focusMode && !isSelected ? 0.32 : 1)
+        .animation(.easeInOut(duration: 0.2), value: focusMode)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
         .onChange(of: section.title) { newValue in
             // Undo/redo may change the title while the field has focus; the
             // field must follow the model, not keep a stale draft.
@@ -344,14 +359,25 @@ enum Theme {
     static let cornerRadius: CGFloat = 8
 
     /// Hairline for outlines and dividers.
-    static var hairline: Color { Color(nsColor: .separatorColor) }
+    static var hairline: Color {
+        EditorTheme.current == .sepia ? Color(red: 0.62, green: 0.54, blue: 0.42).opacity(0.45) : Color(nsColor: .separatorColor)
+    }
 
     /// Card face: the text background, so cards sit flush with the editor.
-    static var cardBackground: Color { Color(nsColor: .textBackgroundColor) }
+    static var cardBackground: Color {
+        EditorTheme.current == .sepia ? Color(red: 0.985, green: 0.962, blue: 0.905) : Color(nsColor: .textBackgroundColor)
+    }
 
     /// Editor canvas behind the cards: a step away from the card face so the
     /// outlines have something to sit against in both appearances.
-    static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
+    static var canvas: Color {
+        EditorTheme.current == .sepia ? Color(red: 0.945, green: 0.912, blue: 0.838) : Color(nsColor: .windowBackgroundColor)
+    }
+
+    /// Text view background for the card body (AppKit side of `cardBackground`).
+    static var cardBackgroundNSColor: NSColor {
+        EditorTheme.current == .sepia ? NSColor(red: 0.985, green: 0.962, blue: 0.905, alpha: 1) : .textBackgroundColor
+    }
 }
 
 // MARK: - Title field
@@ -558,6 +584,7 @@ private struct CardTextView: NSViewRepresentable {
     @ObservedObject var content: RichTextModel
     let handle: CardTextViewHandle
     let typography: TypographySettings
+    let theme: EditorTheme
     let highlight: BodyHighlight
     let onBeginEditing: () -> Void
     /// Called with the text before and after a user edit, and the character
@@ -643,6 +670,12 @@ private struct CardTextView: NSViewRepresentable {
         }
         textView.measure()
         applyHighlight(textView, context: context)
+        if context.coordinator.appliedTheme != theme {
+            context.coordinator.appliedTheme = theme
+            textView.appearance = theme.appearance
+            textView.backgroundColor = Theme.cardBackgroundNSColor
+            applyDisplayColour(textView)
+        }
     }
 
     /// Search hits as temporary layout attributes: visible, but never part of
@@ -680,6 +713,7 @@ private struct CardTextView: NSViewRepresentable {
         var isPushingToModel = false
         var appliedTypography: TypographySettings?
         var appliedHighlight: BodyHighlight?
+        var appliedTheme: EditorTheme?
 
         init(_ parent: CardTextView) { self.parent = parent }
 
@@ -690,6 +724,11 @@ private struct CardTextView: NSViewRepresentable {
         func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
             pendingEditLocation = affectedCharRange.location
             return true
+        }
+
+        func textViewDidChangeSelection(_ notification: Notification) {
+            guard !isApplyingModel, let textView else { return }
+            TypewriterScrolling.recentre(textView)
         }
 
         func textDidChange(_ notification: Notification) {

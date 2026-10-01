@@ -17,6 +17,13 @@ struct KishoDocumentView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage(KishoPreferences.Key.hasShownWelcome) private var hasShownWelcome = false
     @AppStorage(KishoPreferences.Key.showInspector) private var showInspector = false
+    @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
+    @Environment(\.colorScheme) private var systemColorScheme
+    /// Focus Mode is per window: just the cards, the current block bright.
+    @State private var focusMode = false
+    @State private var columns: NavigationSplitViewVisibility = .all
+
+    private var editorTheme: EditorTheme { EditorTheme(rawValue: editorThemeRaw) ?? .system }
 
     @EnvironmentObject var document : KishoDocumentModel
 
@@ -38,7 +45,7 @@ struct KishoDocumentView: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columns) {
             
             KishoSidebarOutlineView(showDeleteAlert: $showDeleteAlert)
                 .environmentObject(self.document)
@@ -47,6 +54,7 @@ struct KishoDocumentView: View {
                 .focusedValue(\.kishoDocumentModel, document)
                 .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                 .focusedValue(\.showDeleteAlert , $showDeleteAlert)
+                .focusedValue(\.kishoFocusMode, $focusMode)
                 .frame(minWidth: 220)
     
         } detail: {
@@ -58,14 +66,25 @@ struct KishoDocumentView: View {
                     .focusedValue(\.kishoDocumentModel, document)
                     .focusedValue(\.selectedSectionID , $document.selectedSectionID)
                     .focusedValue(\.showDeleteAlert , $showDeleteAlert)
-                if showInspector {
+                    .focusedValue(\.kishoFocusMode, $focusMode)
+                if showInspector && !focusMode {
                     Divider()
                     BlockInspectorView()
                         .environmentObject(self.document)
                         .focusedValue(\.kishoDocumentModel, document)
                         .focusedValue(\.selectedSectionID , $document.selectedSectionID)
+                        .focusedValue(\.kishoFocusMode, $focusMode)
                 }
             }
+            .environment(\.kishoFocusMode, focusMode)
+            .environment(\.kishoEditorTheme, editorTheme)
+            // The editor area follows its own theme; the chrome follows the system.
+            .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
+            .background(Theme.canvas)
+        }
+        .toolbar(focusMode ? .hidden : .visible, for: .windowToolbar)
+        .onChange(of: focusMode) { on in
+            withAnimation(.easeInOut(duration: 0.25)) { columns = on ? .detailOnly : .all }
         }
         .toolbar {
             ToolbarItemGroup {

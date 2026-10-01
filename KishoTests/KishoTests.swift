@@ -1600,6 +1600,43 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(other[0].status, .done)
     }
 
+    // MARK: - Typography presets / editor theme
+
+    func testTypographyPresetsAreDistinctRealFontsAndApplyUndoably() throws {
+        let settings = TypographyPreset.allCases.map(\.settings)
+        XCTAssertEqual(Set(settings.map { "\($0.fontFamily) \($0.fontSize)" }).count, settings.count, "presets differ")
+        for preset in TypographyPreset.allCases {
+            XCTAssertEqual(preset.settings.baseFont.familyName, preset.settings.fontFamily, "\(preset.title) font is installed")
+            XCTAssertEqual(TypographyPreset.matching(preset.settings), preset)
+        }
+        XCTAssertNil(TypographyPreset.matching(TypographySettings(fontFamily: "Georgia", fontSize: 11)))
+
+        let (document, a, _, _, _) = makeDocument()
+        let undo = manualUndoManager()
+        undo.beginUndoGrouping()
+        document.setTypography(TypographyPreset.typewriter.settings, undoManager: undo)
+        undo.endUndoGrouping()
+        XCTAssertEqual(document.typography, TypographyPreset.typewriter.settings)
+        XCTAssertEqual((a.content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.familyName, "Menlo")
+        undo.undo()
+        XCTAssertEqual(document.typography, TypographySettings())
+    }
+
+    func testEditorThemeDefaultsAndSchemes() throws {
+        let key = KishoPreferences.Key.editorTheme
+        let saved = UserDefaults.standard.object(forKey: key)
+        defer { if let saved { UserDefaults.standard.set(saved, forKey: key) } else { UserDefaults.standard.removeObject(forKey: key) } }
+        UserDefaults.standard.removeObject(forKey: key)
+        XCTAssertEqual(EditorTheme.current, .system)
+        XCTAssertNil(EditorTheme.system.colorScheme)
+        XCTAssertEqual(EditorTheme.dark.colorScheme, .dark)
+        XCTAssertEqual(EditorTheme.sepia.colorScheme, .light, "sepia is a light scheme with paper tones")
+        UserDefaults.standard.set("sepia", forKey: key)
+        XCTAssertEqual(EditorTheme.current, .sepia)
+        UserDefaults.standard.set("nonsense", forKey: key)
+        XCTAssertEqual(EditorTheme.current, .system, "unknown value falls back")
+    }
+
     func testSubtreeHasTag() throws {
         let (document, a, a1, _, b) = makeDocument()
         a1.tags = ["draft"]
