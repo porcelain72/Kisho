@@ -1338,27 +1338,31 @@ final class KishoTests: XCTestCase {
     func testIndentAndOutdentMoveBlocksLikeAnOutliner() throws {
         let (document, a, a1, a2, b) = makeDocument()
         let undo = manualUndoManager()
+        // Manual grouping: one group per user action, as the app's event loop would give.
+        func grouped(_ action: () -> Void) {
+            undo.beginUndoGrouping(); action(); undo.endUndoGrouping()
+        }
 
         XCTAssertFalse(document.canIndent(sectionID: a.id), "first block has nothing above it")
         XCTAssertFalse(document.canOutdent(sectionID: a.id), "top level can't go further out")
         XCTAssertTrue(document.canIndent(sectionID: a2.id))
         XCTAssertTrue(document.canOutdent(sectionID: a1.id))
 
-        document.indentSection(withID: a2.id, focusing: .title, using: undo)
+        grouped { document.indentSection(withID: a2.id, focusing: .title, using: undo) }
         XCTAssertEqual(a1.children.map(\.title), ["A2"], "indent nests under the sibling above")
         XCTAssertEqual(a.children.map(\.title), ["A1"])
         XCTAssertEqual(document.selectedSectionID, a2.id)
         XCTAssertEqual(document.focusRequest?.field, .title, "Tab in a title keeps focus in titles")
 
-        document.outdentSection(withID: a2.id, using: undo)
+        grouped { document.outdentSection(withID: a2.id, using: undo) }
         XCTAssertEqual(a.children.map(\.title), ["A1", "A2"], "outdent puts it straight after its parent")
 
-        document.outdentSection(withID: a1.id, using: undo)
+        grouped { document.outdentSection(withID: a1.id, using: undo) }
         XCTAssertEqual(document.sections.map(\.title), ["A", "A1", "B"], "A1 leaves A")
         XCTAssertEqual(a.children.map(\.title), ["A2"], "A2 stays with A")
         XCTAssertEqual(titles(document), ["A", "A2", "A1", "B"])
 
-        document.indentSection(withID: b.id, using: undo)
+        grouped { document.indentSection(withID: b.id, using: undo) }
         XCTAssertEqual(document.sections.map(\.title), ["A", "A1"])
         XCTAssertEqual(a1.children.map(\.title), ["B"])
 
@@ -1367,7 +1371,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(a.children.map(\.title), ["A1", "A2"])
         XCTAssertTrue(a1.children.isEmpty)
 
-        document.indentSection(withID: a.id, using: undo)
+        grouped { document.indentSection(withID: a.id, using: undo) }
         XCTAssertEqual(document.sections.map(\.title), ["A", "B"], "no-op leaves the tree alone")
     }
 
