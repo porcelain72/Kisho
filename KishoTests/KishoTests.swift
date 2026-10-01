@@ -1194,6 +1194,8 @@ final class KishoTests: XCTestCase {
         let plain = Markdown.sections(from: "just a line\n\nand another")
         XCTAssertEqual(plain.count, 1)
         XCTAssertEqual(plain[0].content.attributedString.string, "just a line\nand another")
+    }
+
     // MARK: - Phase 2: Word export
 
     func testDocxDocumentXMLUsesHeadingStylesAndRuns() throws {
@@ -1246,6 +1248,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(eocd[eocd.startIndex + 8], 6)
         XCTAssertEqual(eocd[eocd.startIndex + 10], 6)
         XCTAssertTrue(Docx.settingsXML.contains("<w:defaultTabStop w:val=\"720\"/>"), "Pages needs the default tab stop stated")
+    }
 
     // MARK: - Phase 2: underline
 
@@ -1300,11 +1303,10 @@ final class KishoTests: XCTestCase {
     }
 
     func testSubtreeHasTag() throws {
-            let (document, a, a1, _, b) = makeDocument()
-            a1.tags = ["draft"]
-            XCTAssertTrue(document.subtreeHasTag("draft", in: a), "ancestor of a tagged block is context")
-            XCTAssertTrue(document.subtreeHasTag("draft", in: a1))
-            XCTAssertFalse(document.subtreeHasTag("draft", in: b))
-        }
+        let (document, a, a1, _, b) = makeDocument()
+        a1.tags = ["draft"]
+        XCTAssertTrue(document.subtreeHasTag("draft", in: a), "ancestor of a tagged block is context")
+        XCTAssertTrue(document.subtreeHasTag("draft", in: a1))
+        XCTAssertFalse(document.subtreeHasTag("draft", in: b))
     }
 }
