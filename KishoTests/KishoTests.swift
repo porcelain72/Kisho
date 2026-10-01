@@ -1230,21 +1230,22 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(Docx.escape("a < b & \"c\"\u{01}"), "a &lt; b &amp; &quot;c&quot;", "control characters dropped")
     }
 
-    func testDocxPackageIsAStoredZipWithFiveParts() throws {
+    func testDocxPackageIsAStoredZipWithSixParts() throws {
         XCTAssertEqual(ZipWriter.crc32(Data("123456789".utf8)), 0xCBF43926)
 
         let (document, _, _, _, _) = makeDocument()
         let data = Docx.data(from: document.sections, typography: TypographySettings())
         XCTAssertEqual([UInt8](data.prefix(4)), [0x50, 0x4B, 0x03, 0x04], "local file header signature")
         let text = String(decoding: data, as: UTF8.self)
-        for part in ["[Content_Types].xml", "_rels/.rels", "word/_rels/document.xml.rels", "word/document.xml", "word/styles.xml"] {
+        for part in ["[Content_Types].xml", "_rels/.rels", "word/_rels/document.xml.rels", "word/document.xml", "word/styles.xml", "word/settings.xml"] {
             XCTAssertEqual(text.components(separatedBy: part).count - 1, 2, "\(part) appears in a local header and the central directory")
         }
         // End of central directory: signature then two zero shorts, then the entry count twice.
         let eocd = data.suffix(22)
         XCTAssertEqual([UInt8](eocd.prefix(4)), [0x50, 0x4B, 0x05, 0x06])
-        XCTAssertEqual(eocd[eocd.startIndex + 8], 5)
-        XCTAssertEqual(eocd[eocd.startIndex + 10], 5)
+        XCTAssertEqual(eocd[eocd.startIndex + 8], 6)
+        XCTAssertEqual(eocd[eocd.startIndex + 10], 6)
+        XCTAssertTrue(Docx.settingsXML.contains("<w:defaultTabStop w:val=\"720\"/>"), "Pages needs the default tab stop stated")
     }
 
     func testSubtreeHasTag() throws {

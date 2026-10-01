@@ -2,7 +2,7 @@
 //  KishoDocx.swift
 //  Kisho
 //
-//  Word (.docx) export. A .docx is a zip of XML parts; this writes the five
+//  Word (.docx) export. A .docx is a zip of XML parts; this writes the six
 //  parts Word needs and packs them with a minimal, store-only zip writer, so
 //  block titles come out as real Word heading styles (Heading 1–6, visible in
 //  Word's navigation pane and outline view) and body runs keep bold/italic.
@@ -26,6 +26,7 @@ enum Docx {
         zip.add(path: "word/_rels/document.xml.rels", text: documentRelsXML)
         zip.add(path: "word/document.xml", text: documentXML(sections: sections))
         zip.add(path: "word/styles.xml", text: stylesXML(typography: typography))
+        zip.add(path: "word/settings.xml", text: settingsXML)
         return zip.finish()
     }
 
@@ -38,6 +39,7 @@ enum Docx {
     <Default Extension="xml" ContentType="application/xml"/>
     <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
     <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+    <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
     </Types>
     """
 
@@ -54,7 +56,19 @@ enum Docx {
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
     <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
     </Relationships>
+    """
+
+    /// Document settings. The spec's default tab stop is ½ inch (720 twips)
+    /// when unstated, but Pages only lays tabs out to stops when the setting
+    /// is explicit.
+    static let settingsXML = """
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:defaultTabStop w:val="720"/>
+    <w:characterSpacingControl w:val="doNotCompress"/>
+    </w:settings>
     """
 
     private static let w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
