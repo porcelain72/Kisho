@@ -69,18 +69,20 @@ enum Markdown {
         return result
     }
 
-    private struct Run { var text: String; var bold: Bool; var italic: Bool }
+    private struct Run { var text: String; var bold: Bool; var italic: Bool; var underline: Bool }
 
     /// One paragraph: adjacent runs with the same traits merged, emphasis
     /// markers placed inside surrounding whitespace so they stay valid.
+    /// Markdown has no underline; `<u>…</u>` (inline HTML) is the convention.
     private static func inline(_ text: NSAttributedString) -> String {
         var runs: [Run] = []
-        text.enumerateAttribute(.font, in: NSRange(location: 0, length: text.length)) { value, range, _ in
-            let traits = (value as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
+        text.enumerateAttributes(in: NSRange(location: 0, length: text.length)) { attrs, range, _ in
+            let traits = (attrs[.font] as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
             let run = Run(text: (text.string as NSString).substring(with: range),
                           bold: traits.contains(.boldFontMask),
-                          italic: traits.contains(.italicFontMask))
-            if let last = runs.last, last.bold == run.bold, last.italic == run.italic {
+                          italic: traits.contains(.italicFontMask),
+                          underline: ((attrs[.underlineStyle] as? Int) ?? 0) != 0)
+            if let last = runs.last, last.bold == run.bold, last.italic == run.italic, last.underline == run.underline {
                 runs[runs.count - 1].text += run.text
             } else {
                 runs.append(run)
@@ -90,14 +92,15 @@ enum Markdown {
         var out = ""
         for run in runs {
             let escaped = escapeInline(run.text)
-            guard run.bold || run.italic else { out += escaped; continue }
+            guard run.bold || run.italic || run.underline else { out += escaped; continue }
             // Whitespace at the edges goes outside the markers.
             let lead = escaped.prefix { $0.isWhitespace }
             let trail = escaped.reversed().prefix { $0.isWhitespace }
             let core = escaped.dropFirst(lead.count).dropLast(trail.count)
             guard !core.isEmpty else { out += escaped; continue }
-            let marker = run.bold && run.italic ? "***" : (run.bold ? "**" : "*")
-            out += String(lead) + marker + String(core) + marker + String(trail.reversed())
+            let marker = run.bold && run.italic ? "***" : (run.bold ? "**" : (run.italic ? "*" : ""))
+            let open = run.underline ? "<u>" : "", close = run.underline ? "</u>" : ""
+            out += String(lead) + open + marker + String(core) + marker + close + String(trail.reversed())
         }
         return out
     }
@@ -275,19 +278,28 @@ enum Markdown {
         attributed(s, base: NSFont.systemFont(ofSize: 12)).string
     }
 
-    /// Inline parse: `***`/`**`/`*`/`__`/`_` toggle traits, backslash escapes
-    /// the next character, everything else is literal.
+    /// Inline parse: `***`/`**`/`*`/`__`/`_` toggle traits, `<u>`/`</u>`
+    /// toggle underline, backslash escapes the next character, everything
+    /// else is literal.
     static func attributed(_ s: String, base: NSFont) -> NSAttributedString {
         let out = NSMutableAttributedString()
-        var bold = false, italic = false
+        var bold = false, italic = false, underline = false
         var buffer = ""
         let chars = Array(s)
 
         func flush() {
             guard !buffer.isEmpty else { return }
-            out.append(NSAttributedString(string: buffer, attributes: [.font: font(base, bold: bold, italic: italic),
-                                                                       .foregroundColor: NSColor.labelColor]))
+            var attrs: [NSAttributedString.Key: Any] = [.font: font(base, bold: bold, italic: italic),
+                                                        .foregroundColor: NSColor.labelColor]
+            if underline { attrs[.underlineStyle] = NSUnderlineStyle.single.rawValue }
+            out.append(NSAttributedString(string: buffer, attributes: attrs))
             buffer = ""
+        }
+
+        func tag(at index: Int, _ tag: String) -> Bool {
+            let end = index + tag.count
+            guard end <= chars.count else { return false }
+            return String(chars[index..<end]).lowercased() == tag
         }
 
         var i = 0
@@ -295,6 +307,10 @@ enum Markdown {
             let c = chars[i]
             if c == "\\", i + 1 < chars.count {
                 buffer.append(chars[i + 1]); i += 2; continue
+            }
+            if c == "<" {
+                if tag(at: i, "<u>") { flush(); underline = true; i += 3; continue }
+                if tag(at: i, "</u>") { flush(); underline = false; i += 4; continue }
             }
             if c == "*" || c == "_" {
                 var n = 1

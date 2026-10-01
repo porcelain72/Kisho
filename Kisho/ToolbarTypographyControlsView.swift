@@ -37,7 +37,7 @@ struct ToolbarTypographyControlsView: View {
             // Font Size Picker with Chevrons
             FontSizePicker(fontSize: binding.fontSize) { }
 
-            // Bold / Italic apply to the selected text (or the caret) in the
+            // Bold / Italic / Underline apply to the selected text (or the caret) in the
             // focused block, like any text editor.
             Button(action: { SelectionFormatting.toggle(.bold) }) {
                 Image(systemName: "bold")
@@ -50,6 +50,12 @@ struct ToolbarTypographyControlsView: View {
             }
             .help("Italic (⌘I)")
             .keyboardShortcut("i", modifiers: .command)
+
+            Button(action: { SelectionFormatting.toggle(.underline) }) {
+                Image(systemName: "underline")
+            }
+            .help("Underline (⌘U)")
+            .keyboardShortcut("u", modifiers: .command)
         }
         .onAppear {
             var families = NSFontManager.shared.availableFontFamilies.sorted()

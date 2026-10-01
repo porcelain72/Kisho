@@ -5,7 +5,7 @@
 //  Word (.docx) export. A .docx is a zip of XML parts; this writes the six
 //  parts Word needs and packs them with a minimal, store-only zip writer, so
 //  block titles come out as real Word heading styles (Heading 1–6, visible in
-//  Word's navigation pane and outline view) and body runs keep bold/italic.
+//  Word's navigation pane and outline view) and body runs keep bold/italic/underline.
 //  The attributed-string→OOXML path in AppKit would only give sized bold
 //  text, not styles, which is why this is hand-rolled.
 //
@@ -163,33 +163,37 @@ enum Docx {
         return result
     }
 
-    /// Runs for one paragraph, split where bold/italic changes.
+    /// Runs for one paragraph, split where bold/italic/underline changes.
     static func runsXML(_ text: NSAttributedString) -> String {
         var out = ""
-        var pending: (text: String, bold: Bool, italic: Bool)?
+        var pending: (text: String, bold: Bool, italic: Bool, underline: Bool)?
         func flush() {
-            if let p = pending, !p.text.isEmpty { out += run(escape(p.text), bold: p.bold, italic: p.italic) }
+            if let p = pending, !p.text.isEmpty {
+                out += run(escape(p.text), bold: p.bold, italic: p.italic, underline: p.underline)
+            }
             pending = nil
         }
-        text.enumerateAttribute(.font, in: NSRange(location: 0, length: text.length)) { value, range, _ in
-            let traits = (value as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
+        text.enumerateAttributes(in: NSRange(location: 0, length: text.length)) { attrs, range, _ in
+            let traits = (attrs[.font] as? NSFont).map { NSFontManager.shared.traits(of: $0) } ?? []
             let bold = traits.contains(.boldFontMask), italic = traits.contains(.italicFontMask)
+            let underline = ((attrs[.underlineStyle] as? Int) ?? 0) != 0
             let piece = (text.string as NSString).substring(with: range)
-            if let p = pending, p.bold == bold, p.italic == italic {
+            if let p = pending, p.bold == bold, p.italic == italic, p.underline == underline {
                 pending?.text += piece
             } else {
                 flush()
-                pending = (piece, bold, italic)
+                pending = (piece, bold, italic, underline)
             }
         }
         flush()
         return out
     }
 
-    private static func run(_ escapedText: String, bold: Bool, italic: Bool) -> String {
+    private static func run(_ escapedText: String, bold: Bool, italic: Bool, underline: Bool = false) -> String {
         var rPr = ""
         if bold { rPr += "<w:b/><w:bCs/>" }
         if italic { rPr += "<w:i/><w:iCs/>" }
+        if underline { rPr += "<w:u w:val=\"single\"/>" }
         let props = rPr.isEmpty ? "" : "<w:rPr>\(rPr)</w:rPr>"
         // Tabs become Word tabs; other control characters would make the XML invalid.
         let parts = escapedText.components(separatedBy: "\t")

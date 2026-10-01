@@ -1,4 +1,5 @@
 {
+  "originHash" : "400abe321faf9bcc761c464efc1fc65b3226863eede9c5a4e2071abdf55180ea",
   "pins" : [
     {
       "identity" : "richtexteditor",
@@ -10,5 +11,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
