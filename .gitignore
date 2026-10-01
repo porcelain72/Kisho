@@ -1,2 +1,5 @@
 # App Store Connect material, kept locally only
 AppStore/
+
+# Xcode per-user state (breakpoints, schemes, UI layout)
+xcuserdata/
