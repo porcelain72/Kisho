@@ -17,6 +17,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>NSHumanReadableCopyright</key>
@@ -88,7 +90,9 @@
                     <string>kisho</string>
                 </array>
                 <key>public.mime-type</key>
-                <string>application/x-kisho</string>
+                <array>
+                    <string>application/x-kisho</string>
+                </array>
             </dict>
         </dict>
     </array>

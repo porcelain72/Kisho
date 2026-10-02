@@ -14,29 +14,37 @@ import SwiftUI
 struct KishoDocumentView: View {
     let fileURL: URL?
     @EnvironmentObject var document: KishoDocumentModel
+    @State private var selectedID: UUID?
 
+    // DocumentGroup already wraps the content in a navigation bar (title and
+    // Done/back), so no NavigationStack here: the outline and the selected
+    // block's text share the screen instead.
     var body: some View {
-        NavigationStack {
-            List(document.sections, children: \.childrenOrNil) { section in
-                NavigationLink(value: section.id) {
-                    SectionListRow(section: section)
-                }
+        VStack(spacing: 0) {
+            List(document.sections, children: \.childrenOrNil, selection: $selectedID) { section in
+                SectionListRow(section: section)
+                    .tag(section.id)
             }
             .listStyle(.plain)
-            .navigationTitle(fileURL?.deletingPathExtension().lastPathComponent ?? "Untitled")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: UUID.self) { id in
-                if let section = document.section(withID: id) {
-                    SectionReadingView(section: section)
-                }
-            }
             .overlay {
                 if document.sections.isEmpty {
                     ContentUnavailableView("No Blocks", systemImage: "square.stack.3d.up",
                                            description: Text("This document has no blocks yet."))
                 }
             }
+
+            Divider()
+
+            if let id = selectedID, let section = document.section(withID: id) {
+                SectionReadingView(section: section)
+                    .frame(maxHeight: .infinity)
+            } else {
+                ContentUnavailableView("No Block Selected", systemImage: "text.alignleft",
+                                       description: Text("Choose a block above to read it."))
+                    .frame(maxHeight: .infinity)
+            }
         }
+        .onAppear { selectedID = document.selectedSectionID ?? document.sections.first?.id }
     }
 }
 
@@ -86,7 +94,6 @@ private struct SectionReadingView: View {
             }
             .padding()
         }
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
