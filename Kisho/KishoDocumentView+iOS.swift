@@ -22,6 +22,11 @@ struct KishoDocumentView: View {
     /// make the bar re-render itself forever.
     @State private var undoTick = 0
 
+    // Read `undoTick` here so the bar's enabled state depends on it: SwiftUI
+    // only re-evaluates for state that the body reads.
+    private var canUndo: Bool { undoTick >= 0 && (undoManager?.canUndo ?? false) }
+    private var canRedo: Bool { undoTick >= 0 && (undoManager?.canRedo ?? false) }
+
     var body: some View {
         KishoCardListEditorView()
             .environmentObject(document)
@@ -32,14 +37,14 @@ struct KishoDocumentView: View {
                     } label: {
                         Label("Undo", systemImage: "arrow.uturn.left")
                     }
-                    .disabled(!(undoManager?.canUndo ?? false))
+                    .disabled(!canUndo)
 
                     Button {
                         undoManager?.redo()
                     } label: {
                         Label("Redo", systemImage: "arrow.uturn.right")
                     }
-                    .disabled(!(undoManager?.canRedo ?? false))
+                    .disabled(!canRedo)
 
                     Menu {
                         Button {
