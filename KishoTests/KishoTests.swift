@@ -144,7 +144,7 @@ final class KishoTests: XCTestCase {
         XCTAssertEqual(root.children[0].title, "Short one.")
         XCTAssertEqual(root.children[0].content.attributedString.string, "Short one. And the rest of it.")
         let font = root.children[0].content.attributedString.attribute(.font, at: 0, effectiveRange: nil) as? PlatformFont
-        XCTAssertTrue(font?.fontDescriptor.symbolicTraits.contains(.bold) ?? false, "formatting must survive a split")
+        XCTAssertTrue(font?.isBoldTrait ?? false, "formatting must survive a split")
     }
     
     func testSplitInsertsParagraphsBeforeExistingChildren() throws {
@@ -1174,7 +1174,7 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(opml.contains("    <outline text=\"A1\" _note=\"a1\" category=\"draft,to do\"/>\n"))
         XCTAssertTrue(opml.contains("  <outline text=\"B\"/>\n"), "empty body → no _note")
         XCTAssertTrue(opml.hasSuffix("</body>\n</opml>\n"))
-        XCTAssertNoThrow(try XMLDocument(xmlString: opml), "well-formed XML")
+        XCTAssertTrue(XMLParser(data: Data(opml.utf8)).parse(), "well-formed XML")
     }
 
     func testOPMLImportBuildsBlocksFromOutlines() throws {

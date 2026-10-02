@@ -80,6 +80,7 @@
 		98B23B392DE9C0A200888A7C /* KishoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSection.swift; sourceTree = "<group>"; };
 		98B23B3B2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentView.+Mac.swift"; sourceTree = "<group>"; };
 		98B23B3D2DE9C40700888A7C /* KishoSidebarOutlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSidebarOutlineView.swift; sourceTree = "<group>"; };
+		98CDE095306EDDF300D84C6E /* RichTextEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = RichTextEditor; path = ../RichTextEditor; sourceTree = SOURCE_ROOT; };
 		98D4CA1E2DF1F626008C2E43 /* Exporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exporter.swift; sourceTree = "<group>"; };
 		98EA64DC2DEDA07E00B4AEFE /* SectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionRow.swift; sourceTree = "<group>"; };
 		98EA654D2DEF5BAF00B4AEFE /* KishoDocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocumentModel.swift; sourceTree = "<group>"; };
@@ -94,9 +95,9 @@
 		A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoOPML.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoBlockMetadata.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00001D00KISHO01 /* KishoFocusMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoFocusMode.swift; sourceTree = "<group>"; };
-		A1B2C3D42F00002000KISHO01 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Platform.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00002000KISHO01 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00002200KISHO01 /* KishoSection+Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSection+Snapshot.swift"; sourceTree = "<group>"; };
-		A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoTheme.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoTheme.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00002600KISHO01 /* Kisho-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Kisho-iOS.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -134,6 +135,7 @@
 				98B23B1F2DE9BFEF00888A7C /* KishoTests */,
 				98B23B292DE9BFEF00888A7C /* KishoUITests */,
 				98B23B092DE9BFEB00888A7C /* Products */,
+				98CDE095306EDDF300D84C6E /* RichTextEditor */,
 			);
 			sourceTree = "<group>";
 		};
