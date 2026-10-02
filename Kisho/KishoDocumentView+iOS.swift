@@ -9,14 +9,17 @@
 
 #if os(iOS)
 import SwiftUI
+import Combine
 
 struct KishoDocumentView: View {
     let fileURL: URL?
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @State private var showDeleteAlert = false
-    /// Bumped on every undo-manager change so Undo/Redo re-evaluate their
-    /// enabled state (nothing else observes the undo manager).
+    /// Bumped after every undo-manager change so Undo/Redo re-evaluate their
+    /// enabled state (nothing else observes the undo manager). Not on
+    /// NSUndoManagerCheckpoint: reading `canRedo` posts that, which would
+    /// make the bar re-render itself forever.
     @State private var undoTick = 0
 
     var body: some View {
@@ -29,7 +32,7 @@ struct KishoDocumentView: View {
                     } label: {
                         Label("Undo", systemImage: "arrow.uturn.left")
                     }
-                    .disabled(!(undoManager?.canUndo ?? false) || undoTick < 0)
+                    .disabled(!(undoManager?.canUndo ?? false))
 
                     Button {
                         undoManager?.redo()
@@ -94,11 +97,18 @@ struct KishoDocumentView: View {
                     }
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)) { note in
-                if (note.object as? UndoManager) === undoManager { undoTick &+= 1 }
+            .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidOpenUndoGroup).merge(with:
+                       NotificationCenter.default.publisher(for: .NSUndoManagerDidCloseUndoGroup),
+                       NotificationCenter.default.publisher(for: .NSUndoManagerDidUndoChange),
+                       NotificationCenter.default.publisher(for: .NSUndoManagerDidRedoChange))) { note in
+                guard (note.object as? UndoManager) === undoManager else { return }
+                // After the current event, so an open typing group has closed.
+                DispatchQueue.main.async { undoTick &+= 1 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidCloseUndoGroup)) { note in
-                if (note.object as? UndoManager) === undoManager { undoTick &+= 1 }
+            // Typing bursts register undo without opening a group of their
+            // own; the model's stats signal fires on every body edit.
+            .onReceive(document.stats.$version) { _ in
+                DispatchQueue.main.async { undoTick &+= 1 }
             }
             .alert("Delete Block?", isPresented: $showDeleteAlert) {
                 Button("Delete", role: .destructive) {
