@@ -101,14 +101,15 @@ struct KishoDocumentView: View {
                        NotificationCenter.default.publisher(for: .NSUndoManagerDidCloseUndoGroup),
                        NotificationCenter.default.publisher(for: .NSUndoManagerDidUndoChange),
                        NotificationCenter.default.publisher(for: .NSUndoManagerDidRedoChange))) { note in
-                guard (note.object as? UndoManager) === undoManager else { return }
-                // After the current event, so an open typing group has closed.
+                _ = note
                 DispatchQueue.main.async { undoTick &+= 1 }
             }
-            // Typing bursts register undo without opening a group of their
-            // own; the model's stats signal fires on every body edit.
+            // Typing registers undo inside the event's automatic group, which
+            // the undo manager closes only once the event is over; the
+            // model's body-edit signal fires at once, so look again a moment
+            // later, when canUndo is true.
             .onReceive(document.stats.$version) { _ in
-                DispatchQueue.main.async { undoTick &+= 1 }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { undoTick &+= 1 }
             }
             .alert("Delete Block?", isPresented: $showDeleteAlert) {
                 Button("Delete", role: .destructive) {
