@@ -337,24 +337,6 @@ private struct SectionCard: View {
     }
 }
 
-// MARK: - Tags editor (hosted by the inspector)
-
-struct SectionTagsBar: View {
-    @EnvironmentObject var document: KishoDocumentModel
-    @Environment(\.undoManager) private var undoManager
-    @ObservedObject var section: KishoSection
-
-    var body: some View {
-        TagEditorView(
-            tags: Binding(
-                get: { section.tags },
-                set: { document.setTags($0, for: section, using: undoManager) }
-            ),
-            allAvailableTags: document.allTags
-        )
-    }
-}
-
 // MARK: - Title field
 
 /// Lets the card focus its title field from a focus request.

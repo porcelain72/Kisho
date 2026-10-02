@@ -17,6 +17,8 @@ enum KishoPreferences {
         static let hasShownWelcome = "hasShownWelcome"
         static let printMargins = "printMargins"
         static let showInspector = "showInspector"
+        /// iOS (iPad): whether the outline column is shown beside the editor.
+        static let showSidebar = "showSidebar"
         static let showSynopses = "showSynopsesInSidebar"
         static let typewriterScrolling = "typewriterScrolling"
         static let editorTheme = "editorTheme"
