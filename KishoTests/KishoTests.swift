@@ -1260,7 +1260,11 @@ final class KishoTests: XCTestCase {
 
         grouped { document.setColorIndex(99, for: a, using: undo) }
         XCTAssertNil(a.colorIndex, "invalid palette index clears the colour")
-        grouped { document.setSynopsis("A synopsis.", for: a, using: undo) }   // no change → no undo entry
+        // No change → nothing registered. (Not wrapped in a group: an empty
+        // group is discarded by AppKit's undo manager but kept by UIKit's,
+        // where it would then swallow the next undo.)
+        document.setSynopsis("A synopsis.", for: a, using: undo)
+        XCTAssertEqual(undo.undoActionName, "Change Colour", "a no-op setter adds no undo step")
 
         undo.undo(); XCTAssertEqual(a.colorIndex, 5)
         undo.undo(); XCTAssertEqual(a.notes, "")
