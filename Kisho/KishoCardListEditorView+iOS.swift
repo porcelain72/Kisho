@@ -380,6 +380,7 @@ private struct TitleField: UIViewRepresentable {
         field.font = .systemFont(ofSize: fontSize, weight: .semibold)
         field.placeholder = placeholder
         field.returnKeyType = .next
+        field.inputAssistantItem.leadingBarButtonGroups = []
         field.autocapitalizationType = .sentences
         field.clearButtonMode = .whileEditing
         field.text = text
@@ -551,6 +552,10 @@ private struct CardTextView: UIViewRepresentable {
         // Rich text in, rich text out; the edit menu's B/I/U route through
         // our own toggles (see CardUITextView).
         textView.allowsEditingTextAttributes = true
+        // The iPad shortcuts bar's own undo/redo would act on the text view's
+        // undo manager, which is off (the document's is the one that counts,
+        // and it is on the navigation bar).
+        textView.inputAssistantItem.leadingBarButtonGroups = []
         textView.delegate = context.coordinator
         textView.attributedText = content.attributedString
         applyDisplayColour(textView)
