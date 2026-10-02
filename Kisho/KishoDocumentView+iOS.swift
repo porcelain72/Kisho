@@ -15,6 +15,9 @@ struct KishoDocumentView: View {
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @State private var showDeleteAlert = false
+    /// Bumped on every undo-manager change so Undo/Redo re-evaluate their
+    /// enabled state (nothing else observes the undo manager).
+    @State private var undoTick = 0
 
     var body: some View {
         KishoCardListEditorView()
@@ -26,7 +29,7 @@ struct KishoDocumentView: View {
                     } label: {
                         Label("Undo", systemImage: "arrow.uturn.left")
                     }
-                    .disabled(!(undoManager?.canUndo ?? false))
+                    .disabled(!(undoManager?.canUndo ?? false) || undoTick < 0)
 
                     Button {
                         undoManager?.redo()
@@ -90,6 +93,12 @@ struct KishoDocumentView: View {
                         Label("Block", systemImage: "square.stack.3d.up")
                     }
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerCheckpoint)) { note in
+                if (note.object as? UndoManager) === undoManager { undoTick &+= 1 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidCloseUndoGroup)) { note in
+                if (note.object as? UndoManager) === undoManager { undoTick &+= 1 }
             }
             .alert("Delete Block?", isPresented: $showDeleteAlert) {
                 Button("Delete", role: .destructive) {

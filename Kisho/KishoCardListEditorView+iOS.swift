@@ -181,6 +181,7 @@ private struct SectionCard: View {
                 handle: bodyHandle,
                 typography: document.typography,
                 actions: actions,
+                undoManager: undoManager,
                 onBeginEditing: { selectFromEditor() },
                 onChange: { old, new, location in
                     document.recordBodyEdit(for: section, from: old, to: new, editLocation: location, using: undoManager)
@@ -300,8 +301,11 @@ final class KeyboardAccessoryBar: UIToolbar {
             return item
         }
 
+        // iPad shows its own B/I/U in the shortcuts bar above the keyboard and
+        // has a dismiss key on the keyboard; iPhone has neither.
+        let isPhone = UIDevice.current.userInterfaceIdiom == .phone
         var items: [UIBarButtonItem] = []
-        if showsFormatting {
+        if showsFormatting && isPhone {
             items += [
                 button("bold", "Bold", #selector(bold)),
                 button("italic", "Italic", #selector(italic)),
@@ -316,9 +320,10 @@ final class KeyboardAccessoryBar: UIToolbar {
             UIBarButtonItem(systemItem: .flexibleSpace),
             button("plus", "Add Block After", #selector(addSibling)),
             button("plus.square.on.square", "Add Sub-block", #selector(addChild)),
-            gap(16),
-            button("keyboard.chevron.compact.down", "Hide Keyboard", #selector(dismiss)),
         ]
+        if isPhone {
+            items += [gap(16), button("keyboard.chevron.compact.down", "Hide Keyboard", #selector(dismiss))]
+        }
         setItems(items, animated: false)
     }
 
@@ -526,6 +531,7 @@ private struct CardTextView: UIViewRepresentable {
     let handle: CardTextViewHandle
     let typography: TypographySettings
     let actions: CardActions
+    let undoManager: UndoManager?
     let onBeginEditing: () -> Void
     /// Called with the text before and after a user edit, and the character
     /// index where the edit happened.
@@ -572,6 +578,7 @@ private struct CardTextView: UIViewRepresentable {
     func updateUIView(_ textView: CardUITextView, context: Context) {
         context.coordinator.parent = self
         handle.textView = textView
+        textView.documentUndoManager = undoManager
         textView.accessoryBar?.actions = actions
         textView.accessoryBar?.refresh()
         let stored = content.attributedString
@@ -683,6 +690,12 @@ final class CardUITextView: UITextView {
     var onCommandReturn: (() -> Void)?
     var onFormat: ((SelectionFormatting.Trait) -> Void)?
     var accessoryBar: KeyboardAccessoryBar?
+    /// The document's undo manager, which owns every edit (the text view's
+    /// own range-based undo would fall out of step whenever the model
+    /// replaces the text, so it is switched off).
+    weak var documentUndoManager: UndoManager?
+
+    override var undoManager: UndoManager? { nil }
 
     private static let minimumTextHeight: CGFloat = 22
     private var lastMeasuredWidth: CGFloat = 0
@@ -736,11 +749,17 @@ final class CardUITextView: UITextView {
     override func toggleUnderline(_ sender: Any?) { onFormat?(.underline) }
 
     override var keyCommands: [UIKeyCommand]? {
-        let command = UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn))
-        command.wantsPriorityOverSystemBehavior = true
-        return (super.keyCommands ?? []) + [command]
+        let list = [
+            UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn)),
+            UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(handleUndo)),
+            UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(handleRedo)),
+        ]
+        list.forEach { $0.wantsPriorityOverSystemBehavior = true }
+        return (super.keyCommands ?? []) + list
     }
 
     @objc private func handleCommandReturn() { onCommandReturn?() }
+    @objc private func handleUndo() { documentUndoManager?.undo() }
+    @objc private func handleRedo() { documentUndoManager?.redo() }
 }
 #endif
