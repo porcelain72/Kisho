@@ -392,6 +392,13 @@ private struct TitleField: UIViewRepresentable {
         return field
     }
 
+    /// Fill the width the card offers; a text field's own ideal width is the
+    /// width of its text, which would stretch the card off the screen.
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView field: TitleUITextField, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? field.intrinsicContentSize.width,
+               height: field.intrinsicContentSize.height)
+    }
+
     func updateUIView(_ field: TitleUITextField, context: Context) {
         context.coordinator.parent = self
         handle.field = field
@@ -543,7 +550,6 @@ private struct CardTextView: UIViewRepresentable {
         applyDisplayColour(textView)
         textView.typingAttributes = typingAttributes()
         textView.onHeightChange = { [weak handle] height in handle?.report(height: height) }
-        textView.onBeginEditing = { [weak coordinator = context.coordinator] in coordinator?.parent.onBeginEditing() }
         textView.onCommandReturn = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.addSibling() }
         textView.onFormat = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
         let bar = KeyboardAccessoryBar(showsFormatting: true)
@@ -554,6 +560,13 @@ private struct CardTextView: UIViewRepresentable {
         context.coordinator.textView = textView
         handle.textView = textView
         return textView
+    }
+
+    /// SwiftUI owns the frame: width from the card, height from our own
+    /// measurement. Never the text view's intrinsic size, which for an
+    /// unscrollable text view is the width of its longest line.
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView textView: CardUITextView, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? textView.bounds.width, height: handle.height)
     }
 
     func updateUIView(_ textView: CardUITextView, context: Context) {
@@ -666,7 +679,6 @@ private struct CardTextView: UIViewRepresentable {
 /// caret visible above the keyboard, and routes the system's bold/italic/
 /// underline (edit menu, ⌘B/⌘I/⌘U) through the card's own formatting.
 final class CardUITextView: UITextView {
-    var onBeginEditing: (() -> Void)?
     var onHeightChange: ((CGFloat) -> Void)?
     var onCommandReturn: (() -> Void)?
     var onFormat: ((SelectionFormatting.Trait) -> Void)?
@@ -675,15 +687,14 @@ final class CardUITextView: UITextView {
     private static let minimumTextHeight: CGFloat = 22
     private var lastMeasuredWidth: CGFloat = 0
 
-    override func becomeFirstResponder() -> Bool {
-        let ok = super.becomeFirstResponder()
-        if ok { onBeginEditing?() }
-        return ok
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
         if abs(bounds.width - lastMeasuredWidth) > 0.5 { measure() }
+    }
+
+    // SwiftUI sizes us; never report an intrinsic size that could fight it.
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
     }
 
     /// Lays out at the current width and reports the height the text needs.
