@@ -2,10 +2,9 @@
 //  KishoDocumentView+iOS.swift
 //  Kisho
 //
-//  Phase A placeholder for the iOS document window: the outline as a list
-//  and the selected block's text, read-only. Enough to prove the model,
-//  file format and exporters build and run on iOS; Phases B–D replace it
-//  with the card editor, structure editing and the rest.
+//  The iOS document window: the card editor, with block commands in the
+//  navigation bar. DocumentGroup supplies the bar itself (title, Done).
+//  The outline sidebar, inspector and the rest arrive in Phases C and D.
 //
 
 #if os(iOS)
@@ -14,91 +13,92 @@ import SwiftUI
 struct KishoDocumentView: View {
     let fileURL: URL?
     @EnvironmentObject var document: KishoDocumentModel
-    @State private var selectedID: UUID?
-
-    // DocumentGroup already wraps the content in a navigation bar (title and
-    // Done/back), so no NavigationStack here: the outline and the selected
-    // block's text share the screen instead.
-    var body: some View {
-        VStack(spacing: 0) {
-            List(document.sections, children: \.childrenOrNil, selection: $selectedID) { section in
-                SectionListRow(section: section)
-                    .tag(section.id)
-            }
-            .listStyle(.plain)
-            .overlay {
-                if document.sections.isEmpty {
-                    ContentUnavailableView("No Blocks", systemImage: "square.stack.3d.up",
-                                           description: Text("This document has no blocks yet."))
-                }
-            }
-
-            Divider()
-
-            if let id = selectedID, let section = document.section(withID: id) {
-                SectionReadingView(section: section)
-                    .frame(maxHeight: .infinity)
-            } else {
-                ContentUnavailableView("No Block Selected", systemImage: "text.alignleft",
-                                       description: Text("Choose a block above to read it."))
-                    .frame(maxHeight: .infinity)
-            }
-        }
-        .onAppear { selectedID = document.selectedSectionID ?? document.sections.first?.id }
-    }
-}
-
-private struct SectionListRow: View {
-    @ObservedObject var section: KishoSection
+    @Environment(\.undoManager) private var undoManager
+    @State private var showDeleteAlert = false
 
     var body: some View {
-        HStack(spacing: 8) {
-            if let colour = section.colorIndex {
-                Circle().fill(BlockPalette.color(colour)).frame(width: 8, height: 8)
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(section.displayTitle).lineLimit(1)
-                if !section.synopsis.isEmpty {
-                    Text(section.synopsis).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+        KishoCardListEditorView()
+            .environmentObject(document)
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        undoManager?.undo()
+                    } label: {
+                        Label("Undo", systemImage: "arrow.uturn.left")
+                    }
+                    .disabled(!(undoManager?.canUndo ?? false))
+
+                    Button {
+                        undoManager?.redo()
+                    } label: {
+                        Label("Redo", systemImage: "arrow.uturn.right")
+                    }
+                    .disabled(!(undoManager?.canRedo ?? false))
+
+                    Menu {
+                        Button {
+                            document.addSiblingSection(using: undoManager)
+                        } label: {
+                            Label("Add Block After", systemImage: "plus")
+                        }
+                        Button {
+                            document.addChildSection(using: undoManager)
+                        } label: {
+                            Label("Add Sub-block", systemImage: "plus.square.on.square")
+                        }
+                        .disabled(document.selectedSection == nil)
+
+                        Divider()
+
+                        Button {
+                            document.indentSelectedSection(using: undoManager)
+                        } label: {
+                            Label("Indent Block", systemImage: "increase.indent")
+                        }
+                        .disabled(document.selectedSectionID.map { document.canIndent(sectionID: $0) } != true)
+                        Button {
+                            document.outdentSelectedSection(using: undoManager)
+                        } label: {
+                            Label("Outdent Block", systemImage: "decrease.indent")
+                        }
+                        .disabled(document.selectedSectionID.map { document.canOutdent(sectionID: $0) } != true)
+
+                        Divider()
+
+                        Button {
+                            document.makeChildren(undoManager: undoManager)
+                        } label: {
+                            Label("Split Paragraphs into Blocks", systemImage: "square.fill.text.grid.1x2")
+                        }
+                        .disabled(document.selectedSection == nil)
+                        Button {
+                            document.gather(undoManager: undoManager)
+                        } label: {
+                            Label("Gather Sub-blocks", systemImage: "rectangle.compress.vertical")
+                        }
+                        .disabled(document.selectedSection?.children.isEmpty ?? true)
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            Label("Delete Block…", systemImage: "trash")
+                        }
+                        .disabled(document.selectedSection == nil)
+                    } label: {
+                        Label("Block", systemImage: "square.stack.3d.up")
+                    }
                 }
             }
-            Spacer()
-            if let status = section.status {
-                Image(systemName: status.symbol)
-                    .font(.caption)
-                    .foregroundStyle(status == .done ? Color.green : Color.secondary)
-            }
-            let words = section.totalWordCount
-            if words > 0 {
-                Text("\(words)").font(.caption2).monospacedDigit().foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
-private struct SectionReadingView: View {
-    @ObservedObject var section: KishoSection
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(section.displayTitle)
-                    .font(.title2.weight(.semibold))
-                if !section.tags.isEmpty {
-                    Text(section.tags.joined(separator: " · "))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            .alert("Delete Block?", isPresented: $showDeleteAlert) {
+                Button("Delete", role: .destructive) {
+                    document.deleteSelectedSection(using: undoManager)
                 }
-                Text(AttributedString(section.content.attributedString))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Its sub-blocks will be deleted with it.")
             }
-            .padding()
-        }
     }
-}
-
-private extension KishoSection {
-    /// `List(_:children:)` wants nil, not an empty array, for a leaf.
-    var childrenOrNil: [KishoSection]? { children.isEmpty ? nil : children }
 }
 #endif

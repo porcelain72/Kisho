@@ -964,9 +964,8 @@ final class KishoTests: XCTestCase {
 
     // MARK: - Phase 2: underline
 
-    #if os(macOS)
     func testSelectionFormattingAttributeHelpersCoverAllThreeTraits() throws {
-        let base: [NSAttributedString.Key: Any] = [.font: NSFont(name: "Georgia", size: 14)!]
+        let base: [NSAttributedString.Key: Any] = [.font: PlatformFont(name: "Georgia", size: 14)!]
         XCTAssertFalse(SelectionFormatting.attributes(base, have: .underline))
         XCTAssertFalse(SelectionFormatting.attributes(base, have: .bold))
 
@@ -981,9 +980,17 @@ final class KishoTests: XCTestCase {
         let bold = SelectionFormatting.attributes(underlined, setting: .bold, to: true)
         XCTAssertTrue(SelectionFormatting.attributes(bold, have: .bold))
         XCTAssertTrue(SelectionFormatting.attributes(bold, have: .underline), "bold keeps the underline")
-        XCTAssertEqual((bold[.font] as? NSFont)?.familyName, "Georgia")
+        XCTAssertEqual((bold[.font] as? PlatformFont)?.familyName, "Georgia")
+
+        // The storage toggle: mixed runs gain the trait; uniform runs lose it.
+        let text = NSMutableAttributedString(string: "plain bold", attributes: base)
+        text.addAttributes(SelectionFormatting.attributes(base, setting: .bold, to: true), range: NSRange(location: 6, length: 4))
+        let all = NSRange(location: 0, length: 10)
+        XCTAssertTrue(SelectionFormatting.toggle(.bold, in: text, range: all), "not every run was bold, so bold is added")
+        XCTAssertTrue(SelectionFormatting.attributes(text.attributes(at: 0, effectiveRange: nil), have: .bold))
+        XCTAssertFalse(SelectionFormatting.toggle(.bold, in: text, range: all), "all bold now, so bold is removed")
+        XCTAssertFalse(SelectionFormatting.attributes(text.attributes(at: 8, effectiveRange: nil), have: .bold))
     }
-    #endif
 
     func testUnderlineSurvivesRetypesetMarkdownAndWord() throws {
         let (document, a, _, _, _) = makeDocument()

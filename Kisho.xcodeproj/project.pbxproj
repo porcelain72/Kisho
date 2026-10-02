@@ -40,6 +40,8 @@
 		A1B2C3D42F00002100KISHO01 /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002000KISHO01 /* Platform.swift */; };
 		A1B2C3D42F00002300KISHO01 /* KishoSection+Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002200KISHO01 /* KishoSection+Snapshot.swift */; };
 		A1B2C3D42F00002500KISHO01 /* KishoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */; };
+		A1B2C3D42F00002800KISHO01 /* KishoSelectionFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002700KISHO01 /* KishoSelectionFormatting.swift */; };
+		A1B2C3D42F00002A00KISHO01 /* KishoCardListEditorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +101,8 @@
 		A1B2C3D42F00002200KISHO01 /* KishoSection+Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSection+Snapshot.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoTheme.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00002600KISHO01 /* Kisho-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Kisho-iOS.entitlements"; sourceTree = "<group>"; };
+		A1B2C3D42F00002700KISHO01 /* KishoSelectionFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSelectionFormatting.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoCardListEditorView+iOS.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +175,8 @@
 				A1B2C3D42F00002000KISHO01 /* Platform.swift */,
 				A1B2C3D42F00002200KISHO01 /* KishoSection+Snapshot.swift */,
 				A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */,
+				A1B2C3D42F00002700KISHO01 /* KishoSelectionFormatting.swift */,
+				A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */,
 				A1B2C3D42F00002600KISHO01 /* Kisho-iOS.entitlements */,
 				A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */,
 				A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */,
@@ -364,6 +370,8 @@
 				A1B2C3D42F00002100KISHO01 /* Platform.swift in Sources */,
 				A1B2C3D42F00002300KISHO01 /* KishoSection+Snapshot.swift in Sources */,
 				A1B2C3D42F00002500KISHO01 /* KishoTheme.swift in Sources */,
+				A1B2C3D42F00002800KISHO01 /* KishoSelectionFormatting.swift in Sources */,
+				A1B2C3D42F00002A00KISHO01 /* KishoCardListEditorView+iOS.swift in Sources */,
 				A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */,
 				A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */,
 				98B23B3C2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift in Sources */,

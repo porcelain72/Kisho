@@ -355,8 +355,6 @@ struct SectionTagsBar: View {
     }
 }
 
-// MARK: - Theme
-
 // MARK: - Title field
 
 /// Lets the card focus its title field from a focus request.
@@ -800,46 +798,14 @@ final class CardNSTextView: NSTextView {
     }
 }
 
-// MARK: - Selection formatting
+// MARK: - Selection formatting (AppKit side)
 
-/// Bold/italic/underline applied to the selected text of whichever block body
-/// has the keyboard focus (or to the typing attributes when nothing is
-/// selected). Bold and italic are font traits; underline is a separate
-/// attribute, which RTF, retypesetting and the exporters all carry.
-enum SelectionFormatting {
-    enum Trait { case bold, italic, underline
-
-        var mask: NSFontTraitMask { self == .bold ? .boldFontMask : .italicFontMask }
-    }
-
+/// The focused card body and the toggles that act on it; the attribute
+/// logic itself is in KishoSelectionFormatting.swift.
+extension SelectionFormatting {
     /// The card body that currently has keyboard focus, if any.
     static var focusedTextView: CardNSTextView? {
         NSApp.keyWindow?.firstResponder as? CardNSTextView
-    }
-
-    /// Whether a run with these attributes carries the trait.
-    static func attributes(_ attrs: [NSAttributedString.Key: Any], have trait: Trait) -> Bool {
-        switch trait {
-        case .underline:
-            return ((attrs[.underlineStyle] as? Int) ?? 0) != 0
-        case .bold, .italic:
-            let font = (attrs[.font] as? NSFont) ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
-            return NSFontManager.shared.traits(of: font).contains(trait.mask)
-        }
-    }
-
-    /// `attrs` with the trait turned on or off.
-    static func attributes(_ attrs: [NSAttributedString.Key: Any], setting trait: Trait, to on: Bool) -> [NSAttributedString.Key: Any] {
-        var result = attrs
-        switch trait {
-        case .underline:
-            if on { result[.underlineStyle] = NSUnderlineStyle.single.rawValue } else { result.removeValue(forKey: .underlineStyle) }
-        case .bold, .italic:
-            let fm = NSFontManager.shared
-            let font = (attrs[.font] as? NSFont) ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
-            result[.font] = on ? fm.convert(font, toHaveTrait: trait.mask) : fm.convert(font, toNotHaveTrait: trait.mask)
-        }
-        return result
     }
 
     static func toggle(_ trait: Trait) {
@@ -854,26 +820,7 @@ enum SelectionFormatting {
 
         guard let storage = textView.textStorage,
               textView.shouldChangeText(in: range, replacementString: nil) else { return }
-
-        // If every run already has the trait, remove it; otherwise add it.
-        var allHave = true
-        storage.enumerateAttributes(in: range) { attrs, _, _ in
-            if !attributes(attrs, have: trait) { allHave = false }
-        }
-        storage.beginEditing()
-        storage.enumerateAttributes(in: range) { attrs, runRange, _ in
-            let updated = attributes(attrs, setting: trait, to: !allHave)
-            if trait == .underline {
-                if let style = updated[.underlineStyle] {
-                    storage.addAttribute(.underlineStyle, value: style, range: runRange)
-                } else {
-                    storage.removeAttribute(.underlineStyle, range: runRange)
-                }
-            } else if let font = updated[.font] {
-                storage.addAttribute(.font, value: font, range: runRange)
-            }
-        }
-        storage.endEditing()
+        toggle(trait, in: storage, range: range)
         // Runs the same path as typing: measures, pushes to the model, records undo.
         textView.didChangeText()
         textView.setSelectedRange(range)
@@ -889,16 +836,6 @@ enum SelectionFormatting {
         }
         let attrs = textView.textStorage?.attributes(at: range.location, effectiveRange: nil) ?? [:]
         return attributes(attrs, have: trait)
-    }
-
-    /// `base` (family/size) carrying the bold/italic traits of `other`.
-    static func font(_ base: NSFont, matchingTraitsOf other: NSFont) -> NSFont {
-        let fm = NSFontManager.shared
-        var font = base
-        let traits = fm.traits(of: other)
-        if traits.contains(.boldFontMask) { font = fm.convert(font, toHaveTrait: .boldFontMask) }
-        if traits.contains(.italicFontMask) { font = fm.convert(font, toHaveTrait: .italicFontMask) }
-        return font
     }
 }
 #endif
