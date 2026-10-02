@@ -474,6 +474,30 @@ final class TitleUITextField: UITextField {
     @objc private func handleCommandReturn() { commands?.commandReturn() }
 }
 
+// MARK: - Keyboard frame
+
+/// Where the keyboard (with its accessory bar) is on screen, from the
+/// system notifications; nil when it is hidden.
+final class KeyboardFrame {
+    static let shared = KeyboardFrame()
+    private(set) var endFrame: CGRect?
+
+    private init() {
+        let center = NotificationCenter.default
+        center.addObserver(self, selector: #selector(changed(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        center.addObserver(self, selector: #selector(hidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    @objc private func changed(_ note: Notification) {
+        guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        // A keyboard pushed off the bottom of the screen counts as hidden.
+        let screen = UIScreen.main.bounds
+        endFrame = frame.minY >= screen.maxY ? nil : frame
+    }
+
+    @objc private func hidden(_ note: Notification) { endFrame = nil }
+}
+
 // MARK: - Self-sizing text view
 
 /// Lets the card reach its UITextView (to focus it) without the view layer
@@ -742,9 +766,25 @@ final class CardUITextView: UITextView {
         var rect = caretRect(for: range.end)
         guard rect.height.isFinite, rect.height > 0 else { return }
         rect = convert(rect, to: scrollView).insetBy(dx: 0, dy: -32)
-        let visible = scrollView.bounds.inset(by: scrollView.adjustedContentInset)
+
+        // The part of the scroll view not under the keyboard and its accessory
+        // bar. SwiftUI's own keyboard avoidance is not reliable about the bar
+        // (iPhone landscape), so take the keyboard's frame directly.
+        var visible = scrollView.bounds.inset(by: scrollView.adjustedContentInset)
+        if let keyboard = KeyboardFrame.shared.endFrame, keyboard.height > 0 {
+            let inScroll = scrollView.convert(keyboard, from: nil)
+            if inScroll.minY < visible.maxY {
+                visible.size.height = max(0, inScroll.minY - visible.minY)
+            }
+        }
         guard !visible.contains(rect) else { return }
-        scrollView.scrollRectToVisible(rect, animated: true)
+
+        var offset = scrollView.contentOffset
+        if rect.maxY > visible.maxY { offset.y += rect.maxY - visible.maxY }
+        if rect.minY < visible.minY { offset.y -= visible.minY - rect.minY }
+        let maxOffset = scrollView.contentSize.height + scrollView.adjustedContentInset.bottom - scrollView.bounds.height
+        offset.y = max(-scrollView.adjustedContentInset.top, min(offset.y, max(-scrollView.adjustedContentInset.top, maxOffset)))
+        scrollView.setContentOffset(offset, animated: true)
     }
 
     // The system's formatting commands (edit menu, hardware ⌘B/⌘I/⌘U) would
