@@ -147,24 +147,23 @@ struct KishoDocumentView: View {
                 }
             }
         }
+        // Sheets get their own environment; hand them the document's undo
+        // manager explicitly, or their edits register with a different one
+        // and the bar's Undo takes back something else.
         .sheet(isPresented: $showOutlineSheet) {
-            NavigationStack {
+            VStack(spacing: 0) {
+                SheetHeader(title: "Outline") { showOutlineSheet = false }
                 KishoOutlineView(onChoose: { showOutlineSheet = false })
-                    .navigationTitle("Outline")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") { showOutlineSheet = false }
-                        }
-                    }
             }
             .environmentObject(document)
+            .environment(\.undoManager, undoManager)
             .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showInspector) {
             BlockInspectorSheet()
                 .environmentObject(document)
-                .presentationDetents(isCompact ? [.large] : [.medium, .large])
+                .environment(\.undoManager, undoManager)
+                .presentationDetents([.large])
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidOpenUndoGroup).merge(with:
                    NotificationCenter.default.publisher(for: .NSUndoManagerDidCloseUndoGroup),
@@ -186,6 +185,26 @@ struct KishoDocumentView: View {
         } message: {
             Text("Its sub-blocks will be deleted with it.")
         }
+    }
+}
+
+/// A plain title-and-Done bar for a sheet (a NavigationStack inside a
+/// DocumentGroup sheet picks up a stray back button).
+struct SheetHeader: View {
+    let title: String
+    let done: () -> Void
+
+    var body: some View {
+        ZStack {
+            Text(title).font(.headline)
+            HStack {
+                Spacer()
+                Button("Done", action: done).fontWeight(.semibold)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        Divider()
     }
 }
 #endif

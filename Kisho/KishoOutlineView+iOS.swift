@@ -116,32 +116,35 @@ struct KishoOutlineView: View {
         }
     }
 
+    /// Structure changes rebuild the cards, which must not happen while the
+    /// context menu is still animating away (UIKit crashes tearing down a
+    /// text view mid-dismissal), so they run once it has gone.
+    private func afterMenu(_ action: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: action)
+    }
+
     @ViewBuilder private func blockMenu(_ section: KishoSection) -> some View {
         Button {
-            document.selectedSectionID = section.id
-            document.addSiblingSection(using: undoManager)
+            afterMenu { document.selectedSectionID = section.id; document.addSiblingSection(using: undoManager) }
         } label: { Label("Add Block After", systemImage: "plus") }
         Button {
-            document.selectedSectionID = section.id
-            document.addChildSection(using: undoManager)
+            afterMenu { document.selectedSectionID = section.id; document.addChildSection(using: undoManager) }
         } label: { Label("Add Sub-block", systemImage: "plus.square.on.square") }
         Divider()
         Button {
-            document.indentSection(withID: section.id, focusing: .body, using: undoManager)
+            afterMenu { document.indentSection(withID: section.id, focusing: .body, using: undoManager) }
         } label: { Label("Indent", systemImage: "increase.indent") }
             .disabled(!document.canIndent(sectionID: section.id))
         Button {
-            document.outdentSection(withID: section.id, focusing: .body, using: undoManager)
+            afterMenu { document.outdentSection(withID: section.id, focusing: .body, using: undoManager) }
         } label: { Label("Outdent", systemImage: "decrease.indent") }
             .disabled(!document.canOutdent(sectionID: section.id))
         Divider()
         Button {
-            document.selectedSectionID = section.id
-            document.makeChildren(undoManager: undoManager)
+            afterMenu { document.selectedSectionID = section.id; document.makeChildren(undoManager: undoManager) }
         } label: { Label("Split Paragraphs into Blocks", systemImage: "square.fill.text.grid.1x2") }
         Button {
-            document.selectedSectionID = section.id
-            document.gather(undoManager: undoManager)
+            afterMenu { document.selectedSectionID = section.id; document.gather(undoManager: undoManager) }
         } label: { Label("Gather Sub-blocks", systemImage: "rectangle.compress.vertical") }
             .disabled(section.children.isEmpty)
         Divider()

@@ -565,7 +565,11 @@ private struct CardTextView: UIViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeUIView(context: Context) -> CardUITextView {
-        let textView = CardUITextView()
+        _ = KeyboardFrame.shared   // start listening before the first keyboard appears
+        // TextKit 1, as the Mac editor uses: the same layout engine for the
+        // same document, and clear of a TextKit 2 crash when a text view is
+        // torn down during a context-menu dismissal.
+        let textView = CardUITextView(usingTextLayoutManager: false)
         textView.isEditable = true
         textView.isSelectable = true
         textView.isScrollEnabled = false

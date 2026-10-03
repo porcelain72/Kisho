@@ -16,7 +16,8 @@ struct BlockInspectorSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            SheetHeader(title: "Inspector") { dismiss() }
             Form {
                 DocumentInspectorSection()
                 if let section = document.selectedSection {
@@ -26,13 +27,6 @@ struct BlockInspectorSheet: View {
                     Section {
                         Text("No block selected").foregroundStyle(.secondary)
                     }
-                }
-            }
-            .navigationTitle("Inspector")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
                 }
             }
         }
@@ -111,12 +105,13 @@ private struct BlockInspectorForm: View {
                 }
             }
 
-            HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Colour")
-                Spacer()
-                swatch(nil)
-                ForEach(0..<BlockPalette.count, id: \.self) { index in
-                    swatch(index)
+                HStack(spacing: 10) {
+                    swatch(nil)
+                    ForEach(0..<BlockPalette.count, id: \.self) { index in
+                        swatch(index)
+                    }
                 }
             }
         } header: {
