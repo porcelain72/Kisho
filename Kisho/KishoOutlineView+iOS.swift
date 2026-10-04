@@ -125,28 +125,46 @@ struct KishoOutlineView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: action)
     }
 
+    /// A structure change made from the outline shows its result in the
+    /// editor but leaves the keyboard down (the model's own focus request
+    /// would raise it); adding a block is the exception, since the next
+    /// thing to do is name it.
+    private func restructure(_ action: @escaping () -> Void) {
+        afterMenu {
+            action()
+            if let id = document.selectedSectionID { document.requestFocus(id, .body, takesFocus: false) }
+        }
+    }
+
+    private func add(_ action: @escaping () -> Void) {
+        afterMenu {
+            onChoose?()   // the iPhone sheet closes so the title can take the keyboard
+            action()
+        }
+    }
+
     @ViewBuilder private func blockMenu(_ section: KishoSection) -> some View {
         Button {
-            afterMenu { document.selectedSectionID = section.id; document.addSiblingSection(using: undoManager) }
+            add { document.selectedSectionID = section.id; document.addSiblingSection(using: undoManager) }
         } label: { Label("Add Block After", systemImage: "plus") }
         Button {
-            afterMenu { document.selectedSectionID = section.id; document.addChildSection(using: undoManager) }
+            add { document.selectedSectionID = section.id; document.addChildSection(using: undoManager) }
         } label: { Label("Add Sub-block", systemImage: "plus.square.on.square") }
         Divider()
         Button {
-            afterMenu { document.indentSection(withID: section.id, focusing: .body, using: undoManager) }
+            restructure { document.indentSection(withID: section.id, focusing: .body, using: undoManager) }
         } label: { Label("Indent", systemImage: "increase.indent") }
             .disabled(!document.canIndent(sectionID: section.id))
         Button {
-            afterMenu { document.outdentSection(withID: section.id, focusing: .body, using: undoManager) }
+            restructure { document.outdentSection(withID: section.id, focusing: .body, using: undoManager) }
         } label: { Label("Outdent", systemImage: "decrease.indent") }
             .disabled(!document.canOutdent(sectionID: section.id))
         Divider()
         Button {
-            afterMenu { document.selectedSectionID = section.id; document.makeChildren(undoManager: undoManager) }
+            restructure { document.selectedSectionID = section.id; document.makeChildren(undoManager: undoManager) }
         } label: { Label("Split Paragraphs into Blocks", systemImage: "square.fill.text.grid.1x2") }
         Button {
-            afterMenu { document.selectedSectionID = section.id; document.gather(undoManager: undoManager) }
+            restructure { document.selectedSectionID = section.id; document.gather(undoManager: undoManager) }
         } label: { Label("Gather Sub-blocks", systemImage: "rectangle.compress.vertical") }
             .disabled(section.children.isEmpty)
         Divider()
