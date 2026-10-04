@@ -243,6 +243,29 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     // MARK: - Structural edits (all undoable, all symmetric undo/redo)
 
+    /// Appends imported blocks at the end of the top level, as one undo
+    /// step, and selects the first of them. (iOS import: there is no way to
+    /// open a second document programmatically, so a file is brought into
+    /// the open one.)
+    func appendImportedSections(_ imported: [KishoSection], using undoManager: UndoManager? = nil) {
+        guard !imported.isEmpty else { return }
+        let previousSelection = selectedSectionID
+        let typography = self.typography
+        for section in imported {
+            section.applyTypographyToSelfAndDescendants(font: typography.baseFont, color: PlatformColor.label)
+        }
+        perform("Import", using: undoManager, forward: { target in
+            target.sections.append(contentsOf: imported)
+            target.selectedSectionID = imported.first?.id
+            target.requestFocus(imported.first?.id, .body, takesFocus: false)
+        }, inverse: { target in
+            let ids = Set(imported.map { $0.id })
+            target.sections.removeAll { ids.contains($0.id) }
+            target.selectedSectionID = previousSelection
+            target.requestFocus(previousSelection, .body, takesFocus: false)
+        })
+    }
+
     /// Runs a structural change with the editor flush/rebuild hooks around it.
     /// Nested calls (e.g. a move = remove + insert, or an undo that calls back
     /// into these helpers) only fire the hooks once, at the outermost level.

@@ -19,7 +19,6 @@ struct KishoDocumentView: View {
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @Environment(\.horizontalSizeClass) private var sizeClass
-    @Environment(\.newDocument) private var newDocument
     @AppStorage(KishoPreferences.Key.showSidebar) private var showSidebar = true
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
     @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
@@ -202,7 +201,7 @@ struct KishoDocumentView: View {
                     Button {
                         showImporter = true
                     } label: {
-                        Label("Import Markdown or OPML…", systemImage: "square.and.arrow.down")
+                        Label("Import Markdown or OPML into This Document…", systemImage: "square.and.arrow.down")
                     }
 
                     Divider()
@@ -230,8 +229,9 @@ struct KishoDocumentView: View {
             case .success(let url):
                 switch DocumentImportResult.read(url) {
                 case .document(let model):
-                    // The import opens as a new, unsaved document; this one is untouched.
-                    newDocument(KishoDocument(model: model))
+                    // iOS has no way to open a second document from here, so the
+                    // file's blocks are added to the end of this one (one undo step).
+                    document.appendImportedSections(model.sections, using: undoManager)
                 case .failure(let message):
                     errorMessage = message
                 }
