@@ -156,13 +156,13 @@ struct KishoDocumentView: View {
                 KishoOutlineView(onChoose: { showOutlineSheet = false })
             }
             .environmentObject(document)
-            .environment(\.undoManager, undoManager)
+            .environment(\.documentUndoManager, undoManager)
             .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showInspector) {
             BlockInspectorSheet()
                 .environmentObject(document)
-                .environment(\.undoManager, undoManager)
+                .environment(\.documentUndoManager, undoManager)
                 .presentationDetents([.large])
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidOpenUndoGroup).merge(with:

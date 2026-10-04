@@ -16,7 +16,9 @@ import SwiftUI
 
 struct KishoOutlineView: View {
     @EnvironmentObject var document: KishoDocumentModel
-    @Environment(\.undoManager) private var undoManager
+    @Environment(\.undoManager) private var environmentUndoManager
+    @Environment(\.documentUndoManager) private var documentUndoManager
+    private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
     /// Called after a row is chosen (the iPhone sheet dismisses itself).
     var onChoose: (() -> Void)? = nil

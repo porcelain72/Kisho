@@ -209,7 +209,9 @@ extension String {
 
 struct SectionTagsBar: View {
     @EnvironmentObject var document: KishoDocumentModel
-    @Environment(\.undoManager) private var undoManager
+    @Environment(\.undoManager) private var environmentUndoManager
+    @Environment(\.documentUndoManager) private var documentUndoManager
+    private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @ObservedObject var section: KishoSection
 
     var body: some View {

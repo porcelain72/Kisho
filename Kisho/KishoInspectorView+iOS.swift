@@ -37,7 +37,9 @@ struct BlockInspectorSheet: View {
 /// the named presets.
 private struct DocumentInspectorSection: View {
     @EnvironmentObject var document: KishoDocumentModel
-    @Environment(\.undoManager) private var undoManager
+    @Environment(\.undoManager) private var environmentUndoManager
+    @Environment(\.documentUndoManager) private var documentUndoManager
+    private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @State private var families: [String] = []
 
     private let sizes: [Double] = [10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24, 28]
@@ -85,7 +87,9 @@ private struct DocumentInspectorSection: View {
 
 private struct BlockInspectorForm: View {
     @EnvironmentObject var document: KishoDocumentModel
-    @Environment(\.undoManager) private var undoManager
+    @Environment(\.undoManager) private var environmentUndoManager
+    @Environment(\.documentUndoManager) private var documentUndoManager
+    private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @ObservedObject var section: KishoSection
 
     @State private var synopsisDraft = ""

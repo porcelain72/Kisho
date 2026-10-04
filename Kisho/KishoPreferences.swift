@@ -132,3 +132,19 @@ struct KishoSettingsView: View {
     }
 }
 #endif
+
+// MARK: - Document undo manager for presented views
+
+/// `EnvironmentValues.undoManager` is read-only and a presented sheet gets
+/// its own, so the document window passes the document's undo manager
+/// under this key and views prefer it when it is set.
+private struct DocumentUndoManagerKey: EnvironmentKey {
+    static let defaultValue: UndoManager? = nil
+}
+
+extension EnvironmentValues {
+    var documentUndoManager: UndoManager? {
+        get { self[DocumentUndoManagerKey.self] }
+        set { self[DocumentUndoManagerKey.self] = newValue }
+    }
+}
