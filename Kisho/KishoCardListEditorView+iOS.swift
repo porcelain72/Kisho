@@ -19,9 +19,25 @@ import RichTextEditor
 
 struct KishoCardListEditorView: View {
     @EnvironmentObject var document: KishoDocumentModel
+    @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
+    @Environment(\.kishoFocusMode) private var focusMode
+    @Environment(\.kishoEditorTheme) private var editorTheme
+    @Environment(\.colorScheme) private var systemColorScheme
 
     var body: some View {
+        VStack(spacing: 0) {
+            if find.isVisible {
+                FindBar(find: find)
+                Divider()
+            }
+            cards
+        }
+        // The editor area carries its own theme; the chrome around it follows the system.
+        .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
+    }
+
+    private var cards: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 if document.sections.isEmpty {
@@ -31,8 +47,10 @@ struct KishoCardListEditorView: View {
                         ForEach(document.sections) { section in
                             SectionCardTree(section: section, depth: 0)
                         }
-                        // Room to scroll the last card up above the keyboard.
-                        Color.clear.frame(height: 240)
+                        // Room to scroll the last card up above the keyboard —
+                        // half a screen more in focus mode so the typewriter
+                        // line can stay centred to the end of the text.
+                        Color.clear.frame(height: focusMode ? 480 : 240)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -115,7 +133,10 @@ private struct EmptyDocumentPrompt: View {
 
 private struct SectionCard: View {
     @EnvironmentObject var document: KishoDocumentModel
+    @EnvironmentObject var find: FindState
     @Environment(\.undoManager) private var undoManager
+    @Environment(\.kishoFocusMode) private var focusMode
+    @Environment(\.kishoEditorTheme) private var editorTheme
     @ObservedObject var section: KishoSection
     let depth: Int
 
@@ -131,6 +152,11 @@ private struct SectionCard: View {
     }
 
     private var isSelected: Bool { document.selectedSectionID == section.id }
+
+    private var bodyHighlight: BodyHighlight {
+        let hits = find.bodyHighlights(for: section.id)
+        return BodyHighlight(ranges: hits.all, current: hits.current)
+    }
 
     /// Everything the accessory bar and key commands can do to this block.
     private var actions: CardActions {
@@ -180,6 +206,8 @@ private struct SectionCard: View {
                 content: section.content,
                 handle: bodyHandle,
                 typography: document.typography,
+                theme: editorTheme,
+                highlight: bodyHighlight,
                 actions: actions,
                 undoManager: undoManager,
                 onBeginEditing: { selectFromEditor() },
@@ -203,6 +231,8 @@ private struct SectionCard: View {
         )
         .frame(maxWidth: .infinity)
         .padding(.leading, CGFloat(min(depth, 6)) * 16)
+        // Focus mode: everything but the block you're in recedes.
+        .opacity(focusMode && !isSelected ? 0.32 : 1)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
         .contentShape(Rectangle())
         .onTapGesture {
@@ -216,8 +246,15 @@ private struct SectionCard: View {
             if focused { selectFromEditor() } else { commitTitle() }
         }
         .onReceive(document.$focusRequest) { request in
-            guard let request, request.sectionID == section.id, request.takesFocus else { return }
+            guard let request, request.sectionID == section.id else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                guard request.takesFocus else {
+                    // Find bar stepping: show the place, keep focus in the bar.
+                    if request.field == .body, let selection = request.selection {
+                        bodyHandle.show(selection)
+                    }
+                    return
+                }
                 switch request.field {
                 case .title:
                     titleHandle.focus()
@@ -498,6 +535,12 @@ final class KeyboardFrame {
     @objc private func hidden(_ note: Notification) { endFrame = nil }
 }
 
+/// Which ranges of a block's body to mark as search hits.
+struct BodyHighlight: Equatable {
+    var ranges: [NSRange]
+    var current: NSRange?
+}
+
 // MARK: - Self-sizing text view
 
 /// Lets the card reach its UITextView (to focus it) without the view layer
@@ -541,6 +584,13 @@ final class CardTextViewHandle: ObservableObject {
         (textView as? CardUITextView)?.scrollCaretIntoView()
     }
 
+    /// Bring a range into view without taking keyboard focus or changing the
+    /// selection (the find highlight marks it).
+    func show(_ range: NSRange) {
+        guard let textView = textView as? CardUITextView else { return }
+        textView.scrollRange(Self.clamp(range, in: textView))
+    }
+
     private static func clamp(_ range: NSRange, in textView: UITextView) -> NSRange {
         let length = textView.attributedText.length
         let location = max(0, min(range.location, length))
@@ -555,6 +605,8 @@ private struct CardTextView: UIViewRepresentable {
     @ObservedObject var content: RichTextModel
     let handle: CardTextViewHandle
     let typography: TypographySettings
+    let theme: EditorTheme
+    let highlight: BodyHighlight
     let actions: CardActions
     let undoManager: UndoManager?
     let onBeginEditing: () -> Void
@@ -615,14 +667,20 @@ private struct CardTextView: UIViewRepresentable {
         textView.accessoryBar?.actions = actions
         textView.accessoryBar?.refresh()
         let stored = content.attributedString
-        if !context.coordinator.isPushingToModel, !stored.isEqual(to: textView.attributedText) {
+        if !context.coordinator.isPushingToModel,
+           !stored.isEqual(to: Self.withoutHighlight(textView.attributedText)) {
             let selection = textView.selectedRange
             context.coordinator.isApplyingModel = true
             textView.attributedText = stored
             applyDisplayColour(textView)
             context.coordinator.isApplyingModel = false
+            context.coordinator.appliedHighlight = nil   // storage reset drops the marks
             let length = textView.attributedText.length
             textView.selectedRange = NSRange(location: min(selection.location, length), length: 0)
+        }
+        if context.coordinator.appliedTheme != theme {
+            context.coordinator.appliedTheme = theme
+            textView.overrideUserInterfaceStyle = theme.colorScheme == .dark ? .dark : (theme.colorScheme == .light ? .light : .unspecified)
         }
         if textView.attributedText.length == 0 || context.coordinator.appliedTypography != typography {
             var attrs = typingAttributes()
@@ -634,6 +692,32 @@ private struct CardTextView: UIViewRepresentable {
             context.coordinator.appliedTypography = typography
         }
         textView.measure()
+        applyHighlight(textView, context: context)
+    }
+
+    /// Search hits as a background colour in the storage — UIKit has no
+    /// temporary attributes — stripped again before anything reaches the model.
+    private func applyHighlight(_ textView: UITextView, context: Context) {
+        guard context.coordinator.appliedHighlight != highlight else { return }
+        context.coordinator.appliedHighlight = highlight
+        let storage = textView.textStorage
+        let full = NSRange(location: 0, length: storage.length)
+        context.coordinator.isApplyingModel = true
+        storage.beginEditing()
+        storage.removeAttribute(.backgroundColor, range: full)
+        for range in highlight.ranges where NSMaxRange(range) <= storage.length {
+            let colour = UIColor.systemYellow.withAlphaComponent(range == highlight.current ? 0.6 : 0.3)
+            storage.addAttribute(.backgroundColor, value: colour, range: range)
+        }
+        storage.endEditing()
+        context.coordinator.isApplyingModel = false
+    }
+
+    /// `text` without the find marks.
+    static func withoutHighlight(_ text: NSAttributedString) -> NSAttributedString {
+        let copy = NSMutableAttributedString(attributedString: text)
+        copy.removeAttribute(.backgroundColor, range: NSRange(location: 0, length: copy.length))
+        return copy
     }
 
     /// Stored text may carry a baked-in colour from RTF; show it in the
@@ -654,6 +738,8 @@ private struct CardTextView: UIViewRepresentable {
         var isApplyingModel = false
         var isPushingToModel = false
         var appliedTypography: TypographySettings?
+        var appliedHighlight: BodyHighlight?
+        var appliedTheme: EditorTheme?
 
         init(_ parent: CardTextView) { self.parent = parent }
 
@@ -686,8 +772,9 @@ private struct CardTextView: UIViewRepresentable {
         func pushToModel(_ textView: UITextView) {
             let before = parent.content.attributedString
             // A snapshot, not the live storage: the model must own immutable
-            // text or undo captures edits one keystroke late.
-            let after = NSAttributedString(attributedString: textView.attributedText)
+            // text or undo captures edits one keystroke late. Find marks stay
+            // in the view.
+            let after = CardTextView.withoutHighlight(textView.attributedText)
             isPushingToModel = true
             parent.content.attributedString = after
             isPushingToModel = false
@@ -781,11 +868,38 @@ final class CardUITextView: UITextView {
                 visible.size.height = max(0, inScroll.minY - visible.minY)
             }
         }
-        guard !visible.contains(rect) else { return }
-
         var offset = scrollView.contentOffset
-        if rect.maxY > visible.maxY { offset.y += rect.maxY - visible.maxY }
-        if rect.minY < visible.minY { offset.y -= visible.minY - rect.minY }
+        if UserDefaults.standard.bool(forKey: KishoPreferences.Key.typewriterScrolling) {
+            // Typewriter scrolling: the caret line sits at the middle of the
+            // area above the keyboard.
+            offset.y += rect.midY - visible.midY
+        } else {
+            guard !visible.contains(rect) else { return }
+            if rect.maxY > visible.maxY { offset.y += rect.maxY - visible.maxY }
+            if rect.minY < visible.minY { offset.y -= visible.minY - rect.minY }
+        }
+        let maxOffset = scrollView.contentSize.height + scrollView.adjustedContentInset.bottom - scrollView.bounds.height
+        offset.y = max(-scrollView.adjustedContentInset.top, min(offset.y, max(-scrollView.adjustedContentInset.top, maxOffset)))
+        scrollView.setContentOffset(offset, animated: true)
+    }
+
+    /// Scroll so `range` is in the visible area (for find stepping).
+    func scrollRange(_ range: NSRange) {
+        guard let scrollView = enclosingScrollView,
+              let start = position(from: beginningOfDocument, offset: range.location),
+              let end = position(from: start, offset: range.length),
+              let textRange = textRange(from: start, to: end) else { return }
+        var rect = firstRect(for: textRange)
+        guard rect.height.isFinite, rect.height > 0 else { return }
+        rect = convert(rect, to: scrollView).insetBy(dx: 0, dy: -60)
+        var visible = scrollView.bounds.inset(by: scrollView.adjustedContentInset)
+        if let keyboard = KeyboardFrame.shared.endFrame, keyboard.height > 0 {
+            let inScroll = scrollView.convert(keyboard, from: nil)
+            if inScroll.minY < visible.maxY { visible.size.height = max(0, inScroll.minY - visible.minY) }
+        }
+        guard !visible.contains(rect) else { return }
+        var offset = scrollView.contentOffset
+        offset.y += rect.midY - visible.midY
         let maxOffset = scrollView.contentSize.height + scrollView.adjustedContentInset.bottom - scrollView.bounds.height
         offset.y = max(-scrollView.adjustedContentInset.top, min(offset.y, max(-scrollView.adjustedContentInset.top, maxOffset)))
         scrollView.setContentOffset(offset, animated: true)

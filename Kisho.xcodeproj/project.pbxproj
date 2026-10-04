@@ -44,6 +44,7 @@
 		A1B2C3D42F00002A00KISHO01 /* KishoCardListEditorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */; };
 		A1B2C3D42F00002C00KISHO01 /* KishoOutlineView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002B00KISHO01 /* KishoOutlineView+iOS.swift */; };
 		A1B2C3D42F00002E00KISHO01 /* KishoInspectorView+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002D00KISHO01 /* KishoInspectorView+iOS.swift */; };
+		A1B2C3D42F00003000KISHO01 /* KishoDocumentTools+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00002F00KISHO01 /* KishoDocumentTools+iOS.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +108,7 @@
 		A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoCardListEditorView+iOS.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002B00KISHO01 /* KishoOutlineView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoOutlineView+iOS.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002D00KISHO01 /* KishoInspectorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoInspectorView+iOS.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00002F00KISHO01 /* KishoDocumentTools+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoDocumentTools+iOS.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +185,7 @@
 				A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */,
 				A1B2C3D42F00002B00KISHO01 /* KishoOutlineView+iOS.swift */,
 				A1B2C3D42F00002D00KISHO01 /* KishoInspectorView+iOS.swift */,
+				A1B2C3D42F00002F00KISHO01 /* KishoDocumentTools+iOS.swift */,
 				A1B2C3D42F00002600KISHO01 /* Kisho-iOS.entitlements */,
 				A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */,
 				A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */,
@@ -380,6 +383,7 @@
 				A1B2C3D42F00002A00KISHO01 /* KishoCardListEditorView+iOS.swift in Sources */,
 				A1B2C3D42F00002C00KISHO01 /* KishoOutlineView+iOS.swift in Sources */,
 				A1B2C3D42F00002E00KISHO01 /* KishoInspectorView+iOS.swift in Sources */,
+				A1B2C3D42F00003000KISHO01 /* KishoDocumentTools+iOS.swift in Sources */,
 				A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */,
 				A1B2C3D42F00001000KISHO01 /* KishoDocx.swift in Sources */,
 				98B23B3C2DE9C0F200888A7C /* KishoDocumentView.+Mac.swift in Sources */,

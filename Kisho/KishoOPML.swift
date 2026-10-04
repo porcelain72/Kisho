@@ -161,12 +161,13 @@ enum OPML {
     }
 }
 
-#if os(macOS)
 import UniformTypeIdentifiers
 
 extension UTType {
     static let opml = UTType(importedAs: "org.opml.opml", conformingTo: .xml)
 }
+
+#if os(macOS)
 
 /// Shared "import a file as a new untitled document" flow used by the
 /// Markdown and OPML importers.

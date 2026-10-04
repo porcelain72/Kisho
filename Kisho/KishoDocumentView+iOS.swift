@@ -12,17 +12,27 @@
 #if os(iOS)
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
 struct KishoDocumentView: View {
     let fileURL: URL?
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.newDocument) private var newDocument
     @AppStorage(KishoPreferences.Key.showSidebar) private var showSidebar = true
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
+    @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
+    @StateObject private var find = FindState()
     @State private var showOutlineSheet = false
     @State private var showInspector = false
+    @State private var showSettings = false
     @State private var showDeleteAlert = false
+    @State private var showImporter = false
+    @State private var shareItem: ShareItem?
+    @State private var errorMessage: String?
+    /// Focus Mode is per window: just the cards, the current block bright.
+    @State private var focusMode = false
     /// Bumped after every undo-manager change so Undo/Redo re-evaluate their
     /// enabled state (nothing else observes the undo manager). Not on
     /// NSUndoManagerCheckpoint: reading `canRedo` posts that, which would
@@ -30,6 +40,11 @@ struct KishoDocumentView: View {
     @State private var undoTick = 0
 
     private var isCompact: Bool { sizeClass == .compact }
+    private var editorTheme: EditorTheme { EditorTheme(rawValue: editorThemeRaw) ?? .system }
+
+    private var documentTitle: String {
+        fileURL?.deletingPathExtension().lastPathComponent ?? "Untitled"
+    }
 
     // Read `undoTick` here so the bar's enabled state depends on it: SwiftUI
     // only re-evaluates for state that the body reads.
@@ -38,7 +53,7 @@ struct KishoDocumentView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if !isCompact && showSidebar {
+            if !isCompact && showSidebar && !focusMode {
                 KishoOutlineView()
                     .frame(width: 300)
                     .transition(.move(edge: .leading).combined(with: .opacity))
@@ -47,7 +62,11 @@ struct KishoDocumentView: View {
             KishoCardListEditorView()
         }
         .animation(.easeInOut(duration: 0.2), value: showSidebar)
+        .animation(.easeInOut(duration: 0.2), value: focusMode)
         .environmentObject(document)
+        .environmentObject(find)
+        .environment(\.kishoFocusMode, focusMode)
+        .environment(\.kishoEditorTheme, editorTheme)
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
                 if isCompact {
@@ -145,7 +164,85 @@ struct KishoDocumentView: View {
                 } label: {
                     Label("Block", systemImage: "square.stack.3d.up")
                 }
+
+                Menu {
+                    Button {
+                        find.show()
+                    } label: {
+                        Label("Find and Replace", systemImage: "magnifyingglass")
+                    }
+                    .keyboardShortcut("f", modifiers: .command)
+
+                    Toggle(isOn: $focusMode) {
+                        Label("Focus Mode", systemImage: "rectangle.inset.filled")
+                    }
+
+                    Divider()
+
+                    Menu {
+                        ForEach(Exporter.Format.allCases) { format in
+                            Button(format.title) { export(format) }
+                        }
+                    } label: {
+                        Label("Export As", systemImage: "square.and.arrow.up")
+                    }
+                    if let fileURL {
+                        ShareLink(item: fileURL) {
+                            Label("Share Document", systemImage: "doc")
+                        }
+                    }
+                    Button {
+                        DocumentExport.print(document, title: documentTitle)
+                    } label: {
+                        Label("Print…", systemImage: "printer")
+                    }
+
+                    Divider()
+
+                    Button {
+                        showImporter = true
+                    } label: {
+                        Label("Import Markdown or OPML…", systemImage: "square.and.arrow.down")
+                    }
+
+                    Divider()
+
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Label("Settings…", systemImage: "gearshape")
+                    }
+                } label: {
+                    Label("More", systemImage: "ellipsis.circle")
+                }
             }
+        }
+        .sheet(item: $shareItem) { item in
+            ShareSheet(url: item.url)
+        }
+        .sheet(isPresented: $showSettings) {
+            KishoSettingsSheet()
+                .presentationDetents([.large])
+        }
+        .fileImporter(isPresented: $showImporter,
+                      allowedContentTypes: [.markdownText, .plainText, .opml, .xml]) { result in
+            switch result {
+            case .success(let url):
+                switch DocumentImportResult.read(url) {
+                case .document(let model):
+                    // The import opens as a new, unsaved document; this one is untouched.
+                    newDocument(KishoDocument(model: model))
+                case .failure(let message):
+                    errorMessage = message
+                }
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+            }
+        }
+        .alert("Couldn’t Complete", isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+            Button("OK") { errorMessage = nil }
+        } message: {
+            Text(errorMessage ?? "")
         }
         // Sheets get their own environment; hand them the document's undo
         // manager explicitly, or their edits register with a different one
@@ -186,6 +283,23 @@ struct KishoDocumentView: View {
             Text("Its sub-blocks will be deleted with it.")
         }
     }
+}
+
+extension KishoDocumentView {
+    /// Convert and hand the file to the share sheet.
+    private func export(_ format: Exporter.Format) {
+        guard let url = DocumentExport.file(for: document, as: format, title: documentTitle) else {
+            errorMessage = "The document could not be converted to \(format.title)."
+            return
+        }
+        shareItem = ShareItem(url: url)
+    }
+}
+
+/// A file for the share sheet (`sheet(item:)` wants Identifiable).
+struct ShareItem: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
 }
 
 /// A plain title-and-Done bar for a sheet (a NavigationStack inside a

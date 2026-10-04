@@ -85,8 +85,6 @@ enum TypographyPreset: String, CaseIterable, Identifiable {
     }
 }
 
-#if os(macOS)
-
 // MARK: - Focus mode state
 
 private struct FocusModeEnvironmentKey: EnvironmentKey { static let defaultValue = false }
@@ -115,6 +113,8 @@ extension FocusedValues {
 }
 
 // MARK: - Commands
+
+#if os(macOS)
 
 /// View ▸ Focus Mode, Typewriter Scrolling, Editor Theme.
 struct ViewModeCommands: Commands {

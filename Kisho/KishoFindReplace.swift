@@ -157,8 +157,6 @@ extension KishoDocumentModel {
     }
 }
 
-#if os(macOS)
-
 // MARK: - Find state (view layer)
 
 /// State of the find bar. One per document window; cards read it to
@@ -194,6 +192,7 @@ final class FindState: ObservableObject {
             .dropFirst()
             .sink { [weak self] _ in self?.refresh(keepingCurrent: true) }
             .store(in: &cancellables)
+        #if os(macOS)
         // Standard Find menu items arriving at a card text view in our window.
         NotificationCenter.default.publisher(for: .kishoFindPanelAction)
             .sink { [weak self] note in
@@ -213,6 +212,7 @@ final class FindState: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        #endif
     }
 
 
@@ -254,6 +254,7 @@ final class FindState: ObservableObject {
         }
     }
 
+    #if os(macOS)
     /// "Use Selection for Find" (⌘E): take the selected text of whichever
     /// text field or text view has keyboard focus as the search term.
     func useSelection() {
@@ -266,6 +267,7 @@ final class FindState: ObservableObject {
         refresh()
         if !isVisible { isVisible = true }
     }
+    #endif
 
     func refresh(keepingCurrent: Bool = false) {
         guard let document else { return }
@@ -348,6 +350,8 @@ final class FindState: ObservableObject {
         return (all, cur)
     }
 }
+
+#if os(macOS)
 
 // MARK: - Find bar
 
