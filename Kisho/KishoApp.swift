@@ -24,6 +24,11 @@ struct KishoApp: App {
         if let preferredLanguage = Locale.preferredLanguages.first {
             NSSpellChecker.shared.setLanguage(preferredLanguage)
         }
+        #else
+        // DocumentGroup on iOS has no conflict sheet and will not open a
+        // document with unresolved iCloud conflicts; resolve them ourselves
+        // (newest wins, the others kept as copies beside the file).
+        CloudConflictResolver.shared.start()
         #endif
     }
 
