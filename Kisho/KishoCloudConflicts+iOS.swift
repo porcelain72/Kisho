@@ -27,11 +27,15 @@ final class CloudConflictResolver: NSObject {
     private var query: NSMetadataQuery?
     private var observers: [NSObjectProtocol] = []
     private let work = DispatchQueue(label: "com.PM.Kisho.iCloudConflicts", qos: .userInitiated)
+    /// This device's name, read on the main thread at start (UIDevice is
+    /// main-thread property); the local version carries no computer name.
+    private static var localDeviceName = "this device"
 
     /// Start watching the iCloud container for documents with unresolved
     /// conflicts. Safe to call more than once; does nothing without iCloud.
     func start() {
         guard query == nil else { return }
+        Self.localDeviceName = UIDevice.current.name
         guard FileManager.default.ubiquityIdentityToken != nil else {
             Self.log.notice("No iCloud identity; conflict resolver not started")
             return
@@ -120,7 +124,7 @@ final class CloudConflictResolver: NSObject {
             let candidates = [current] + others
             let winner = candidates.max { ($0.modificationDate ?? .distantPast) < ($1.modificationDate ?? .distantPast) } ?? current
             let losers = candidates.filter { $0 !== winner }
-            log.notice("Resolve \(url.lastPathComponent, privacy: .public): \(others.count) conflict version(s); winner from \(winner.localizedNameOfSavingComputer ?? "?", privacy: .public) at \(winner.modificationDate?.description ?? "?", privacy: .public); current wins: \(winner === current)")
+            log.notice("Resolve \(url.lastPathComponent, privacy: .public): \(others.count) conflict version(s); winner from \(winner.localizedNameOfSavingComputer ?? localDeviceName, privacy: .public) at \(winner.modificationDate?.description ?? "?", privacy: .public); current wins: \(winner === current)")
 
             for loser in losers {
                 let copyURL = archiveURL(for: url, version: loser)
@@ -160,7 +164,8 @@ final class CloudConflictResolver: NSObject {
         let folder = url.deletingLastPathComponent()
         let base = url.deletingPathExtension().lastPathComponent
         let ext = url.pathExtension
-        let device = version.localizedNameOfSavingComputer ?? "another device"
+        // The local version carries no computer name; it is this device's.
+        let device = version.localizedNameOfSavingComputer ?? localDeviceName
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH.mm"
         let date = formatter.string(from: version.modificationDate ?? Date())
