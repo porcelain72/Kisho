@@ -217,7 +217,6 @@ struct KishoSettingsSheet: View {
                             Text(theme.title).tag(theme.rawValue)
                         }
                     }
-                    .pickerStyle(.segmented)
                 }
 
                 Section {

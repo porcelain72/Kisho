@@ -24,6 +24,7 @@ struct KishoCardListEditorView: View {
     @Environment(\.kishoFocusMode) private var focusMode
     @Environment(\.kishoEditorTheme) private var editorTheme
     @Environment(\.colorScheme) private var systemColorScheme
+    @AppStorage(KishoPreferences.Key.typewriterScrolling) private var typewriter = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,7 +51,7 @@ struct KishoCardListEditorView: View {
                         // Room to scroll the last card up above the keyboard —
                         // half a screen more in focus mode so the typewriter
                         // line can stay centred to the end of the text.
-                        Color.clear.frame(height: focusMode ? 480 : 240)
+                        Color.clear.frame(height: focusMode || typewriter ? 480 : 240)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -166,7 +167,8 @@ private struct SectionCard: View {
             indent: { commitTitle(); document.indentSection(withID: section.id, focusing: .body, using: undoManager) },
             outdent: { commitTitle(); document.outdentSection(withID: section.id, focusing: .body, using: undoManager) },
             canIndent: { document.canIndent(sectionID: section.id) },
-            canOutdent: { document.canOutdent(sectionID: section.id) }
+            canOutdent: { document.canOutdent(sectionID: section.id) },
+            find: { commitTitle(); find.show() }
         )
     }
 
@@ -309,6 +311,8 @@ struct CardActions {
     var outdent: () -> Void
     var canIndent: () -> Bool
     var canOutdent: () -> Bool
+    /// ⌘F from a hardware keyboard while editing.
+    var find: () -> Void
 }
 
 /// The bar above the software keyboard: formatting on the left, structure
@@ -479,6 +483,7 @@ private struct TitleField: UIViewRepresentable {
         func backtab() { parent.onBacktab() }
         func escape() { parent.onEscape() }
         func commandReturn() { parent.actions.addSibling() }
+        func find() { parent.actions.find() }
     }
 }
 
@@ -487,6 +492,7 @@ protocol TitleFieldCommands: AnyObject {
     func backtab()
     func escape()
     func commandReturn()
+    func find()
 }
 
 final class TitleUITextField: UITextField {
@@ -499,6 +505,7 @@ final class TitleUITextField: UITextField {
             UIKeyCommand(input: "\t", modifierFlags: .shift, action: #selector(handleBacktab)),
             UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(handleEscape)),
             UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn)),
+            UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
         ]
         // Our Tab beats the system's focus movement.
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
@@ -509,6 +516,7 @@ final class TitleUITextField: UITextField {
     @objc private func handleBacktab() { commands?.backtab() }
     @objc private func handleEscape() { commands?.escape() }
     @objc private func handleCommandReturn() { commands?.commandReturn() }
+    @objc private func handleFind() { commands?.find() }
 }
 
 // MARK: - Keyboard frame
@@ -643,6 +651,7 @@ private struct CardTextView: UIViewRepresentable {
         textView.onHeightChange = { [weak handle] height in handle?.report(height: height) }
         textView.onCommandReturn = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.addSibling() }
         textView.onFormat = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
+        textView.onFind = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.find() }
         let bar = KeyboardAccessoryBar(showsFormatting: true)
         bar.owner = textView
         bar.formatting = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
@@ -765,7 +774,10 @@ private struct CardTextView: UIViewRepresentable {
             guard !isApplyingModel, let textView = self.textView else { return }
             pushToModel(textView)
             textView.measure()
+            // Once now, and again after the card's new height has reached the
+            // scroll view (a new line at the bottom of a card grows it first).
             DispatchQueue.main.async { textView.scrollCaretIntoView() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { textView.scrollCaretIntoView() }
         }
 
         /// Copies the live storage into the model and records the edit.
@@ -809,6 +821,7 @@ final class CardUITextView: UITextView {
     var onHeightChange: ((CGFloat) -> Void)?
     var onCommandReturn: (() -> Void)?
     var onFormat: ((SelectionFormatting.Trait) -> Void)?
+    var onFind: (() -> Void)?
     var accessoryBar: KeyboardAccessoryBar?
     /// The document's undo manager, which owns every edit (the text view's
     /// own range-based undo would fall out of step whenever the model
@@ -916,6 +929,7 @@ final class CardUITextView: UITextView {
             UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn)),
             UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(handleUndo)),
             UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(handleRedo)),
+            UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
         ]
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
         return (super.keyCommands ?? []) + list
@@ -924,5 +938,6 @@ final class CardUITextView: UITextView {
     @objc private func handleCommandReturn() { onCommandReturn?() }
     @objc private func handleUndo() { documentUndoManager?.undo() }
     @objc private func handleRedo() { documentUndoManager?.redo() }
+    @objc private func handleFind() { onFind?() }
 }
 #endif
