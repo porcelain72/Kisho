@@ -192,7 +192,9 @@ private struct SectionCard: View {
                     onSubmit: { commitTitle(); bodyHandle.focus(atEnd: true) },
                     onEscape: { draftTitle = section.title; bodyHandle.focus(atEnd: false) },
                     onTab: { commitTitle(); document.indentSection(withID: section.id, focusing: .title, using: undoManager) },
-                    onBacktab: { commitTitle(); document.outdentSection(withID: section.id, focusing: .title, using: undoManager) }
+                    onBacktab: { commitTitle(); document.outdentSection(withID: section.id, focusing: .title, using: undoManager) },
+                    onMoveUp: { commitTitle(); document.moveSectionUp(withID: section.id, focusing: .title, using: undoManager) },
+                    onMoveDown: { commitTitle(); document.moveSectionDown(withID: section.id, focusing: .title, using: undoManager) }
                 )
                 Spacer(minLength: 0)
                 if section.totalWordCount > 0 {
@@ -257,6 +259,10 @@ private struct SectionCard: View {
         .onReceive(document.$focusRequest) { request in
             guard let request, request.sectionID == section.id else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                // A structural edit can publish two requests back to back
+                // (the model's own, then the outline's keyboard-down one);
+                // only the latest counts, or the first would raise the keyboard.
+                guard document.focusRequest == request else { return }
                 guard request.takesFocus else {
                     // Find bar stepping: show the place, keep focus in the bar.
                     if request.field == .body, let selection = request.selection {
@@ -436,6 +442,9 @@ private struct TitleField: UIViewRepresentable {
     let onEscape: () -> Void
     let onTab: () -> Void
     let onBacktab: () -> Void
+    /// ⌃⌘↑ / ⌃⌘↓ from a hardware keyboard: move the block, focus stays in the title.
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -510,8 +519,8 @@ private struct TitleField: UIViewRepresentable {
         func escape() { parent.onEscape() }
         func commandReturn() { parent.actions.addSibling() }
         func find() { parent.actions.find() }
-        func moveUp() { parent.actions.moveUp() }
-        func moveDown() { parent.actions.moveDown() }
+        func moveUp() { parent.onMoveUp() }
+        func moveDown() { parent.onMoveDown() }
     }
 }
 

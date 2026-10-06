@@ -96,11 +96,11 @@ struct KishoOutlineView: View {
         }
         .alert("Delete Block?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } })) {
             Button("Delete", role: .destructive) {
+                // The alert sits over a context-menu row; mutating the list
+                // while both dismiss crashed SwiftUI's gesture teardown, so
+                // the delete waits like the other structure actions.
                 if let section = pendingDelete {
-                    document.deleteSection(withID: section.id, using: undoManager)
-                    // Like the other outline actions: show the block that
-                    // takes the selection, but leave the keyboard down.
-                    if let id = document.selectedSectionID { document.requestFocus(id, .body, takesFocus: false) }
+                    restructure { document.deleteSection(withID: section.id, using: undoManager) }
                 }
                 pendingDelete = nil
             }
