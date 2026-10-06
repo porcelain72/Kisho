@@ -288,7 +288,13 @@ struct KishoDocumentView: View {
         }
         .alert("Delete Block?", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
-                document.deleteSelectedSection(using: undoManager)
+                // The selected block usually holds the keyboard; its card is
+                // about to go, so put the keyboard away and let the alert
+                // finish dismissing before the cards rebuild.
+                KishoKeyboard.dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    document.deleteSelectedSection(using: undoManager)
+                }
             }
             Button("Cancel", role: .cancel) { }
         } message: {

@@ -133,6 +133,9 @@ struct KishoOutlineView: View {
     /// context menu is still animating away (UIKit crashes tearing down a
     /// text view mid-dismissal), so they run once it has gone.
     private func afterMenu(_ action: @escaping () -> Void) {
+        // Also take the keyboard down first: the edit may remove the card
+        // that holds it (delete after an undo focused the restored block).
+        KishoKeyboard.dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: action)
     }
 

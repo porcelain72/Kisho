@@ -562,6 +562,18 @@ final class TitleUITextField: UITextField {
     @objc private func handleMoveDown() { commands?.moveDown() }
 }
 
+// MARK: - Keyboard
+
+enum KishoKeyboard {
+    /// Puts the keyboard away wherever it is. Call before a structural edit
+    /// that may destroy the card holding the first responder (deleting the
+    /// selected block, above all): tearing a focused text view down with
+    /// its card crashes in UIKit/SwiftUI gesture teardown.
+    static func dismiss() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
 // MARK: - Keyboard frame
 
 /// Where the keyboard (with its accessory bar) is on screen, from the
