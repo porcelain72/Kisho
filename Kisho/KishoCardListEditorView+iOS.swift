@@ -336,6 +336,17 @@ struct CardActions {
 /// on the right, and a way to put the keyboard away. One per text view;
 /// `formatting` is nil for the title field, which has no rich text.
 final class KeyboardAccessoryBar: UIToolbar {
+    /// One bar of each kind for the whole app, claimed by whichever field
+    /// begins editing. Bars used to be owned per card and freed with it;
+    /// iOS 26's keyboard controller keeps tracking the last responder's
+    /// input views after the keyboard goes down, so a bar freed with a
+    /// deleted card was still in that set, and the next keyboard placement
+    /// (triggered when a context menu closed) messaged the dead object:
+    /// "unrecognized selector … initializeTranslateGestureRecognizerIfNecessary".
+    /// A bar that lives for the app's lifetime can never be dead.
+    static let titleBar = KeyboardAccessoryBar(showsFormatting: false)
+    static let bodyBar = KeyboardAccessoryBar(showsFormatting: true)
+
     var actions: CardActions?
     /// Toggle a trait in the text this bar belongs to.
     var formatting: ((SelectionFormatting.Trait) -> Void)?
@@ -397,6 +408,17 @@ final class KeyboardAccessoryBar: UIToolbar {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    /// A field that has (or is taking) the keyboard makes the bar act on
+    /// its block. Called on begin-editing and on every update while focused,
+    /// so the closures always see the current card.
+    func claim(owner: UIResponder, actions: CardActions,
+               formatting: ((SelectionFormatting.Trait) -> Void)? = nil) {
+        self.owner = owner
+        self.actions = actions
+        self.formatting = formatting
+        refresh()
+    }
 
     /// Enable/disable the structure buttons for the block's current place.
     func refresh() {
@@ -466,8 +488,7 @@ private struct TitleField: UIViewRepresentable {
         field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         field.setContentHuggingPriority(.required, for: .vertical)
         field.commands = context.coordinator
-        let bar = KeyboardAccessoryBar(showsFormatting: false)
-        bar.owner = field
+        let bar = KeyboardAccessoryBar.titleBar
         field.inputAccessoryView = bar
         field.accessoryBar = bar
         handle.field = field
@@ -499,8 +520,9 @@ private struct TitleField: UIViewRepresentable {
         if field.font?.pointSize != fontSize {
             field.font = .systemFont(ofSize: fontSize, weight: .semibold)
         }
-        field.accessoryBar?.actions = actions
-        field.accessoryBar?.refresh()
+        if field.isFirstResponder {
+            field.accessoryBar?.claim(owner: field, actions: actions)
+        }
     }
 
     final class Coordinator: NSObject, UITextFieldDelegate, TitleFieldCommands {
@@ -512,7 +534,7 @@ private struct TitleField: UIViewRepresentable {
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
-            (textField as? TitleUITextField)?.accessoryBar?.refresh()
+            (textField as? TitleUITextField)?.accessoryBar?.claim(owner: textField, actions: parent.actions)
             parent.onFocusChange(true)
         }
 
@@ -584,20 +606,10 @@ enum KishoKeyboard {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
-    /// Detach a text field/view that is about to be destroyed from the
-    /// keyboard: resign if it holds focus, drop its accessory bar, and make
-    /// UIKit rebuild its input view set so nothing points at the dead view.
+    /// A text field/view is about to be destroyed: give up the keyboard if
+    /// it holds it. (Its accessory bar is app-wide and outlives it.)
     static func release(_ view: UIView) {
-        let wasFirstResponder = view.isFirstResponder
-        if wasFirstResponder { view.resignFirstResponder() }
-        if let field = view as? TitleUITextField {
-            field.inputAccessoryView = nil
-            field.accessoryBar = nil
-        } else if let textView = view as? CardUITextView {
-            textView.inputAccessoryView = nil
-            textView.accessoryBar = nil
-        }
-        view.reloadInputViews()
+        if view.isFirstResponder { view.resignFirstResponder() }
     }
 }
 
@@ -736,9 +748,7 @@ private struct CardTextView: UIViewRepresentable {
         textView.onFind = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.find() }
         textView.onMoveUp = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.moveUp() }
         textView.onMoveDown = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.moveDown() }
-        let bar = KeyboardAccessoryBar(showsFormatting: true)
-        bar.owner = textView
-        bar.formatting = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
+        let bar = KeyboardAccessoryBar.bodyBar
         textView.inputAccessoryView = bar
         textView.accessoryBar = bar
         context.coordinator.textView = textView
@@ -764,8 +774,10 @@ private struct CardTextView: UIViewRepresentable {
         context.coordinator.parent = self
         handle.textView = textView
         textView.documentUndoManager = undoManager
-        textView.accessoryBar?.actions = actions
-        textView.accessoryBar?.refresh()
+        if textView.isFirstResponder {
+            textView.accessoryBar?.claim(owner: textView, actions: actions,
+                                         formatting: { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) })
+        }
         let stored = content.attributedString
         if !context.coordinator.isPushingToModel,
            !stored.isEqual(to: Self.withoutHighlight(textView.attributedText)) {
@@ -852,7 +864,8 @@ private struct CardTextView: UIViewRepresentable {
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
-            (textView as? CardUITextView)?.accessoryBar?.refresh()
+            (textView as? CardUITextView)?.accessoryBar?.claim(owner: textView, actions: parent.actions,
+                                                                 formatting: { [weak self] trait in self?.toggle(trait) })
             parent.onBeginEditing()
         }
 
