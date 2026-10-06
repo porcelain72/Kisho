@@ -59,7 +59,14 @@ struct KishoCardListEditorView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
+            // Not .interactively: iOS 26 registers the focused text view (a
+            // UIScrollView) as a keyboard "tracking element" for the drag-
+            // to-dismiss gesture and keeps it in that set, unretained, after
+            // the keyboard goes down. Deleting the block then left a dead
+            // view in the set, and the next keyboard placement (when a
+            // context menu closed) crashed in
+            // -[UITrackingElementWindowController changeToInputViewSet:].
+            .scrollDismissesKeyboard(.immediately)
             .background(Theme.canvas)
             .onChange(of: document.focusRequest) { request in
                 guard let request else { return }
