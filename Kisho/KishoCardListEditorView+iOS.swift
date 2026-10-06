@@ -481,6 +481,17 @@ private struct TitleField: UIViewRepresentable {
                height: field.intrinsicContentSize.height)
     }
 
+    /// The card is going away. UIKit's keyboard controller keeps tracking
+    /// the last responder's input views even with the keyboard down; if the
+    /// field and its accessory bar are freed while still tracked, the next
+    /// keyboard placement (e.g. after a context menu closes) messages a
+    /// dead object. Let go of them here, while the field is still alive.
+    static func dismantleUIView(_ field: TitleUITextField, coordinator: Coordinator) {
+        KishoKeyboard.release(field)
+        field.commands = nil
+        field.delegate = nil
+    }
+
     func updateUIView(_ field: TitleUITextField, context: Context) {
         context.coordinator.parent = self
         handle.field = field
@@ -571,6 +582,22 @@ enum KishoKeyboard {
     /// its card crashes in UIKit/SwiftUI gesture teardown.
     static func dismiss() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    /// Detach a text field/view that is about to be destroyed from the
+    /// keyboard: resign if it holds focus, drop its accessory bar, and make
+    /// UIKit rebuild its input view set so nothing points at the dead view.
+    static func release(_ view: UIView) {
+        let wasFirstResponder = view.isFirstResponder
+        if wasFirstResponder { view.resignFirstResponder() }
+        if let field = view as? TitleUITextField {
+            field.inputAccessoryView = nil
+            field.accessoryBar = nil
+        } else if let textView = view as? CardUITextView {
+            textView.inputAccessoryView = nil
+            textView.accessoryBar = nil
+        }
+        view.reloadInputViews()
     }
 }
 
@@ -724,6 +751,13 @@ private struct CardTextView: UIViewRepresentable {
     /// unscrollable text view is the width of its longest line.
     func sizeThatFits(_ proposal: ProposedViewSize, uiView textView: CardUITextView, context: Context) -> CGSize? {
         CGSize(width: proposal.width ?? textView.bounds.width, height: handle.height)
+    }
+
+    /// See TitleField.dismantleUIView.
+    static func dismantleUIView(_ textView: CardUITextView, coordinator: Coordinator) {
+        KishoKeyboard.release(textView)
+        textView.delegate = nil
+        coordinator.textView = nil
     }
 
     func updateUIView(_ textView: CardUITextView, context: Context) {
