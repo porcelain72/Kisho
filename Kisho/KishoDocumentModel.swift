@@ -522,6 +522,50 @@ final class KishoDocumentModel: ObservableObject, Codable {
         outdentSection(withID: id, using: undoManager)
     }
 
+    // MARK: Move up / down (sibling order without drag-and-drop)
+
+    /// Whether the block has a sibling above it to change places with.
+    func canMoveUp(sectionID id: UUID) -> Bool {
+        guard let loc = location(ofSectionID: id) else { return false }
+        return loc.index > 0
+    }
+
+    /// Whether the block has a sibling below it to change places with.
+    func canMoveDown(sectionID id: UUID) -> Bool {
+        guard let loc = location(ofSectionID: id) else { return false }
+        let siblings = loc.parent?.children ?? sections
+        return loc.index < siblings.count - 1
+    }
+
+    /// Puts the block before the sibling above it, at the same level (its
+    /// own children come along). The first block of a parent stays put.
+    func moveSectionUp(withID id: UUID, focusing field: EditorFocusRequest.Field = .body,
+                       using undoManager: UndoManager? = nil) {
+        guard let loc = location(ofSectionID: id), loc.index > 0 else { return }
+        let siblings = loc.parent?.children ?? sections
+        move(sectionID: id, to: .before(siblings[loc.index - 1].id), focusing: field, using: undoManager)
+    }
+
+    /// Puts the block after the sibling below it, at the same level. The
+    /// last block of a parent stays put.
+    func moveSectionDown(withID id: UUID, focusing field: EditorFocusRequest.Field = .body,
+                         using undoManager: UndoManager? = nil) {
+        guard let loc = location(ofSectionID: id) else { return }
+        let siblings = loc.parent?.children ?? sections
+        guard loc.index < siblings.count - 1 else { return }
+        move(sectionID: id, to: .after(siblings[loc.index + 1].id), focusing: field, using: undoManager)
+    }
+
+    func moveSelectedSectionUp(using undoManager: UndoManager? = nil) {
+        guard let id = selectedSectionID else { return }
+        moveSectionUp(withID: id, using: undoManager)
+    }
+
+    func moveSelectedSectionDown(using undoManager: UndoManager? = nil) {
+        guard let id = selectedSectionID else { return }
+        moveSectionDown(withID: id, using: undoManager)
+    }
+
     // Compatibility wrappers for existing call sites.
     func moveAsSibling(draggedID: UUID, destinationID: UUID, insertBefore: Bool, using undoManager: UndoManager? = nil) {
         move(sectionID: draggedID, to: insertBefore ? .before(destinationID) : .after(destinationID), using: undoManager)
@@ -532,6 +576,13 @@ final class KishoDocumentModel: ObservableObject, Codable {
     }
 
     // MARK: Split / Gather
+
+    /// Whether "Split Paragraphs into Blocks" would produce anything for the
+    /// block: at least one non-blank paragraph in its body or extra title lines.
+    func canSplit(sectionID id: UUID) -> Bool {
+        guard let section = section(withID: id) else { return false }
+        return !KishoSection.paragraphModelsForSplit(section: section).isEmpty
+    }
 
     /// Turns each paragraph of the selected section's body into a new child
     /// section (inserted before any existing children, since the paragraphs

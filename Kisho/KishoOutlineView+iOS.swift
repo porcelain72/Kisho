@@ -7,8 +7,9 @@
 //  on), status and word count, nested by indentation with a chevron to
 //  fold sub-blocks. Tapping a row selects the block and scrolls the
 //  editor to it without raising the keyboard. A tag filter narrows the
-//  rows; a context menu carries the structure commands. Moving blocks
-//  across levels is Indent/Outdent here (no drag-and-drop yet).
+//  rows; a context menu carries the structure commands. Moving blocks is
+//  Indent/Outdent across levels and Move Up/Down among siblings (no
+//  drag-and-drop yet).
 //
 
 #if os(iOS)
@@ -80,8 +81,7 @@ struct KishoOutlineView: View {
                 .onChange(of: document.selectedSectionID) { id in
                     guard let id else { return }
                     // Unfold the way to the selected block, then show it.
-                    var parent = document.section(withID: id)?.parent
-                    while let p = parent { collapsed.remove(p.id); parent = p.parent }
+                    reveal(id)
                     withAnimation(.easeInOut(duration: 0.15)) { proxy.scrollTo(id) }
                 }
                 .overlay {
@@ -96,7 +96,12 @@ struct KishoOutlineView: View {
         }
         .alert("Delete Block?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } })) {
             Button("Delete", role: .destructive) {
-                if let section = pendingDelete { document.deleteSection(withID: section.id, using: undoManager) }
+                if let section = pendingDelete {
+                    document.deleteSection(withID: section.id, using: undoManager)
+                    // Like the other outline actions: show the block that
+                    // takes the selection, but leave the keyboard down.
+                    if let id = document.selectedSectionID { document.requestFocus(id, .body, takesFocus: false) }
+                }
                 pendingDelete = nil
             }
             Button("Cancel", role: .cancel) { pendingDelete = nil }
@@ -110,6 +115,12 @@ struct KishoOutlineView: View {
         document.selectedSectionID = id
         document.requestFocus(id, .body, takesFocus: false)
         onChoose?()
+    }
+
+    /// Unfolds every ancestor of a block so its row is on screen.
+    private func reveal(_ id: UUID) {
+        var parent = document.section(withID: id)?.parent
+        while let p = parent { collapsed.remove(p.id); parent = p.parent }
     }
 
     private func toggle(_ id: UUID) {
@@ -132,7 +143,13 @@ struct KishoOutlineView: View {
     private func restructure(_ action: @escaping () -> Void) {
         afterMenu {
             action()
-            if let id = document.selectedSectionID { document.requestFocus(id, .body, takesFocus: false) }
+            if let id = document.selectedSectionID {
+                // The block may now sit inside a folded parent (Indent into a
+                // folded sibling); the selection has not changed, so the
+                // onChange above will not unfold it.
+                reveal(id)
+                document.requestFocus(id, .body, takesFocus: false)
+            }
         }
     }
 
@@ -159,10 +176,19 @@ struct KishoOutlineView: View {
             restructure { document.outdentSection(withID: section.id, focusing: .body, using: undoManager) }
         } label: { Label("Outdent", systemImage: "decrease.indent") }
             .disabled(!document.canOutdent(sectionID: section.id))
+        Button {
+            restructure { document.moveSectionUp(withID: section.id, focusing: .body, using: undoManager) }
+        } label: { Label("Move Up", systemImage: "arrow.up") }
+            .disabled(!document.canMoveUp(sectionID: section.id))
+        Button {
+            restructure { document.moveSectionDown(withID: section.id, focusing: .body, using: undoManager) }
+        } label: { Label("Move Down", systemImage: "arrow.down") }
+            .disabled(!document.canMoveDown(sectionID: section.id))
         Divider()
         Button {
             restructure { document.selectedSectionID = section.id; document.makeChildren(undoManager: undoManager) }
         } label: { Label("Split Paragraphs into Blocks", systemImage: "square.fill.text.grid.1x2") }
+            .disabled(!document.canSplit(sectionID: section.id))
         Button {
             restructure { document.selectedSectionID = section.id; document.gather(undoManager: undoManager) }
         } label: { Label("Gather Sub-blocks", systemImage: "rectangle.compress.vertical") }

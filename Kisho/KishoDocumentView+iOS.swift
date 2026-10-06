@@ -130,6 +130,18 @@ struct KishoDocumentView: View {
                         Label("Outdent Block", systemImage: "decrease.indent")
                     }
                     .disabled(document.selectedSectionID.map { document.canOutdent(sectionID: $0) } != true)
+                    Button {
+                        document.moveSelectedSectionUp(using: undoManager)
+                    } label: {
+                        Label("Move Block Up", systemImage: "arrow.up")
+                    }
+                    .disabled(document.selectedSectionID.map { document.canMoveUp(sectionID: $0) } != true)
+                    Button {
+                        document.moveSelectedSectionDown(using: undoManager)
+                    } label: {
+                        Label("Move Block Down", systemImage: "arrow.down")
+                    }
+                    .disabled(document.selectedSectionID.map { document.canMoveDown(sectionID: $0) } != true)
 
                     Divider()
 
@@ -138,7 +150,7 @@ struct KishoDocumentView: View {
                     } label: {
                         Label("Split Paragraphs into Blocks", systemImage: "square.fill.text.grid.1x2")
                     }
-                    .disabled(document.selectedSection == nil)
+                    .disabled(document.selectedSectionID.map { document.canSplit(sectionID: $0) } != true)
                     Button {
                         document.gather(undoManager: undoManager)
                     } label: {

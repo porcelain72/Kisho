@@ -1356,4 +1356,79 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(document.subtreeHasTag("draft", in: a1))
         XCTAssertFalse(document.subtreeHasTag("draft", in: b))
     }
+
+    // MARK: - Move Up / Move Down (sibling order without drag-and-drop)
+
+    func testMoveUpAndDownReorderSiblingsAndStopAtTheEnds() throws {
+        let (document, a, a1, a2, b) = makeDocument()
+        let undo = manualUndoManager()
+        func grouped(_ action: () -> Void) {
+            undo.beginUndoGrouping(); action(); undo.endUndoGrouping()
+        }
+
+        XCTAssertFalse(document.canMoveUp(sectionID: a.id), "first top-level block has nothing above it")
+        XCTAssertTrue(document.canMoveDown(sectionID: a.id))
+        XCTAssertFalse(document.canMoveDown(sectionID: b.id), "last top-level block has nothing below it")
+        XCTAssertFalse(document.canMoveUp(sectionID: a1.id), "first child stays first")
+        XCTAssertTrue(document.canMoveUp(sectionID: a2.id))
+        XCTAssertFalse(document.canMoveDown(sectionID: a2.id))
+
+        grouped { document.moveSectionUp(withID: a2.id, focusing: .title, using: undo) }
+        XCTAssertEqual(a.children.map(\.title), ["A2", "A1"], "moving up changes places with the sibling above")
+        XCTAssertEqual(document.selectedSectionID, a2.id)
+        XCTAssertEqual(document.focusRequest?.field, .title, "focus field is passed through")
+
+        document.moveSectionUp(withID: a2.id, using: undo)
+        XCTAssertEqual(a.children.map(\.title), ["A2", "A1"], "moving up at the top is a no-op, not an outdent")
+        XCTAssertEqual(document.sections.map(\.title), ["A", "B"])
+
+        grouped { document.moveSectionDown(withID: a2.id, using: undo) }
+        XCTAssertEqual(a.children.map(\.title), ["A1", "A2"])
+
+        document.moveSectionDown(withID: a2.id, using: undo)
+        XCTAssertEqual(a.children.map(\.title), ["A1", "A2"], "moving down at the bottom is a no-op")
+
+        grouped { document.moveSectionDown(withID: a.id, using: undo) }
+        XCTAssertEqual(document.sections.map(\.title), ["B", "A"], "a block's children come with it")
+        XCTAssertEqual(titles(document), ["B", "A", "A1", "A2"])
+
+        grouped { document.moveSectionUp(withID: a.id, using: undo) }
+        XCTAssertEqual(document.sections.map(\.title), ["A", "B"])
+
+        // Four real moves registered undo; the two no-ops (run outside a
+        // group, so an empty group can't count as a step) registered nothing.
+        undo.undo(); undo.undo(); undo.undo(); undo.undo()
+        XCTAssertFalse(undo.canUndo, "no-ops leave no undo step behind")
+        XCTAssertEqual(document.sections.map(\.title), ["A", "B"])
+        XCTAssertEqual(a.children.map(\.title), ["A1", "A2"])
+
+        undo.redo()
+        XCTAssertEqual(a.children.map(\.title), ["A2", "A1"], "redo replays the first move")
+    }
+
+    func testMoveSelectedSectionUpAndDownFollowTheSelection() throws {
+        let (document, _, a1, a2, _) = makeDocument()
+        document.selectedSectionID = a2.id
+        document.moveSelectedSectionUp()
+        XCTAssertEqual(a1.parent?.children.map(\.title), ["A2", "A1"])
+        document.moveSelectedSectionDown()
+        XCTAssertEqual(a1.parent?.children.map(\.title), ["A1", "A2"])
+        document.selectedSectionID = nil
+        document.moveSelectedSectionDown()
+        XCTAssertEqual(a1.parent?.children.map(\.title), ["A1", "A2"], "nothing selected: nothing happens")
+    }
+
+    func testCanSplitNeedsAParagraph() throws {
+        let empty = makeSection(title: "Empty", body: "")
+        let blank = makeSection(title: "Blank", body: "   \n\n  ")
+        let one = makeSection(title: "One", body: "A single paragraph.")
+        let titleOnly = makeSection(title: "Head\nSecond line typed into the title", body: "")
+        let document = KishoDocumentModel(sections: [empty, blank, one, titleOnly])
+
+        XCTAssertFalse(document.canSplit(sectionID: empty.id))
+        XCTAssertFalse(document.canSplit(sectionID: blank.id), "whitespace is not a paragraph")
+        XCTAssertTrue(document.canSplit(sectionID: one.id))
+        XCTAssertTrue(document.canSplit(sectionID: titleOnly.id), "extra title lines split too")
+        XCTAssertFalse(document.canSplit(sectionID: UUID()), "unknown block")
+    }
 }

@@ -161,13 +161,20 @@ private struct SectionCard: View {
 
     /// Everything the accessory bar and key commands can do to this block.
     private var actions: CardActions {
+        // Add acts on the selected block, so make sure that is this card
+        // (it normally is, since the keyboard is here, but the bar belongs
+        // to this card and must never add next to some other block).
         CardActions(
-            addSibling: { commitTitle(); document.addSiblingSection(using: undoManager) },
-            addChild: { commitTitle(); document.addChildSection(using: undoManager) },
+            addSibling: { commitTitle(); document.selectedSectionID = section.id; document.addSiblingSection(using: undoManager) },
+            addChild: { commitTitle(); document.selectedSectionID = section.id; document.addChildSection(using: undoManager) },
             indent: { commitTitle(); document.indentSection(withID: section.id, focusing: .body, using: undoManager) },
             outdent: { commitTitle(); document.outdentSection(withID: section.id, focusing: .body, using: undoManager) },
+            moveUp: { commitTitle(); document.moveSectionUp(withID: section.id, focusing: .body, using: undoManager) },
+            moveDown: { commitTitle(); document.moveSectionDown(withID: section.id, focusing: .body, using: undoManager) },
             canIndent: { document.canIndent(sectionID: section.id) },
             canOutdent: { document.canOutdent(sectionID: section.id) },
+            canMoveUp: { document.canMoveUp(sectionID: section.id) },
+            canMoveDown: { document.canMoveDown(sectionID: section.id) },
             find: { commitTitle(); find.show() }
         )
     }
@@ -309,8 +316,12 @@ struct CardActions {
     var addChild: () -> Void
     var indent: () -> Void
     var outdent: () -> Void
+    var moveUp: () -> Void
+    var moveDown: () -> Void
     var canIndent: () -> Bool
     var canOutdent: () -> Bool
+    var canMoveUp: () -> Bool
+    var canMoveDown: () -> Bool
     /// ⌘F from a hardware keyboard while editing.
     var find: () -> Void
 }
@@ -326,6 +337,10 @@ final class KeyboardAccessoryBar: UIToolbar {
 
     private var indentItem: UIBarButtonItem!
     private var outdentItem: UIBarButtonItem!
+    /// iPad only: the iPhone bar has no room for them (Move Up/Down live in
+    /// the Block menu and the outline's context menu there).
+    private var moveUpItem: UIBarButtonItem?
+    private var moveDownItem: UIBarButtonItem?
 
     init(showsFormatting: Bool) {
         super.init(frame: CGRect(x: 0, y: 0, width: 320, height: 44))
@@ -356,8 +371,15 @@ final class KeyboardAccessoryBar: UIToolbar {
         }
         outdentItem = button("decrease.indent", "Outdent Block", #selector(outdent))
         indentItem = button("increase.indent", "Indent Block", #selector(indent))
+        items += [outdentItem, indentItem]
+        if !isPhone {
+            let up = button("arrow.up", "Move Block Up", #selector(moveUp))
+            let down = button("arrow.down", "Move Block Down", #selector(moveDown))
+            moveUpItem = up
+            moveDownItem = down
+            items += [gap(16), up, down]
+        }
         items += [
-            outdentItem, indentItem,
             UIBarButtonItem(systemItem: .flexibleSpace),
             button("plus", "Add Block After", #selector(addSibling)),
             button("plus.square.on.square", "Add Sub-block", #selector(addChild)),
@@ -374,6 +396,8 @@ final class KeyboardAccessoryBar: UIToolbar {
     func refresh() {
         indentItem.isEnabled = actions?.canIndent() ?? false
         outdentItem.isEnabled = actions?.canOutdent() ?? false
+        moveUpItem?.isEnabled = actions?.canMoveUp() ?? false
+        moveDownItem?.isEnabled = actions?.canMoveDown() ?? false
     }
 
     @objc private func bold() { formatting?(.bold) }
@@ -381,6 +405,8 @@ final class KeyboardAccessoryBar: UIToolbar {
     @objc private func underline() { formatting?(.underline) }
     @objc private func indent() { actions?.indent() }
     @objc private func outdent() { actions?.outdent() }
+    @objc private func moveUp() { actions?.moveUp() }
+    @objc private func moveDown() { actions?.moveDown() }
     @objc private func addSibling() { actions?.addSibling() }
     @objc private func addChild() { actions?.addChild() }
     @objc private func dismiss() { owner?.resignFirstResponder() }
@@ -484,6 +510,8 @@ private struct TitleField: UIViewRepresentable {
         func escape() { parent.onEscape() }
         func commandReturn() { parent.actions.addSibling() }
         func find() { parent.actions.find() }
+        func moveUp() { parent.actions.moveUp() }
+        func moveDown() { parent.actions.moveDown() }
     }
 }
 
@@ -493,6 +521,8 @@ protocol TitleFieldCommands: AnyObject {
     func escape()
     func commandReturn()
     func find()
+    func moveUp()
+    func moveDown()
 }
 
 final class TitleUITextField: UITextField {
@@ -506,6 +536,8 @@ final class TitleUITextField: UITextField {
             UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(handleEscape)),
             UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn)),
             UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
+            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .control], action: #selector(handleMoveUp)),
+            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .control], action: #selector(handleMoveDown)),
         ]
         // Our Tab beats the system's focus movement.
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
@@ -517,6 +549,8 @@ final class TitleUITextField: UITextField {
     @objc private func handleEscape() { commands?.escape() }
     @objc private func handleCommandReturn() { commands?.commandReturn() }
     @objc private func handleFind() { commands?.find() }
+    @objc private func handleMoveUp() { commands?.moveUp() }
+    @objc private func handleMoveDown() { commands?.moveDown() }
 }
 
 // MARK: - Keyboard frame
@@ -652,6 +686,8 @@ private struct CardTextView: UIViewRepresentable {
         textView.onCommandReturn = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.addSibling() }
         textView.onFormat = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
         textView.onFind = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.find() }
+        textView.onMoveUp = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.moveUp() }
+        textView.onMoveDown = { [weak coordinator = context.coordinator] in coordinator?.parent.actions.moveDown() }
         let bar = KeyboardAccessoryBar(showsFormatting: true)
         bar.owner = textView
         bar.formatting = { [weak coordinator = context.coordinator] trait in coordinator?.toggle(trait) }
@@ -822,6 +858,8 @@ final class CardUITextView: UITextView {
     var onCommandReturn: (() -> Void)?
     var onFormat: ((SelectionFormatting.Trait) -> Void)?
     var onFind: (() -> Void)?
+    var onMoveUp: (() -> Void)?
+    var onMoveDown: (() -> Void)?
     var accessoryBar: KeyboardAccessoryBar?
     /// The document's undo manager, which owns every edit (the text view's
     /// own range-based undo would fall out of step whenever the model
@@ -930,6 +968,8 @@ final class CardUITextView: UITextView {
             UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(handleUndo)),
             UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(handleRedo)),
             UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
+            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .control], action: #selector(handleMoveUp)),
+            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .control], action: #selector(handleMoveDown)),
         ]
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
         return (super.keyCommands ?? []) + list
@@ -939,5 +979,7 @@ final class CardUITextView: UITextView {
     @objc private func handleUndo() { documentUndoManager?.undo() }
     @objc private func handleRedo() { documentUndoManager?.redo() }
     @objc private func handleFind() { onFind?() }
+    @objc private func handleMoveUp() { onMoveUp?() }
+    @objc private func handleMoveDown() { onMoveDown?() }
 }
 #endif
