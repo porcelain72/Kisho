@@ -59,14 +59,7 @@ struct KishoCardListEditorView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            // Not .interactively: iOS 26 registers the focused text view (a
-            // UIScrollView) as a keyboard "tracking element" for the drag-
-            // to-dismiss gesture and keeps it in that set, unretained, after
-            // the keyboard goes down. Deleting the block then left a dead
-            // view in the set, and the next keyboard placement (when a
-            // context menu closed) crashed in
-            // -[UITrackingElementWindowController changeToInputViewSet:].
-            .scrollDismissesKeyboard(.immediately)
+            .scrollDismissesKeyboard(.interactively)
             .background(Theme.canvas)
             .onChange(of: document.focusRequest) { request in
                 guard let request else { return }
@@ -541,6 +534,7 @@ private struct TitleField: UIViewRepresentable {
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
+            KishoKeyboard.tookKeyboard(textField)
             (textField as? TitleUITextField)?.accessoryBar?.claim(owner: textField, actions: parent.actions)
             parent.onFocusChange(true)
         }
@@ -613,8 +607,25 @@ enum KishoKeyboard {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
+    /// The field that most recently took the keyboard, kept alive until
+    /// another one does. iOS 26's keyboard controller keeps the last
+    /// responder's input views in its tracking set *unretained* after the
+    /// keyboard goes down, and only replaces the set when a new responder
+    /// begins editing. Deleting the block that held the keyboard freed that
+    /// field, and the next keyboard placement (triggered when a context
+    /// menu closed) messaged the dead object:
+    /// -[UITrackingElementWindowController changeToInputViewSet:] →
+    /// EXC_BAD_ACCESS / unrecognized selector. Holding the field here costs
+    /// one text view and guarantees the set never points at freed memory.
+    static var lastResponder: UIView?
+
+    static func tookKeyboard(_ view: UIView) {
+        lastResponder = view
+    }
+
     /// A text field/view is about to be destroyed: give up the keyboard if
-    /// it holds it. (Its accessory bar is app-wide and outlives it.)
+    /// it holds it. (Its accessory bar is app-wide and outlives it, and if
+    /// it was the last responder, `lastResponder` keeps it alive.)
     static func release(_ view: UIView) {
         if view.isFirstResponder { view.resignFirstResponder() }
     }
@@ -871,6 +882,7 @@ private struct CardTextView: UIViewRepresentable {
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
+            KishoKeyboard.tookKeyboard(textView)
             (textView as? CardUITextView)?.accessoryBar?.claim(owner: textView, actions: parent.actions,
                                                                  formatting: { [weak self] trait in self?.toggle(trait) })
             parent.onBeginEditing()
