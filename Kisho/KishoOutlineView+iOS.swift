@@ -7,9 +7,12 @@
 //  on), status and word count, nested by indentation with a chevron to
 //  fold sub-blocks. Tapping a row selects the block and scrolls the
 //  editor to it without raising the keyboard. A tag filter narrows the
-//  rows; a context menu carries the structure commands. Moving blocks is
-//  Indent/Outdent across levels and Move Up/Down among siblings (no
-//  drag-and-drop yet).
+//  rows; a "…" button on each row carries the structure commands (it was
+//  a long-press context menu until round 17: UIKit's context-menu
+//  presentation kept a stale pointer to a row that a delete had removed,
+//  and crashed in its keyboard bookkeeping when the next menu closed —
+//  see KishoKeyboard). Moving blocks is Indent/Outdent across levels and
+//  Move Up/Down among siblings (no drag-and-drop yet).
 //
 
 #if os(iOS)
@@ -65,16 +68,29 @@ struct KishoOutlineView: View {
                 // mode outside a navigation sidebar.
                 List {
                     ForEach(rows) { row in
-                        OutlineRow(section: row.section, depth: row.depth, dimmed: row.dimmed,
-                                   showSynopsis: showSynopses,
-                                   isCollapsed: collapsed.contains(row.section.id),
-                                   toggleCollapsed: { toggle(row.section.id) })
-                            .id(row.section.id)
-                            .onTapGesture { choose(row.section.id) }
-                            .listRowInsets(EdgeInsets(top: 6, leading: 12 + CGFloat(min(row.depth, 6)) * 18, bottom: 6, trailing: 12))
-                            .listRowBackground(row.section.id == document.selectedSectionID
-                                               ? Color.accentColor.opacity(0.14) : Color.clear)
-                            .contextMenu { blockMenu(row.section) }
+                        HStack(spacing: 2) {
+                            OutlineRow(section: row.section, depth: row.depth, dimmed: row.dimmed,
+                                       showSynopsis: showSynopses,
+                                       isCollapsed: collapsed.contains(row.section.id),
+                                       toggleCollapsed: { toggle(row.section.id) })
+                            Menu {
+                                blockMenu(row.section)
+                            } label: {
+                                Image(systemName: "ellipsis.circle")
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 28, height: 28)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Block actions")
+                        }
+                        .id(row.section.id)
+                        .contentShape(Rectangle())
+                        .onTapGesture { choose(row.section.id) }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 12 + CGFloat(min(row.depth, 6)) * 18, bottom: 6, trailing: 8))
+                        .listRowBackground(row.section.id == document.selectedSectionID
+                                           ? Color.accentColor.opacity(0.14) : Color.clear)
                     }
                 }
                 .listStyle(.plain)
@@ -96,9 +112,9 @@ struct KishoOutlineView: View {
         }
         .alert("Delete Block?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } })) {
             Button("Delete", role: .destructive) {
-                // The alert sits over a context-menu row; mutating the list
-                // while both dismiss crashed SwiftUI's gesture teardown, so
-                // the delete waits like the other structure actions.
+                // Mutating the list while the alert dismisses crashed
+                // SwiftUI's gesture teardown, so the delete waits like the
+                // other structure actions.
                 if let section = pendingDelete {
                     restructure { document.deleteSection(withID: section.id, using: undoManager) }
                 }
@@ -130,8 +146,8 @@ struct KishoOutlineView: View {
     }
 
     /// Structure changes rebuild the cards, which must not happen while the
-    /// context menu is still animating away (UIKit crashes tearing down a
-    /// text view mid-dismissal), so they run once it has gone.
+    /// menu is still animating away (UIKit crashes tearing down a text view
+    /// mid-dismissal), so they run once it has gone.
     private func afterMenu(_ action: @escaping () -> Void) {
         // Also take the keyboard down first: the edit may remove the card
         // that holds it (delete after an undo focused the restored block).
