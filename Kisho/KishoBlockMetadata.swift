@@ -160,7 +160,7 @@ private struct DocumentInspectorSection: View {
 }
 
 private struct BlockInspectorForm: View {
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @ObservedObject var section: KishoSection

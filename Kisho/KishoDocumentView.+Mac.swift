@@ -208,6 +208,7 @@ struct KishoDocumentView: View {
             }
         }
         .background(WindowDocumentRegistrar(model: document))
+        .background(WindowThemeApplier(theme: editorTheme))
         .onAppear {
             // First launch: open the one-page guide beside the document.
             guard !hasShownWelcome else { return }

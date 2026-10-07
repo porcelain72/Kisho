@@ -24,7 +24,7 @@ struct KishoOutlineView: View {
     @Environment(\.documentUndoManager) private var documentUndoManager
     private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     /// Called after a row is chosen (the iPhone sheet dismisses itself).
     var onChoose: (() -> Void)? = nil
 

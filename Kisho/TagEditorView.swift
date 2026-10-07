@@ -88,7 +88,7 @@ struct TagEditorView: View {
 
 
 struct TagPill: View {
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     let label: String
     var icon: String? = nil
     var onDelete: (() -> Void)? = nil
@@ -120,7 +120,7 @@ struct TagPill: View {
 
 
 struct TagInputPill: View {
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     @Binding var text: String
     @Binding var suggestion: String?
     var onCommit: (String) -> Void

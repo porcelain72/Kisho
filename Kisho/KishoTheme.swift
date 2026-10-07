@@ -92,7 +92,7 @@ enum Theme {
 /// material or grouped background shows through otherwise. The Mac inspector
 /// has no system surface of its own, so it paints always.
 struct ThemedPanel: ViewModifier {
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     let alwaysPaint: Bool
 
     func body(content: Content) -> some View {

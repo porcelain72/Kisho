@@ -57,6 +57,52 @@ enum EditorTheme: String, CaseIterable, Identifiable {
     }
 }
 
+/// The stored Editor Theme choice as a view property. Reads the preference
+/// directly rather than the environment, so views in the sidebar, the
+/// inspector and sheets — hosted separately from the editor — still redraw
+/// the moment the theme changes.
+@propertyWrapper
+struct ThemeSetting: DynamicProperty {
+    @AppStorage(KishoPreferences.Key.editorTheme) private var raw = EditorTheme.system.rawValue
+    var wrappedValue: EditorTheme { EditorTheme(rawValue: raw) ?? .system }
+}
+
+#if os(macOS)
+/// Gives the window itself the theme's surface. In Sepia the title bar goes
+/// transparent over a paper-toned window background, so the toolbar and the
+/// margins round the editor are paper too instead of the system's near-white.
+/// Other themes put back whatever the window had.
+struct WindowThemeApplier: NSViewRepresentable {
+    let theme: EditorTheme
+
+    final class Coordinator {
+        var original: (transparent: Bool, background: NSColor)?
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeNSView(context: Context) -> NSView { NSView() }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        let coordinator = context.coordinator
+        let theme = theme
+        // The view has no window yet on its first pass; wait for it.
+        DispatchQueue.main.async {
+            guard let window = view.window else { return }
+            if coordinator.original == nil {
+                coordinator.original = (window.titlebarAppearsTransparent, window.backgroundColor)
+            }
+            if theme == .sepia {
+                window.titlebarAppearsTransparent = true
+                window.backgroundColor = NSColor(Theme.canvas(.sepia))
+            } else if let original = coordinator.original {
+                window.titlebarAppearsTransparent = original.transparent
+                window.backgroundColor = original.background
+            }
+        }
+    }
+}
+#endif
+
 // MARK: - Typography presets
 
 /// Named font/size pairs, applied through the ordinary (undoable) document

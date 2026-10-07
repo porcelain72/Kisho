@@ -195,7 +195,7 @@ struct CellModifier : ViewModifier {
     let depth : Int
 
     let selected : Bool
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     func body(content: Content) -> some View {
         content
             .font(.headline)

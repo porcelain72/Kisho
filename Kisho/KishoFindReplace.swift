@@ -356,7 +356,7 @@ final class FindState: ObservableObject {
 // MARK: - Find bar
 
 struct FindBar: View {
-    @Environment(\.kishoEditorTheme) private var theme
+    @ThemeSetting private var theme
     @EnvironmentObject var document: KishoDocumentModel
     @ObservedObject var find: FindState
     @Environment(\.undoManager) private var undoManager
