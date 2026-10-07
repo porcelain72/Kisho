@@ -375,7 +375,7 @@ private struct TitleField: NSViewRepresentable {
         field.drawsBackground = false
         field.focusRingType = .none
         field.isBezeled = false
-        field.textColor = .labelColor
+        field.textColor = NSColor.labelColor.withAlphaComponent(Theme.titleOpacity)
         field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
         context.coordinator.appliedFamily = fontFamily
         field.placeholderString = placeholder

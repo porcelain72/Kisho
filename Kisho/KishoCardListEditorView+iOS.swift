@@ -477,7 +477,7 @@ private struct TitleField: UIViewRepresentable {
         let field = TitleUITextField()
         field.borderStyle = .none
         field.backgroundColor = .clear
-        field.textColor = .label
+        field.textColor = UIColor.label.withAlphaComponent(Theme.titleOpacity)
         field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
         context.coordinator.appliedFamily = fontFamily
         field.placeholder = placeholder
