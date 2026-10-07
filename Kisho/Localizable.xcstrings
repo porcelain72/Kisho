@@ -1,24 +1,84 @@
 {
-  "sourceLanguage": "en",
-  "version": "1.0",
-  "strings": {
-    "%lld words": {
-      "comment": "Word count for a block or document, e.g. '1,250 words'",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld word"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "“%@” and its sub-blocks will be deleted." : {
+
+    },
+    "/" : {
+
+    },
+    "%@  ·  %@. Bold, italic and underline on words are kept when the font changes." : {
+      "comment" : "Inspector footer; placeholders are the word count and block count",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  ·  %2$@. Bold, italic and underline on words are kept when the font changes."
+          }
+        }
+      }
+    },
+    "%@ — %@ %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — %2$@ %3$lld"
+          }
+        }
+      }
+    },
+    "%@ (%@)" : {
+      "comment" : "Print margin preset with its size, e.g. 'Normal (2.5 cm)'",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
+    },
+    "%@ (conflicted copy from %@ %@)" : {
+      "comment" : "File name for a kept iCloud conflict version: document name, device name, date",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (conflicted copy from %2$@ %3$@)"
+          }
+        }
+      }
+    },
+    "%@…" : {
+
+    },
+    "%1$lld of %2$lld" : {
+      "comment" : "Position in a sequence: current item number, then total (find results, page numbers)"
+    },
+    "%lld" : {
+
+    },
+    "%lld blocks" : {
+      "comment" : "Number of blocks in a document, e.g. '12 blocks'",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld block"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld words"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld blocks"
                 }
               }
             }
@@ -26,23 +86,23 @@
         }
       }
     },
-    "%lld blocks": {
-      "comment": "Number of blocks in a document, e.g. '12 blocks'",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld block"
+    "%lld matches" : {
+      "comment" : "Number of find results, e.g. '4 matches'",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld match"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld blocks"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld matches"
                 }
               }
             }
@@ -50,23 +110,26 @@
         }
       }
     },
-    "%lld sub-blocks": {
-      "comment": "Number of blocks nested inside a block, e.g. '3 sub-blocks'",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld sub-block"
+    "%lld pt" : {
+
+    },
+    "%lld sub-blocks" : {
+      "comment" : "Number of blocks nested inside a block, e.g. '3 sub-blocks'",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sub-block"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld sub-blocks"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sub-blocks"
                 }
               }
             }
@@ -74,29 +137,783 @@
         }
       }
     },
-    "%lld matches": {
-      "comment": "Number of find results, e.g. '4 matches'",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld match"
+    "%lld words" : {
+      "comment" : "Word count for a block or document, e.g. '1,250 words'",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld word"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld matches"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld words"
                 }
               }
             }
           }
         }
       }
+    },
+    "⌘=  ·  Help ▸ How Kisho Works" : {
+
+    },
+    "⌘= adds a block after the selected one; ⇧⌘= adds one inside it. Drag rows in the sidebar to move blocks — onto a row to nest, between rows to reorder. In a block's title, Tab nests it under the block above and ⇧Tab moves it out again (⌘] and ⌘[ do the same anywhere). Everything is undoable with ⌘Z." : {
+
+    },
+    "⌘F searches titles, bodies and tags. Return or ⌘G steps through matches, ⇧⌘G steps back, ⌘E uses the selected text as the search term. Replace changes the current match; All changes every match in one undoable step and keeps each word's capitalisation." : {
+
+    },
+    "A Kisho document is a stack of named blocks. Add one and start writing; split it into more as the shape emerges." : {
+
+    },
+    "A Kisho document is a tree of blocks. Each block has a title, a body and optional tags. The sidebar shows the tree; the editor shows every block as a card, in reading order, nested blocks indented under their parents. Click a card or a sidebar row to select a block." : {
+
+    },
+    "Add a block" : {
+
+    },
+    "Add a Block" : {
+
+    },
+    "Add a block after the selected one, at the same level (⌘=)" : {
+
+    },
+    "Add a block to start writing." : {
+
+    },
+    "Add a sub-block inside the selected block (⇧⌘=)" : {
+
+    },
+    "Add Block" : {
+
+    },
+    "Add block after" : {
+
+    },
+    "Add Block After" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Add block from body" : {
+
+    },
+    "Add block inside" : {
+
+    },
+    "Add Child" : {
+
+    },
+    "Add Child Block" : {
+
+    },
+    "Add Sibling" : {
+
+    },
+    "Add Sibling Block" : {
+
+    },
+    "Add Sub-block" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Add tags to the selected block in the bar below the editor. When any block has tags, a filter appears above the sidebar: pick a tag to see only the blocks carrying it (their parents stay visible, dimmed, for context)." : {
+
+    },
+    "Adding and arranging" : {
+
+    },
+    "After the selected one" : {
+
+    },
+    "All" : {
+
+    },
+    "All blocks" : {
+
+    },
+    "Applies to Add Sibling (⌘=), Add Child (⇧⌘=) and ⌘↩." : {
+
+    },
+    "Are you sure you want to delete the selected block? Its sub-blocks will be deleted with it." : {
+
+    },
+    "Arrange" : {
+
+    },
+    "Block" : {
+
+    },
+    "Block actions" : {
+
+    },
+    "Blocks" : {
+
+    },
+    "Blue" : {
+      "comment" : "Block colour name"
+    },
+    "Body" : {
+
+    },
+    "Bold" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Bold (⌘B)" : {
+
+    },
+    "Bold / italic / underline" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Change Colour" : {
+
+    },
+    "Change Status" : {
+
+    },
+    "Change Typography" : {
+
+    },
+    "Choose a Markdown file. Its headings become blocks in a new document; the file itself is not changed." : {
+      "comment" : "Prompt shown in the Open panel when importing Markdown"
+    },
+    "Choose an OPML outline. Each item becomes a block in a new document; notes become body text." : {
+      "comment" : "Prompt shown in the Open panel when importing OPML"
+    },
+    "Classic" : {
+      "comment" : "Typography preset name"
+    },
+    "Clear filter" : {
+
+    },
+    "Close (Esc)" : {
+
+    },
+    "Close Find" : {
+
+    },
+    "Colour" : {
+
+    },
+    "Couldn’t Complete" : {
+
+    },
+    "Created" : {
+
+    },
+    "Created %@" : {
+
+    },
+    "Custom" : {
+
+    },
+    "Custom (from the inspector)" : {
+
+    },
+    "Dark" : {
+      "comment" : "Appearance option"
+    },
+    "Delete" : {
+
+    },
+    "Delete block" : {
+
+    },
+    "Delete Block" : {
+
+    },
+    "Delete Block?" : {
+
+    },
+    "Delete Block…" : {
+
+    },
+    "Delete the selected block and its sub-blocks (⇧⌘⌫)" : {
+
+    },
+    "Document" : {
+
+    },
+    "DOCUMENT" : {
+
+    },
+    "Document Font" : {
+
+    },
+    "Done" : {
+      "comment" : "Block status"
+    },
+    "Draft" : {
+      "comment" : "Block status"
+    },
+    "Drag rows in the sidebar" : {
+
+    },
+    "Edit Notes" : {
+
+    },
+    "Edit Synopsis" : {
+
+    },
+    "Edit Tags" : {
+
+    },
+    "Editing" : {
+
+    },
+    "Editor theme" : {
+
+    },
+    "Editor Theme" : {
+
+    },
+    "Enter Focus Mode" : {
+
+    },
+    "Existing documents keep their own font; change it in the inspector (⌥⌘I)." : {
+
+    },
+    "Existing documents keep their own font; change it in the inspector." : {
+
+    },
+    "Exit Focus Mode" : {
+
+    },
+    "Exit Focus Mode (⌥⌘F)" : {
+
+    },
+    "Export and import" : {
+
+    },
+    "Export As" : {
+
+    },
+    "Export failed" : {
+      "comment" : "Alert title"
+    },
+    "File ▸ Export As writes the whole document as Plain Text, Markdown, Word (.docx with real heading styles), PDF or HTML. File ▸ Import Markdown… builds a new document from a Markdown file, one block per heading." : {
+
+    },
+    "Final" : {
+      "comment" : "Block status"
+    },
+    "Find" : {
+
+    },
+    "Find and replace" : {
+
+    },
+    "Find and Replace" : {
+
+    },
+    "Find and replace across all blocks (⌘F)" : {
+
+    },
+    "Find Next" : {
+
+    },
+    "Find next / previous" : {
+
+    },
+    "Find Previous" : {
+
+    },
+    "Find…" : {
+
+    },
+    "Focus Mode" : {
+
+    },
+    "Focus Mode / Typewriter Scrolling" : {
+
+    },
+    "Focus Mode and typewriter scrolling" : {
+
+    },
+    "Font" : {
+
+    },
+    "Font family for the whole document" : {
+
+    },
+    "Font size for the whole document" : {
+
+    },
+    "Font:" : {
+
+    },
+    "Format" : {
+
+    },
+    "Gather" : {
+
+    },
+    "Gather all sub-block text back into the selected block (⌥⌘G)" : {
+
+    },
+    "Gather Blocks" : {
+
+    },
+    "Gather sub-blocks" : {
+
+    },
+    "Gather Sub-blocks" : {
+
+    },
+    "Green" : {
+      "comment" : "Block colour name"
+    },
+    "Grey" : {
+      "comment" : "Block colour name"
+    },
+    "Hide Inspector" : {
+
+    },
+    "Hide Keyboard" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Hide Outline" : {
+
+    },
+    "Hide sub-blocks" : {
+
+    },
+    "Hide the block inspector (⌥⌘I)" : {
+
+    },
+    "How Kisho Works" : {
+
+    },
+    "HTML" : {
+      "comment" : "Export format name"
+    },
+    "Import" : {
+
+    },
+    "Import Markdown or OPML into This Document…" : {
+
+    },
+    "Import Markdown…" : {
+
+    },
+    "Import OPML…" : {
+
+    },
+    "Indent" : {
+
+    },
+    "Indent / outdent block" : {
+
+    },
+    "Indent Block" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Inspector" : {
+
+    },
+    "Into first child / up to parent" : {
+
+    },
+    "Italic" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Italic (⌘I)" : {
+
+    },
+    "Its sub-blocks will be deleted with it." : {
+
+    },
+    "Keyboard shortcuts" : {
+
+    },
+    "Large Print" : {
+      "comment" : "Typography preset name"
+    },
+    "Level Down" : {
+
+    },
+    "Level Up" : {
+
+    },
+    "Light" : {
+      "comment" : "Appearance option"
+    },
+    "Long-form writing as a stack of named blocks." : {
+
+    },
+    "Manuscript" : {
+      "comment" : "Typography preset name"
+    },
+    "Margins" : {
+
+    },
+    "Margins:" : {
+
+    },
+    "Markdown" : {
+      "comment" : "Export format name"
+    },
+    "Match case" : {
+
+    },
+    "Match Case" : {
+
+    },
+    "Match System" : {
+      "comment" : "Appearance option: follow the system light/dark setting"
+    },
+    "Modern" : {
+      "comment" : "Typography preset name"
+    },
+    "Modified" : {
+
+    },
+    "Modified %@" : {
+
+    },
+    "More" : {
+
+    },
+    "Move Block" : {
+
+    },
+    "Move Block Down" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Move Block Up" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Move Down" : {
+
+    },
+    "Move Up" : {
+
+    },
+    "Named font and size combinations (also in Format ▸ Document Font)" : {
+
+    },
+    "Narrow" : {
+      "comment" : "Print margin preset"
+    },
+    "Never exported." : {
+
+    },
+    "New blocks start in" : {
+
+    },
+    "New blocks start in:" : {
+
+    },
+    "New documents" : {
+
+    },
+    "Next / previous block" : {
+
+    },
+    "Next Block" : {
+
+    },
+    "Next match (⌘G)" : {
+
+    },
+    "No block selected" : {
+
+    },
+    "No Blocks" : {
+
+    },
+    "No blocks yet" : {
+
+    },
+    "No colour" : {
+      "comment" : "Tooltip for the clear-colour swatch"
+    },
+    "No matches" : {
+      "comment" : "Find bar summary when nothing matches"
+    },
+    "None" : {
+
+    },
+    "Normal" : {
+      "comment" : "Print margin preset"
+    },
+    "Notes" : {
+
+    },
+    "OK" : {
+
+    },
+    "One block per paragraph" : {
+
+    },
+    "One or two lines: what this block is for. Shown in the sidebar when View ▸ Show Synopses is on." : {
+
+    },
+    "One or two lines. Shown in the outline when Show Synopses is on." : {
+
+    },
+    "OPML" : {
+      "comment" : "Export format name"
+    },
+    "Orange" : {
+      "comment" : "Block colour name"
+    },
+    "Outdent" : {
+
+    },
+    "Outdent Block" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Outline" : {
+
+    },
+    "Page Setup…" : {
+
+    },
+    "Paper is A4 or Letter by your region." : {
+
+    },
+    "Paper size and orientation come from File ▸ Page Setup…." : {
+
+    },
+    "PDF" : {
+      "comment" : "Export format name"
+    },
+    "Plain Text" : {
+      "comment" : "Export format name"
+    },
+    "Planning with the inspector" : {
+
+    },
+    "Preset" : {
+
+    },
+    "Preset…" : {
+
+    },
+    "Press ⌘? at any time to open this page again." : {
+
+    },
+    "Previous Block" : {
+
+    },
+    "Previous match (⇧⌘G)" : {
+
+    },
+    "Print and PDF" : {
+
+    },
+    "Print…" : {
+
+    },
+    "Purple" : {
+      "comment" : "Block colour name"
+    },
+    "Red" : {
+      "comment" : "Block colour name"
+    },
+    "Redo" : {
+
+    },
+    "Rename Block" : {
+
+    },
+    "Replace" : {
+
+    },
+    "Replace All" : {
+      "comment" : "Undo action name"
+    },
+    "Replace all matches (one undo step)" : {
+
+    },
+    "Research, to-dos, things to remember" : {
+
+    },
+    "Research, to-dos, things to remember. Never exported." : {
+
+    },
+    "Revised" : {
+      "comment" : "Block status"
+    },
+    "Save the document first to share it" : {
+
+    },
+    "Sepia" : {
+      "comment" : "Appearance option: paper-toned light theme"
+    },
+    "Settings" : {
+
+    },
+    "Settings…" : {
+
+    },
+    "Share" : {
+
+    },
+    "Share Document" : {
+
+    },
+    "Share this document file" : {
+
+    },
+    "Show Inspector" : {
+
+    },
+    "Show Outline" : {
+
+    },
+    "Show sub-blocks" : {
+
+    },
+    "Show synopses in outline" : {
+
+    },
+    "Show Synopses in Outline" : {
+
+    },
+    "Show Synopses in Sidebar" : {
+
+    },
+    "Show the block inspector: status, colour, synopsis, notes (⌥⌘I)" : {
+
+    },
+    "Size" : {
+
+    },
+    "Size:" : {
+
+    },
+    "Split" : {
+
+    },
+    "Split (⌥⌘P) turns each paragraph of the selected block into its own child block, titled from its first sentence. Gather (⌥⌘G) does the reverse: it pulls the text of all sub-blocks back into the parent, in order, and removes them. Use them to go from a rough draft to a structure and back." : {
+
+    },
+    "Split a draft" : {
+
+    },
+    "Split and Gather" : {
+
+    },
+    "Split Paragraphs" : {
+
+    },
+    "Split paragraphs into blocks" : {
+
+    },
+    "Split Paragraphs into Blocks" : {
+
+    },
+    "Split the selected block's paragraphs into sub-blocks (⌥⌘P)" : {
+
+    },
+    "Start here" : {
+
+    },
+    "Status" : {
+
+    },
+    "Synopsis" : {
+
+    },
+    "Tab / ⇧Tab in a title" : {
+
+    },
+    "Tag filter" : {
+
+    },
+    "Tags" : {
+
+    },
+    "Tags and filtering" : {
+
+    },
+    "Teal" : {
+      "comment" : "Block colour name"
+    },
+    "The document could not be converted to %@." : {
+      "comment" : "Alert body; the placeholder is an export format such as PDF"
+    },
+    "Theme" : {
+
+    },
+    "this device" : {
+      "comment" : "Stands in for the device name in a conflicted-copy file name when it is unknown"
+    },
+    "This page" : {
+
+    },
+    "Title" : {
+
+    },
+    "Type in any card; the body grows as you write. ⌘B, ⌘I and ⌘U apply bold, italic and underline to the selection. The document's font and size are set in the inspector's Document section (or Format ▸ Document Font) and keep your bold/italic/underline. ⌘↩ in a body adds a new block right after the current one." : {
+
+    },
+    "Typewriter" : {
+      "comment" : "Typography preset name"
+    },
+    "Typewriter scrolling" : {
+
+    },
+    "Typewriter Scrolling" : {
+
+    },
+    "Typewriter scrolling keeps the line you are typing near the middle of the screen." : {
+
+    },
+    "Typing" : {
+      "comment" : "Undo action name"
+    },
+    "Underline" : {
+      "comment" : "Accessibility label for an editing toolbar button"
+    },
+    "Underline (⌘U)" : {
+
+    },
+    "Undo" : {
+
+    },
+    "Untitled" : {
+      "comment" : "Placeholder title for a block or document with no name"
+    },
+    "Use selection for find" : {
+
+    },
+    "Use Selection for Find" : {
+
+    },
+    "View ▸ Enter Focus Mode (⌥⌘F) hides the sidebar and inspector and empties the toolbar, narrows the cards to a reading width and dims every block but the one you're in. Typewriter Scrolling (⌥⌘T) keeps the line you're typing at the centre of the window. View ▸ Editor Theme sets all of Kisho — editor, sidebar and inspector — to light, dark or sepia independently of the system; the Format menu has Bold, Italic, Underline and Document Font presets." : {
+
+    },
+    "View ▸ Show Inspector (⌥⌘I) opens a panel for the selected block: a status (Draft, Revised, Final, Done), one of eight colours, a synopsis and private notes. The sidebar shows the colour as a dot and the status as a small symbol, and View ▸ Show Synopses puts each synopsis under its title — so the sidebar doubles as an outline you can plan in. Notes are never exported." : {
+
+    },
+    "WELCOME TO KISHO" : {
+
+    },
+    "What this block is for" : {
+
+    },
+    "Wide" : {
+      "comment" : "Print margin preset"
+    },
+    "Word" : {
+      "comment" : "Export format name (Microsoft Word .docx)"
+    },
+    "Writing" : {
+
+    },
+    "Yellow" : {
+      "comment" : "Block colour name"
     }
-  }
+  },
+  "version" : "1.0"
 }
