@@ -1467,4 +1467,13 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(grouped.hasPrefix("12,345") || grouped.hasPrefix("12.345") || grouped.hasPrefix("12 345") || grouped.hasPrefix("12\u{202F}345"),
                       "expected a grouped number, got \(grouped)")
     }
+
+    #if os(iOS)
+    func testConflictNoticeTextNamesTheDocumentAndCounts() throws {
+        let one = CloudConflictResolver.noticeText(documentName: "Novel", copies: 1)
+        XCTAssertTrue(one.hasPrefix("A conflicted copy of \u{201C}Novel\u{201D} was kept"), one)
+        let two = CloudConflictResolver.noticeText(documentName: "Novel", copies: 2)
+        XCTAssertTrue(two.hasPrefix("2 conflicted copies of \u{201C}Novel\u{201D} were kept"), two)
+    }
+    #endif
 }

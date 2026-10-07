@@ -22,6 +22,27 @@ import OSLog
 
 final class CloudConflictResolver: NSObject {
     static let shared = CloudConflictResolver()
+
+    /// What the resolver last did, for a one-line banner in the document
+    /// view. Resolution is automatic and otherwise silent; the writer
+    /// should at least hear that a copy was kept and where to find it.
+    final class Notices: ObservableObject {
+        @Published var message: String?
+        fileprivate func post(_ text: String) {
+            DispatchQueue.main.async { self.message = text }
+        }
+    }
+    static let notices = Notices()
+
+    /// Banner text for a resolved conflict.
+    static func noticeText(documentName: String, copies: Int) -> String {
+        if copies == 1 {
+            return String(localized: "A conflicted copy of \u{201C}\(documentName)\u{201D} was kept beside it in iCloud Drive ▸ Kisho.",
+                          comment: "Banner after iCloud conflict resolution kept one copy; placeholder is the document name")
+        }
+        return String(localized: "\(copies) conflicted copies of \u{201C}\(documentName)\u{201D} were kept beside it in iCloud Drive ▸ Kisho.",
+                      comment: "Banner after iCloud conflict resolution kept several copies; placeholders are the count and the document name")
+    }
     private static let log = Logger(subsystem: "com.PM.Kisho", category: "iCloud")
 
     private var query: NSMetadataQuery?
@@ -36,6 +57,11 @@ final class CloudConflictResolver: NSObject {
     func start() {
         guard query == nil else { return }
         Self.localDeviceName = UIDevice.current.name
+        // Simulator/UI check for the banner: run with the launch argument
+        // -KishoDemoConflictNotice (Scheme ▸ Run ▸ Arguments).
+        if ProcessInfo.processInfo.arguments.contains("-KishoDemoConflictNotice") {
+            Self.notices.post(Self.noticeText(documentName: "Demo", copies: 1))
+        }
         guard FileManager.default.ubiquityIdentityToken != nil else {
             Self.log.notice("No iCloud identity; conflict resolver not started")
             return
@@ -149,6 +175,9 @@ final class CloudConflictResolver: NSObject {
             do {
                 try NSFileVersion.removeOtherVersionsOfItem(at: url)
                 log.notice("Resolved \(url.lastPathComponent, privacy: .public)")
+                if !copies.isEmpty {
+                    notices.post(noticeText(documentName: url.deletingPathExtension().lastPathComponent, copies: copies.count))
+                }
             } catch {
                 log.error("removeOtherVersions failed: \(error.localizedDescription, privacy: .public)")
             }

@@ -18,6 +18,7 @@ struct KishoDocumentView: View {
     let fileURL: URL?
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
+    @ObservedObject private var cloudNotices = CloudConflictResolver.notices
     @Environment(\.horizontalSizeClass) private var sizeClass
     @AppStorage(KishoPreferences.Key.showSidebar) private var showSidebar = true
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
@@ -62,6 +63,13 @@ struct KishoDocumentView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: showSidebar)
         .animation(.easeInOut(duration: 0.2), value: focusMode)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if let message = cloudNotices.message {
+                ConflictNoticeBanner(message: message) { cloudNotices.message = nil }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: cloudNotices.message)
         .environmentObject(document)
         .environmentObject(find)
         .environment(\.kishoFocusMode, focusMode)
@@ -328,6 +336,33 @@ extension KishoDocumentView {
 struct ShareItem: Identifiable {
     let url: URL
     var id: String { url.absoluteString }
+}
+
+/// One line above the editor after the conflict resolver kept a copy;
+/// goes away on its own after a while or on tap.
+private struct ConflictNoticeBanner: View {
+    let message: String
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: "icloud.and.arrow.down")
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.footnote)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button("OK", action: dismiss)
+                .font(.footnote.weight(.semibold))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(.bar)
+        .overlay(alignment: .bottom) { Divider() }
+        .task(id: message) {
+            try? await Task.sleep(nanoseconds: 12_000_000_000)
+            dismiss()
+        }
+    }
 }
 
 /// A plain title-and-Done bar for a sheet (a NavigationStack inside a
