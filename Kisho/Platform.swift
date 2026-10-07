@@ -51,6 +51,20 @@ extension PlatformFont {
         #endif
     }
 
+    /// A block-title font: the document's `family` in bold at `size`, or the
+    /// system font in semibold (what titles used before they followed the
+    /// document font) when the family is the system font.
+    static func kishoHeading(family: String, size: CGFloat) -> PlatformFont {
+        if family.hasPrefix(".") { return PlatformFont.systemFont(ofSize: size, weight: .semibold) }
+        let base = kisho(family: family, size: size)
+        #if canImport(AppKit)
+        return NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask)
+        #else
+        guard let descriptor = base.fontDescriptor.withSymbolicTraits(.traitBold) else { return base }
+        return UIFont(descriptor: descriptor, size: size)
+        #endif
+    }
+
     /// Whether the font carries the bold trait.
     var isBoldTrait: Bool {
         #if canImport(AppKit)

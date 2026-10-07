@@ -186,6 +186,7 @@ private struct SectionCard: View {
                 TitleField(
                     text: $draftTitle,
                     placeholder: "Untitled",
+                    fontFamily: document.typography.fontFamily,
                     fontSize: headingSize,
                     handle: titleHandle,
                     actions: actions,
@@ -457,6 +458,7 @@ final class TitleFieldHandle: ObservableObject {
 private struct TitleField: UIViewRepresentable {
     @Binding var text: String
     let placeholder: String
+    let fontFamily: String
     let fontSize: CGFloat
     let handle: TitleFieldHandle
     let actions: CardActions
@@ -476,7 +478,8 @@ private struct TitleField: UIViewRepresentable {
         field.borderStyle = .none
         field.backgroundColor = .clear
         field.textColor = .label
-        field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
+        context.coordinator.appliedFamily = fontFamily
         field.placeholder = placeholder
         field.returnKeyType = .next
         field.inputAssistantItem.leadingBarButtonGroups = []
@@ -518,8 +521,9 @@ private struct TitleField: UIViewRepresentable {
         context.coordinator.parent = self
         handle.field = field
         if field.text != text { field.text = text }
-        if field.font?.pointSize != fontSize {
-            field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        if field.font?.pointSize != fontSize || context.coordinator.appliedFamily != fontFamily {
+            field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
+            context.coordinator.appliedFamily = fontFamily
         }
         if field.isFirstResponder {
             field.accessoryBar?.claim(owner: field, actions: actions)
@@ -528,6 +532,7 @@ private struct TitleField: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextFieldDelegate, TitleFieldCommands {
         var parent: TitleField
+        var appliedFamily: String?
         init(_ parent: TitleField) { self.parent = parent }
 
         @objc func editingChanged(_ field: UITextField) {

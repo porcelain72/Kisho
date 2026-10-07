@@ -191,7 +191,7 @@ private struct SectionCard: View {
         guard !hits.all.isEmpty, !isTitleFocused, draftTitle == section.title else { return nil }
         let ns = NSMutableAttributedString(
             string: section.title,
-            attributes: [.font: NSFont.systemFont(ofSize: headingSize, weight: .semibold),
+            attributes: [.font: PlatformFont.kishoHeading(family: document.typography.fontFamily, size: headingSize),
                          .foregroundColor: NSColor.clear])
         let length = ns.length
         // Translucent even for the current match: an opaque wash under the
@@ -210,6 +210,7 @@ private struct SectionCard: View {
                 TitleField(
                     text: $draftTitle,
                     placeholder: "Untitled",
+                    fontFamily: document.typography.fontFamily,
                     fontSize: headingSize,
                     handle: titleHandle,
                     onFocusChange: { isTitleFocused = $0 },
@@ -356,6 +357,7 @@ final class TitleFieldHandle: ObservableObject {
 private struct TitleField: NSViewRepresentable {
     @Binding var text: String
     let placeholder: String
+    let fontFamily: String
     let fontSize: CGFloat
     let handle: TitleFieldHandle
     let onFocusChange: (Bool) -> Void
@@ -374,7 +376,8 @@ private struct TitleField: NSViewRepresentable {
         field.focusRingType = .none
         field.isBezeled = false
         field.textColor = .labelColor
-        field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
+        context.coordinator.appliedFamily = fontFamily
         field.placeholderString = placeholder
         field.lineBreakMode = .byTruncatingTail
         field.usesSingleLineMode = true
@@ -398,13 +401,15 @@ private struct TitleField: NSViewRepresentable {
         context.coordinator.parent = self
         handle.field = field
         if field.stringValue != text { field.stringValue = text }
-        if field.font?.pointSize != fontSize {
-            field.font = .systemFont(ofSize: fontSize, weight: .semibold)
+        if field.font?.pointSize != fontSize || context.coordinator.appliedFamily != fontFamily {
+            field.font = PlatformFont.kishoHeading(family: fontFamily, size: fontSize)
+            context.coordinator.appliedFamily = fontFamily
         }
     }
 
     final class Coordinator: NSObject, NSTextFieldDelegate {
         var parent: TitleField
+        var appliedFamily: String?
         init(_ parent: TitleField) { self.parent = parent }
 
         func controlTextDidChange(_ notification: Notification) {
