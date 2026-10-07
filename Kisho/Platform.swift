@@ -133,6 +133,24 @@ extension PlatformFont {
 // MARK: - Colours
 
 extension PlatformColor {
+    /// The system label colour at `alpha`, re-resolved whenever the appearance
+    /// changes. (`labelColor.withAlphaComponent` on its own is fixed to the
+    /// appearance in force when it was made, so it stops following light/dark
+    /// and the editor theme.)
+    static func labelFaded(_ alpha: CGFloat) -> PlatformColor {
+        #if canImport(AppKit)
+        return NSColor(name: nil, dynamicProvider: { appearance in
+            var resolved = NSColor.labelColor
+            appearance.performAsCurrentDrawingAppearance {
+                resolved = NSColor.labelColor.usingColorSpace(.deviceRGB) ?? NSColor.labelColor
+            }
+            return resolved.withAlphaComponent(alpha)
+        })
+        #else
+        return UIColor { traits in UIColor.label.resolvedColor(with: traits).withAlphaComponent(alpha) }
+        #endif
+    }
+
     /// sRGB components in 0…1, or nil for a colour that has none (patterns).
     var srgbComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
         #if canImport(AppKit)
