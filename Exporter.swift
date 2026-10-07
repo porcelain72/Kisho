@@ -99,12 +99,12 @@ extension Exporter {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .plainText: return "Plain Text"
-            case .markdown: return "Markdown"
-            case .opml: return "OPML"
-            case .docx: return "Word"
-            case .pdf: return "PDF"
-            case .html: return "HTML"
+            case .plainText: return String(localized: "Plain Text", comment: "Export format name")
+            case .markdown: return String(localized: "Markdown", comment: "Export format name")
+            case .opml: return String(localized: "OPML", comment: "Export format name")
+            case .docx: return String(localized: "Word", comment: "Export format name (Microsoft Word .docx)")
+            case .pdf: return String(localized: "PDF", comment: "Export format name")
+            case .html: return String(localized: "HTML", comment: "Export format name")
             }
         }
         var fileExtension: String {
@@ -151,8 +151,8 @@ extension Exporter {
     static func export(_ document: KishoDocumentModel, as format: Format, title: String) {
         guard let data = data(for: document, as: format, title: title) else {
             let alert = NSAlert()
-            alert.messageText = "Export failed"
-            alert.informativeText = "The document could not be converted to \(format.title)."
+            alert.messageText = String(localized: "Export failed", comment: "Alert title")
+            alert.informativeText = String(localized: "The document could not be converted to \(format.title).", comment: "Alert body; the placeholder is an export format such as PDF")
             alert.runModal()
             return
         }
@@ -177,7 +177,7 @@ extension Exporter {
         if let url = NSApp.keyWindow?.representedURL {
             return url.deletingPathExtension().lastPathComponent
         }
-        return NSApp.keyWindow?.title.isEmpty == false ? NSApp.keyWindow!.title : "Untitled"
+        return NSApp.keyWindow?.title.isEmpty == false ? NSApp.keyWindow!.title : KishoSection.untitledPlaceholder
     }
 }
 #endif

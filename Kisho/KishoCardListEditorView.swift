@@ -209,7 +209,7 @@ private struct SectionCard: View {
             HStack(spacing: 8) {
                 TitleField(
                     text: $draftTitle,
-                    placeholder: "Untitled",
+                    placeholder: KishoSection.untitledPlaceholder,
                     fontFamily: document.typography.fontFamily,
                     fontSize: headingSize,
                     handle: titleHandle,

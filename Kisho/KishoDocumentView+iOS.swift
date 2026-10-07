@@ -42,7 +42,7 @@ struct KishoDocumentView: View {
     private var editorTheme: EditorTheme { EditorTheme(rawValue: editorThemeRaw) ?? .system }
 
     private var documentTitle: String {
-        fileURL?.deletingPathExtension().lastPathComponent ?? "Untitled"
+        fileURL?.deletingPathExtension().lastPathComponent ?? KishoSection.untitledPlaceholder
     }
 
     // Read `undoTick` here so the bar's enabled state depends on it: SwiftUI
@@ -317,7 +317,7 @@ extension KishoDocumentView {
     /// Convert and hand the file to the share sheet.
     private func export(_ format: Exporter.Format) {
         guard let url = DocumentExport.file(for: document, as: format, title: documentTitle) else {
-            errorMessage = "The document could not be converted to \(format.title)."
+            errorMessage = String(localized: "The document could not be converted to \(format.title).", comment: "Alert body; the placeholder is an export format such as PDF")
             return
         }
         shareItem = ShareItem(url: url)
@@ -333,7 +333,7 @@ struct ShareItem: Identifiable {
 /// A plain title-and-Done bar for a sheet (a NavigationStack inside a
 /// DocumentGroup sheet picks up a stray back button).
 struct SheetHeader: View {
-    let title: String
+    let title: LocalizedStringKey
     let done: () -> Void
 
     var body: some View {

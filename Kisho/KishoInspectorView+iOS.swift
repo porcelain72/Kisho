@@ -78,7 +78,7 @@ private struct DocumentInspectorSection: View {
         } header: {
             Text("Document")
         } footer: {
-            Text("\(document.totalWordCount.formatted()) words  ·  \(document.orderedSections.count) blocks. Bold, italic and underline on words are kept when the font changes.")
+            Text("\(KishoCounts.words(document.totalWordCount))  ·  \(KishoCounts.blocks(document.orderedSections.count)). Bold, italic and underline on words are kept when the font changes.", comment: "Inspector footer; placeholders are the word count and block count")
         }
         .onAppear {
             var list = PlatformFont.availableFamilyNames.sorted()
@@ -175,8 +175,8 @@ private struct BlockInspectorForm: View {
     }
 
     private var summaryLine: String {
-        var parts = ["\(section.totalWordCount.formatted()) words"]
-        if !section.children.isEmpty { parts.append("\(section.children.count) sub-block\(section.children.count == 1 ? "" : "s")") }
+        var parts = [KishoCounts.words(section.totalWordCount)]
+        if !section.children.isEmpty { parts.append(KishoCounts.subBlocks(section.children.count)) }
         return parts.joined(separator: "  ·  ")
     }
 
@@ -201,7 +201,7 @@ private struct BlockInspectorForm: View {
             .frame(width: 22, height: 22)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(index.map { BlockPalette.names[$0] } ?? "No colour")
+        .accessibilityLabel(index.map { BlockPalette.names[$0] } ?? String(localized: "No colour", comment: "Accessibility label for the clear-colour swatch"))
     }
 }
 #endif

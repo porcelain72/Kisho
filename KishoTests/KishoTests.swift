@@ -829,7 +829,7 @@ final class KishoTests: XCTestCase {
         under setext
         """
         let sections = Markdown.sections(from: md)
-        XCTAssertEqual(sections.map(\.title), ["Untitled", "One", "Two"])
+        XCTAssertEqual(sections.map(\.title), ["", "One", "Two"], "untitled intro block stores an empty title")
         XCTAssertEqual(sections[0].content.attributedString.string, "Intro paragraph before any heading.")
         
         let one = sections[1]
@@ -891,7 +891,7 @@ final class KishoTests: XCTestCase {
     }
     
     func testMarkdownImportOfEmptyOrHeadinglessTextStillYieldsADocument() throws {
-        XCTAssertEqual(Markdown.sections(from: "").map(\.title), ["Untitled"])
+        XCTAssertEqual(Markdown.sections(from: "").map(\.title), [""])
         let plain = Markdown.sections(from: "just a line\n\nand another")
         XCTAssertEqual(plain.count, 1)
         XCTAssertEqual(plain[0].content.attributedString.string, "just a line\nand another")
@@ -1198,7 +1198,7 @@ final class KishoTests: XCTestCase {
         </body></opml>
         """
         let sections = try OPML.sections(from: Data(opml.utf8))
-        XCTAssertEqual(sections.map(\.title), ["One", "Two", "Untitled"])
+        XCTAssertEqual(sections.map(\.title), ["One", "Two", ""], "blank outline item stores an empty title")
         XCTAssertEqual(sections[0].content.attributedString.string, "Para one.\nPara two.", "blank lines collapse")
         XCTAssertEqual(sections[0].tags, ["x", "y"])
         XCTAssertEqual(sections[0].children.map(\.title), ["One A", "One B (title attr)"])
@@ -1224,7 +1224,7 @@ final class KishoTests: XCTestCase {
             XCTAssertTrue((error as? OPML.ImportError) != nil)
         }
         XCTAssertThrowsError(try OPML.sections(from: Data("<opml><body><outline text='x'>".utf8)), "malformed XML")
-        XCTAssertEqual(try OPML.sections(from: Data("<opml version=\"2.0\"><body/></opml>".utf8)).map(\.title), ["Untitled"])
+        XCTAssertEqual(try OPML.sections(from: Data("<opml version=\"2.0\"><body/></opml>".utf8)).map(\.title), [""])
     }
 
     // MARK: - Block metadata
@@ -1430,5 +1430,41 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(document.canSplit(sectionID: one.id))
         XCTAssertTrue(document.canSplit(sectionID: titleOnly.id), "extra title lines split too")
         XCTAssertFalse(document.canSplit(sectionID: UUID()), "unknown block")
+    }
+
+    // MARK: - Localization
+
+    func testUntitledIsNotStoredInDocuments() throws {
+        let fresh = KishoSection(title: KishoSection.defaultTitle)
+        XCTAssertEqual(fresh.title, "", "new blocks carry no language-specific title")
+        XCTAssertEqual(fresh.displayTitle, KishoSection.untitledPlaceholder, "the placeholder is supplied at display time")
+
+        // Blocks saved by pre-localization builds hold the English literal; they
+        // decode as untitled so they pick up the localized placeholder too.
+        let legacy = KishoSection(title: KishoSection.legacyDefaultTitle)
+        let data = try JSONEncoder().encode(legacy)
+        let decoded = try JSONDecoder().decode(KishoSection.self, from: data)
+        XCTAssertEqual(decoded.title, "")
+
+        let named = KishoSection(title: "Chapter 1")
+        let roundTrip = try JSONDecoder().decode(KishoSection.self, from: JSONEncoder().encode(named))
+        XCTAssertEqual(roundTrip.title, "Chapter 1")
+    }
+
+    func testCountStringsPluralise() {
+        // English plural rules from Localizable.xcstrings; grouping from the locale.
+        XCTAssertEqual(KishoCounts.words(0), "0 words")
+        XCTAssertEqual(KishoCounts.words(1), "1 word")
+        XCTAssertEqual(KishoCounts.words(2), "2 words")
+        XCTAssertEqual(KishoCounts.blocks(1), "1 block")
+        XCTAssertEqual(KishoCounts.subBlocks(1), "1 sub-block")
+        XCTAssertEqual(KishoCounts.subBlocks(3), "3 sub-blocks")
+        XCTAssertEqual(KishoCounts.matches(1), "1 match")
+        XCTAssertEqual(KishoCounts.matches(12), "12 matches")
+        XCTAssertEqual(KishoCounts.position(3, of: 12), "3 of 12")
+        // Large counts keep the locale's grouping separator.
+        let grouped = KishoCounts.words(12345)
+        XCTAssertTrue(grouped.hasPrefix("12,345") || grouped.hasPrefix("12.345") || grouped.hasPrefix("12 345") || grouped.hasPrefix("12\u{202F}345"),
+                      "expected a grouped number, got \(grouped)")
     }
 }

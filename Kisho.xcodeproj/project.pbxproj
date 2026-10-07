@@ -33,6 +33,9 @@
 		A1B2C3D42F00001200KISHO01 /* KishoPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001100KISHO01 /* KishoPreferences.swift */; };
 		A1B2C3D42F00001400KISHO01 /* KishoHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001300KISHO01 /* KishoHelpView.swift */; };
 		A1B2C3D42F00001600KISHO01 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001500KISHO01 /* PrivacyInfo.xcprivacy */; };
+		A1B2C3D42F00003400KISHO01 /* KishoLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00003300KISHO01 /* KishoLocalization.swift */; };
+		A1B2C3D42F00003600KISHO01 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00003500KISHO01 /* Localizable.xcstrings */; };
+		A1B2C3D42F00003800KISHO01 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00003700KISHO01 /* InfoPlist.xcstrings */; };
 		A1B2C3D42F00001800KISHO01 /* KishoPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001700KISHO01 /* KishoPrint.swift */; };
 		A1B2C3D42F00001A00KISHO01 /* KishoOPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001900KISHO01 /* KishoOPML.swift */; };
 		A1B2C3D42F00001C00KISHO01 /* KishoBlockMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42F00001B00KISHO01 /* KishoBlockMetadata.swift */; };
@@ -76,6 +79,9 @@
 		98B23B0D2DE9BFEB00888A7C /* KishoDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoDocument.swift; sourceTree = "<group>"; };
 		98B23B112DE9BFEF00888A7C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		98B23B132DE9BFEF00888A7C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D42F00003300KISHO01 /* KishoLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoLocalization.swift; sourceTree = "<group>"; };
+		A1B2C3D42F00003500KISHO01 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		A1B2C3D42F00003700KISHO01 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		98B23B142DE9BFEF00888A7C /* Kisho.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kisho.entitlements; sourceTree = "<group>"; };
 		98B23B162DE9BFEF00888A7C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		98B23B1C2DE9BFEF00888A7C /* KishoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KishoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -199,6 +205,9 @@
 				983EDEB62E322C4500A4C5B9 /* FlowLayout.swift */,
 				98B23B112DE9BFEF00888A7C /* Assets.xcassets */,
 				98B23B132DE9BFEF00888A7C /* Info.plist */,
+				A1B2C3D42F00003300KISHO01 /* KishoLocalization.swift */,
+				A1B2C3D42F00003500KISHO01 /* Localizable.xcstrings */,
+				A1B2C3D42F00003700KISHO01 /* InfoPlist.xcstrings */,
 				98B23B142DE9BFEF00888A7C /* Kisho.entitlements */,
 				98B23B152DE9BFEF00888A7C /* Preview Content */,
 			);
@@ -319,6 +328,10 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				fr,
+				es,
+				ja,
 			);
 			mainGroup = 98B23AFF2DE9BFEB00888A7C;
 			packageReferences = (
@@ -343,6 +356,8 @@
 				98B23B172DE9BFEF00888A7C /* Preview Assets.xcassets in Resources */,
 				98B23B122DE9BFEF00888A7C /* Assets.xcassets in Resources */,
 				A1B2C3D42F00001600KISHO01 /* PrivacyInfo.xcprivacy in Resources */,
+				A1B2C3D42F00003600KISHO01 /* Localizable.xcstrings in Resources */,
+				A1B2C3D42F00003800KISHO01 /* InfoPlist.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -368,6 +383,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				98D4CA1F2DF1F626008C2E43 /* Exporter.swift in Sources */,
+				A1B2C3D42F00003400KISHO01 /* KishoLocalization.swift in Sources */,
 				98EA64DD2DEDA07E00B4AEFE /* SectionRow.swift in Sources */,
 				9855A7BC2E31A23B00493ECB /* TagEditorView.swift in Sources */,
 				98B23B3A2DE9C0A200888A7C /* KishoSection.swift in Sources */,

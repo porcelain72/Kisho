@@ -1,0 +1,78 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "CFBundleDisplayName": {
+      "comment": "App name shown under the icon",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kisho"
+          }
+        }
+      }
+    },
+    "CFBundleName": {
+      "comment": "App name",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kisho"
+          }
+        }
+      }
+    },
+    "NSHumanReadableCopyright": {
+      "comment": "Copyright line in the About box",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "© 2026 Peter Macdonald"
+          }
+        }
+      }
+    },
+    "Kisho Document": {
+      "comment": "Name of the app's own document type (Finder 'Kind', Open/Save panels)",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kisho Document"
+          }
+        }
+      }
+    },
+    "OPML Outline": {
+      "comment": "Name of the imported OPML document type",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML Outline"
+          }
+        }
+      }
+    },
+    "Markdown Document": {
+      "comment": "Name of the imported Markdown document type",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markdown Document"
+          }
+        }
+      }
+    }
+  }
+}

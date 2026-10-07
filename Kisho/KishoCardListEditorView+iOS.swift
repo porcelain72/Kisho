@@ -185,7 +185,7 @@ private struct SectionCard: View {
             HStack(spacing: 8) {
                 TitleField(
                     text: $draftTitle,
-                    placeholder: "Untitled",
+                    placeholder: KishoSection.untitledPlaceholder,
                     fontFamily: document.typography.fontFamily,
                     fontSize: headingSize,
                     handle: titleHandle,
@@ -383,29 +383,29 @@ final class KeyboardAccessoryBar: UIToolbar {
         var items: [UIBarButtonItem] = []
         if showsFormatting && isPhone {
             items += [
-                button("bold", "Bold", #selector(bold)),
-                button("italic", "Italic", #selector(italic)),
-                button("underline", "Underline", #selector(underline)),
+                button("bold", String(localized: "Bold", comment: "Accessibility label for an editing toolbar button"), #selector(bold)),
+                button("italic", String(localized: "Italic", comment: "Accessibility label for an editing toolbar button"), #selector(italic)),
+                button("underline", String(localized: "Underline", comment: "Accessibility label for an editing toolbar button"), #selector(underline)),
                 gap(16),
             ]
         }
-        outdentItem = button("decrease.indent", "Outdent Block", #selector(outdent))
-        indentItem = button("increase.indent", "Indent Block", #selector(indent))
+        outdentItem = button("decrease.indent", String(localized: "Outdent Block", comment: "Accessibility label for an editing toolbar button"), #selector(outdent))
+        indentItem = button("increase.indent", String(localized: "Indent Block", comment: "Accessibility label for an editing toolbar button"), #selector(indent))
         items += [outdentItem, indentItem]
         if !isPhone {
-            let up = button("arrow.up", "Move Block Up", #selector(moveUp))
-            let down = button("arrow.down", "Move Block Down", #selector(moveDown))
+            let up = button("arrow.up", String(localized: "Move Block Up", comment: "Accessibility label for an editing toolbar button"), #selector(moveUp))
+            let down = button("arrow.down", String(localized: "Move Block Down", comment: "Accessibility label for an editing toolbar button"), #selector(moveDown))
             moveUpItem = up
             moveDownItem = down
             items += [gap(16), up, down]
         }
         items += [
             UIBarButtonItem(systemItem: .flexibleSpace),
-            button("plus", "Add Block After", #selector(addSibling)),
-            button("plus.square.on.square", "Add Sub-block", #selector(addChild)),
+            button("plus", String(localized: "Add Block After", comment: "Accessibility label for an editing toolbar button"), #selector(addSibling)),
+            button("plus.square.on.square", String(localized: "Add Sub-block", comment: "Accessibility label for an editing toolbar button"), #selector(addChild)),
         ]
         if isPhone {
-            items += [gap(16), button("keyboard.chevron.compact.down", "Hide Keyboard", #selector(dismiss))]
+            items += [gap(16), button("keyboard.chevron.compact.down", String(localized: "Hide Keyboard", comment: "Accessibility label for an editing toolbar button"), #selector(dismiss))]
         }
         setItems(items, animated: false)
     }

@@ -50,9 +50,9 @@ struct KishoHelpView: View {
 
     private struct Topic: Identifiable {
         let symbol: String
-        let title: String
-        let text: String
-        var id: String { title }
+        let title: LocalizedStringResource
+        let text: LocalizedStringResource
+        var id: String { title.key }
     }
 
     private static let topics: [Topic] = [
@@ -78,10 +78,10 @@ struct KishoHelpView: View {
 
     private struct QuickStart: Identifiable {
         let symbol: String
-        let title: String
-        let detail: String
+        let title: LocalizedStringResource
+        let detail: LocalizedStringResource
         let keys: String?
-        var id: String { title }
+        var id: String { title.key }
     }
 
     private static let quickStart: [QuickStart] = [
@@ -215,10 +215,10 @@ struct KishoHelpView: View {
     // MARK: Shortcuts
 
     private struct ShortcutRow: Identifiable {
-        let label: String
+        let label: LocalizedStringResource
         let keys: [String]
-        var note: String? = nil
-        var id: String { label }
+        var note: LocalizedStringResource? = nil
+        var id: String { label.key }
     }
 
     private static let shortcutRows: [ShortcutRow] = [

@@ -51,12 +51,12 @@ private struct DocumentStatsFooter: View {
 
     var body: some View {
         HStack {
-            Text("\(document.totalWordCount.formatted()) words")
+            Text(verbatim: KishoCounts.words(document.totalWordCount))
                 .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
             Spacer()
-            Text("\(document.orderedSections.count) blocks")
+            Text(verbatim: KishoCounts.blocks(document.orderedSections.count))
                 .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.tertiary)

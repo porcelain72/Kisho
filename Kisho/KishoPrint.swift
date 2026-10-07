@@ -234,8 +234,8 @@ enum PageLayout {
 
             if options.pageNumbers {
                 let footer = NSAttributedString(
-                    string: options.title.isEmpty ? "\(index + 1) of \(pages.pageCount)"
-                                                  : "\(options.title)  ·  \(index + 1) of \(pages.pageCount)",
+                    string: options.title.isEmpty ? KishoCounts.position(index + 1, of: pages.pageCount)
+                                                  : "\(options.title)  ·  \(KishoCounts.position(index + 1, of: pages.pageCount))",
                     attributes: footerAttributes)
                 let size = footer.size()
                 let y = options.pageSize.height - options.margins.bottom / 2 - size.height / 2

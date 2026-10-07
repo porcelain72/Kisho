@@ -136,7 +136,7 @@ extension KishoDocumentModel {
 
         undoManager?.beginUndoGrouping()
         defer {
-            undoManager?.setActionName("Replace All")
+            undoManager?.setActionName(String(localized: "Replace All", comment: "Undo action name"))
             undoManager?.endUndoGrouping()
         }
 
@@ -223,9 +223,9 @@ final class FindState: ObservableObject {
 
     var summary: String {
         if query.isEmpty { return "" }
-        if matches.isEmpty { return "No matches" }
-        if let i = currentIndex { return "\(i + 1) of \(matches.count)" }
-        return "\(matches.count) match\(matches.count == 1 ? "" : "es")"
+        if matches.isEmpty { return String(localized: "No matches", comment: "Find bar summary when nothing matches") }
+        if let i = currentIndex { return KishoCounts.position(i + 1, of: matches.count) }
+        return KishoCounts.matches(matches.count)
     }
 
     /// Show the bar and focus its field.

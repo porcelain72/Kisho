@@ -29,7 +29,7 @@ final class CloudConflictResolver: NSObject {
     private let work = DispatchQueue(label: "com.PM.Kisho.iCloudConflicts", qos: .userInitiated)
     /// This device's name, read on the main thread at start (UIDevice is
     /// main-thread property); the local version carries no computer name.
-    private static var localDeviceName = "this device"
+    private static var localDeviceName = String(localized: "this device", comment: "Stands in for the device name in a conflicted-copy file name when it is unknown")
 
     /// Start watching the iCloud container for documents with unresolved
     /// conflicts. Safe to call more than once; does nothing without iCloud.
@@ -169,7 +169,7 @@ final class CloudConflictResolver: NSObject {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH.mm"
         let date = formatter.string(from: version.modificationDate ?? Date())
-        let stem = "\(base) (conflicted copy from \(device) \(date))"
+        let stem = String(localized: "\(base) (conflicted copy from \(device) \(date))", comment: "File name for a kept iCloud conflict version: document name, device name, date")
         var candidate = folder.appendingPathComponent(stem).appendingPathExtension(ext)
         var n = 2
         while FileManager.default.fileExists(atPath: candidate.path) {

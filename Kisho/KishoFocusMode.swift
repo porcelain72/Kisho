@@ -20,10 +20,10 @@ enum EditorTheme: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .system: return "Match System"
-        case .light: return "Light"
-        case .dark: return "Dark"
-        case .sepia: return "Sepia"
+        case .system: return String(localized: "Match System", comment: "Appearance option: follow the system light/dark setting")
+        case .light: return String(localized: "Light", comment: "Appearance option")
+        case .dark: return String(localized: "Dark", comment: "Appearance option")
+        case .sepia: return String(localized: "Sepia", comment: "Appearance option: paper-toned light theme")
         }
     }
 
@@ -113,11 +113,11 @@ enum TypographyPreset: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .manuscript: return "Manuscript"
-        case .classic: return "Classic"
-        case .modern: return "Modern"
-        case .typewriter: return "Typewriter"
-        case .largePrint: return "Large Print"
+        case .manuscript: return String(localized: "Manuscript", comment: "Typography preset name")
+        case .classic: return String(localized: "Classic", comment: "Typography preset name")
+        case .modern: return String(localized: "Modern", comment: "Typography preset name")
+        case .typewriter: return String(localized: "Typewriter", comment: "Typography preset name")
+        case .largePrint: return String(localized: "Large Print", comment: "Typography preset name")
         }
     }
 

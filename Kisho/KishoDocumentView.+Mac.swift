@@ -38,7 +38,7 @@ struct KishoDocumentView: View {
         if let url = fileURL {
             return url.deletingPathExtension().lastPathComponent
         }
-        return  "Untitled"
+        return KishoSection.untitledPlaceholder
        
     }
     

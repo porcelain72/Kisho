@@ -281,7 +281,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
     /// registers `forward` again as the redo, so every operation is fully
     /// reversible in both directions.
     private func perform(
-        _ name: String,
+        _ name: LocalizedStringResource,
         using undoManager: UndoManager?,
         forward: @escaping (KishoDocumentModel) -> Void,
         inverse: @escaping (KishoDocumentModel) -> Void
@@ -292,7 +292,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
 
     private func registerReversible(
         _ undoManager: UndoManager?,
-        name: String,
+        name: LocalizedStringResource,
         undo: @escaping (KishoDocumentModel) -> Void,
         redo: @escaping (KishoDocumentModel) -> Void
     ) {
@@ -301,7 +301,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
             target.withStructureEdit { undo(target) }
             target.registerReversible(undoManager, name: name, undo: redo, redo: undo)
         }
-        undoManager.setActionName(name)
+        undoManager.setActionName(String(localized: name))
     }
 
     // Raw tree mutations: no undo, no hooks. Parent pointers are kept in sync
@@ -366,7 +366,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
         }
     }
 
-    private func insertNewSection(into parent: KishoSection?, at index: Int, name: String, using undoManager: UndoManager?) {
+    private func insertNewSection(into parent: KishoSection?, at index: Int, name: LocalizedStringResource, using undoManager: UndoManager?) {
         let newSection = KishoSection(title: KishoSection.defaultTitle)
         let previousSelection = selectedSectionID
         perform(name, using: undoManager, forward: { target in
@@ -753,7 +753,7 @@ final class KishoDocumentModel: ObservableObject, Codable {
                 target.registerBodyRestore(undoManager, section: section, restore: current, caret: redoCaret)
             }
         }
-        undoManager.setActionName("Typing")
+        undoManager.setActionName(String(localized: "Typing", comment: "Undo action name"))
     }
 
     // MARK: Tags

@@ -1,0 +1,102 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "%lld words": {
+      "comment": "Word count for a block or document, e.g. '1,250 words'",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld word"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld words"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld blocks": {
+      "comment": "Number of blocks in a document, e.g. '12 blocks'",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld block"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld blocks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld sub-blocks": {
+      "comment": "Number of blocks nested inside a block, e.g. '3 sub-blocks'",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sub-block"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sub-blocks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld matches": {
+      "comment": "Number of find results, e.g. '4 matches'",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld match"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld matches"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

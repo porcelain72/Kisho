@@ -39,10 +39,24 @@ enum KishoPreferences {
         case narrow, normal, wide
         var id: String { rawValue }
         var title: String {
+            let name: String
             switch self {
-            case .narrow: return "Narrow (1.3 cm)"
-            case .normal: return "Normal (2.5 cm)"
-            case .wide: return "Wide (3.5 cm)"
+            case .narrow: name = String(localized: "Narrow", comment: "Print margin preset")
+            case .normal: name = String(localized: "Normal", comment: "Print margin preset")
+            case .wide: name = String(localized: "Wide", comment: "Print margin preset")
+            }
+            // Shown in the user's preferred unit (cm, or inches in the US).
+            let size = Measurement(value: centimetres, unit: UnitLength.centimeters)
+                .formatted(.measurement(width: .abbreviated, usage: .general,
+                                        numberFormatStyle: .number.precision(.fractionLength(0...1))))
+            return String(localized: "\(name) (\(size))", comment: "Print margin preset with its size, e.g. 'Normal (2.5 cm)'")
+        }
+        /// Margin on every side, in centimetres.
+        var centimetres: Double {
+            switch self {
+            case .narrow: return 1.3
+            case .normal: return 2.5
+            case .wide: return 3.5
             }
         }
         /// Points on every side.

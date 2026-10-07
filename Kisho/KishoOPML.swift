@@ -118,7 +118,7 @@ enum OPML {
             case "body": inBody = true
             case "outline" where inBody:
                 let title = (attributes["text"] ?? attributes["title"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                let section = KishoSection(title: title.isEmpty ? KishoSection.defaultTitle : title)
+                let section = KishoSection(title: title)
                 if let note = attributes["_note"], !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     section.content.attributedString = OPML.body(note, baseFont: baseFont)
                 }
@@ -208,7 +208,7 @@ extension OPML {
     static func importIntoNewDocument() {
         DocumentImport.run(
             allowedTypes: [.opml, .xml],
-            message: "Choose an OPML outline. Each item becomes a block in a new document; notes become body text."
+            message: String(localized: "Choose an OPML outline. Each item becomes a block in a new document; notes become body text.", comment: "Prompt shown in the Open panel when importing OPML")
         ) { url in
             let typography = KishoPreferences.defaultTypography
             return (try sections(from: Data(contentsOf: url), typography: typography), typography)

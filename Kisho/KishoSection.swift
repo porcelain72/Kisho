@@ -36,7 +36,21 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     let createdAt: Date
     @Published var modifiedAt: Date
 
-    static let defaultTitle = "Untitled"
+    /// Title stored for a block the user has not named yet. Empty: the
+    /// localized "Untitled" is supplied at display time by `displayTitle`
+    /// and the editors' placeholders, so documents never carry a
+    /// language-specific default in the file.
+    static let defaultTitle = ""
+
+    /// The default title written into files by versions before localization.
+    /// Treated as "no title" when decoding so such blocks pick up the
+    /// localized placeholder like new ones.
+    static let legacyDefaultTitle = "Untitled"
+
+    /// Localized, user-facing title for a block with no title and no content.
+    static var untitledPlaceholder: String {
+        String(localized: "Untitled", comment: "Placeholder title for a block or document with no name")
+    }
 
     // MARK: - CodingKeys for Codable
     enum CodingKeys: String, CodingKey {
@@ -72,7 +86,8 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self,   forKey: .id)
-        title = try container.decode(String.self, forKey: .title)
+        let storedTitle = try container.decode(String.self, forKey: .title)
+        title = storedTitle == KishoSection.legacyDefaultTitle ? KishoSection.defaultTitle : storedTitle
         content = try container.decode(RichTextModel.self,  forKey: .content)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         modifiedAt = try container.decode(Date.self, forKey: .modifiedAt)
@@ -124,7 +139,7 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
     var displayTitle: String {
         let first = titleFirstLine
         if !first.isEmpty { return first }
-        return content.defaultTitle
+        return content.derivedTitle ?? KishoSection.untitledPlaceholder
     }
 
     /// Whether `other` is this section or one of its descendants.
@@ -150,7 +165,7 @@ final class KishoSection: ObservableObject, Identifiable, Codable {
             .map { paragraph in
                 let body = RichTextModel()
                 body.attributedString = KishoSection.trimmedParagraph(paragraph.attributedString)
-                return KishoSection(title: body.defaultTitle, content: body)
+                return KishoSection(title: body.derivedTitle ?? KishoSection.defaultTitle, content: body)
             }
     }
 

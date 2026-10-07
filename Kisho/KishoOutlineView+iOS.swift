@@ -289,7 +289,9 @@ private struct TagFilterBar: View {
                         }
                     }
                 } label: {
-                    Label(document.tagFilter ?? "All blocks", systemImage: "tag")
+                    Label {
+                        if let tag = document.tagFilter { Text(verbatim: tag) } else { Text("All blocks") }
+                    } icon: { Image(systemName: "tag") }
                         .font(.subheadline)
                         .lineLimit(1)
                 }
@@ -318,9 +320,9 @@ private struct OutlineFooter: View {
 
     var body: some View {
         HStack {
-            Text("\(document.totalWordCount.formatted()) words")
+            Text(verbatim: KishoCounts.words(document.totalWordCount))
             Spacer()
-            Text("\(document.orderedSections.count) blocks")
+            Text(verbatim: KishoCounts.blocks(document.orderedSections.count))
         }
         .font(.caption)
         .monospacedDigit()

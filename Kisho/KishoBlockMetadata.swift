@@ -18,10 +18,10 @@ enum BlockStatus: String, Codable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .draft: return "Draft"
-        case .revised: return "Revised"
-        case .final: return "Final"
-        case .done: return "Done"
+        case .draft: return String(localized: "Draft", comment: "Block status")
+        case .revised: return String(localized: "Revised", comment: "Block status")
+        case .final: return String(localized: "Final", comment: "Block status")
+        case .done: return String(localized: "Done", comment: "Block status")
         }
     }
 
@@ -39,7 +39,17 @@ enum BlockStatus: String, Codable, CaseIterable, Identifiable {
 /// Eight fixed swatches, so the sidebar stays calm and colours mean the
 /// same thing across documents. Stored as the index.
 enum BlockPalette {
-    static let names = ["Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Purple", "Grey"]
+    /// Localized colour names, for tooltips and accessibility.
+    static let names: [String] = [
+        String(localized: "Red", comment: "Block colour name"),
+        String(localized: "Orange", comment: "Block colour name"),
+        String(localized: "Yellow", comment: "Block colour name"),
+        String(localized: "Green", comment: "Block colour name"),
+        String(localized: "Teal", comment: "Block colour name"),
+        String(localized: "Blue", comment: "Block colour name"),
+        String(localized: "Purple", comment: "Block colour name"),
+        String(localized: "Grey", comment: "Block colour name"),
+    ]
 
     static var count: Int { names.count }
 
@@ -146,7 +156,7 @@ private struct DocumentInspectorSection: View {
                 .labelsHidden()
                 .help("Named font and size combinations (also in Format ▸ Document Font)")
             }
-            Text("\(document.totalWordCount.formatted()) words  ·  \(document.orderedSections.count) blocks")
+            Text(verbatim: "\(KishoCounts.words(document.totalWordCount))  ·  \(KishoCounts.blocks(document.orderedSections.count))")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
@@ -276,13 +286,13 @@ private struct BlockInspectorForm: View {
     }
 
     private var summaryLine: String {
-        var parts = ["\(section.totalWordCount.formatted()) words"]
-        if !section.children.isEmpty { parts.append("\(section.children.count) sub-block\(section.children.count == 1 ? "" : "s")") }
+        var parts = [KishoCounts.words(section.totalWordCount)]
+        if !section.children.isEmpty { parts.append(KishoCounts.subBlocks(section.children.count)) }
         return parts.joined(separator: "  ·  ")
     }
 
-    private func label(_ text: String) -> some View {
-        Text(text.uppercased())
+    private func label(_ text: LocalizedStringResource) -> some View {
+        Text(String(localized: text).uppercased())
             .font(.caption2.weight(.semibold))
             .foregroundStyle(.secondary)
             .kerning(0.6)
@@ -309,7 +319,7 @@ private struct BlockInspectorForm: View {
             .frame(width: 18, height: 18)
         }
         .buttonStyle(.plain)
-        .help(index.map { BlockPalette.names[$0] } ?? "No colour")
+        .help(index.map { BlockPalette.names[$0] } ?? String(localized: "No colour", comment: "Tooltip for the clear-colour swatch"))
     }
 }
 

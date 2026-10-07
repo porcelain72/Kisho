@@ -226,7 +226,7 @@ enum Markdown {
 
         func openBlock(title: String, level: Int) {
             closeBlock()
-            let section = KishoSection(title: title.isEmpty ? KishoSection.defaultTitle : title)
+            let section = KishoSection(title: title)
             while let last = stack.last, last.1 >= level { stack.removeLast() }
             if let parent = stack.last?.0 {
                 parent.children.append(section)
@@ -407,7 +407,7 @@ extension Markdown {
     static func importIntoNewDocument() {
         DocumentImport.run(
             allowedTypes: [.markdownText, .plainText],
-            message: "Choose a Markdown file. Its headings become blocks in a new document; the file itself is not changed."
+            message: String(localized: "Choose a Markdown file. Its headings become blocks in a new document; the file itself is not changed.", comment: "Prompt shown in the Open panel when importing Markdown")
         ) { url in
             let imported = document(from: try String(contentsOf: url))
             return (imported.sections, imported.typography)
