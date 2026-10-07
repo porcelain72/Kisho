@@ -175,6 +175,19 @@ struct SectionEditCommands: Commands {
             .keyboardShortcut("[", modifiers: .command)
             .disabled(currentSectionID.flatMap { documentModel?.canOutdent(sectionID: $0) } != true)
 
+            // Sibling order without the mouse (⌃⌘↑/↓ are Next/Previous Block).
+            Button("Move Block Up") {
+                documentModel?.moveSelectedSectionUp(using: activeUndoManager)
+            }
+            .keyboardShortcut(.upArrow, modifiers: [.command, .option])
+            .disabled(currentSectionID.flatMap { documentModel?.canMoveUp(sectionID: $0) } != true)
+
+            Button("Move Block Down") {
+                documentModel?.moveSelectedSectionDown(using: activeUndoManager)
+            }
+            .keyboardShortcut(.downArrow, modifiers: [.command, .option])
+            .disabled(currentSectionID.flatMap { documentModel?.canMoveDown(sectionID: $0) } != true)
+
             Divider()
 
             // ⇧⌘⌫ — plain ⌘⌫ is "delete to beginning of line" in the text editor.

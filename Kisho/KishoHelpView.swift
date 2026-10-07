@@ -28,7 +28,7 @@ struct KishoHelpView: View {
                       "A Kisho document is a tree of blocks. Each block has a title, a body and optional tags. The sidebar shows the tree; the editor shows every block as a card, in reading order, nested blocks indented under their parents. Click a card or a sidebar row to select a block.")
 
                 topic("Adding and arranging",
-                      "⌘= adds a block after the selected one; ⇧⌘= adds one inside it. Drag rows in the sidebar to move blocks — onto a row to nest, between rows to reorder. In a block's title, Tab nests it under the block above and ⇧Tab moves it out again (⌘] and ⌘[ do the same anywhere). Everything is undoable with ⌘Z.")
+                      "⌘= adds a block after the selected one; ⇧⌘= adds one inside it. Drag rows in the sidebar to move blocks — onto a row to nest, between rows to reorder. In a block's title, Tab nests it under the block above and ⇧Tab moves it out again (⌘] and ⌘[ do the same anywhere); ⌥⌘↑ and ⌥⌘↓ swap a block with the one above or below it. Everything is undoable with ⌘Z.")
 
                 topic("Split and Gather",
                       "Split (⌥⌘P) turns each paragraph of the selected block into its own child block, titled from its first sentence. Gather (⌥⌘G) does the reverse: it pulls the text of all sub-blocks back into the parent, in order, and removes them. Use them to go from a rough draft to a structure and back.")
@@ -72,6 +72,7 @@ struct KishoHelpView: View {
         ("Add block from body", "⌘↩"),
         ("Delete block", "⇧⌘⌫"),
         ("Indent / outdent block", "⌘] / ⌘[  (Tab / ⇧Tab in a title)"),
+        ("Move block up / down", "⌥⌘↑ / ⌥⌘↓"),
         ("Split paragraphs into blocks", "⌥⌘P"),
         ("Gather sub-blocks", "⌥⌘G"),
         ("Next / previous block", "⌃⌘↓ / ⌃⌘↑"),

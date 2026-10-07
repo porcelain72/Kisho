@@ -1431,4 +1431,13 @@ final class KishoTests: XCTestCase {
         XCTAssertTrue(document.canSplit(sectionID: titleOnly.id), "extra title lines split too")
         XCTAssertFalse(document.canSplit(sectionID: UUID()), "unknown block")
     }
+
+    #if os(iOS)
+    func testConflictNoticeTextNamesTheDocumentAndCounts() throws {
+        let one = CloudConflictResolver.noticeText(documentName: "Novel", copies: 1)
+        XCTAssertTrue(one.hasPrefix("A conflicted copy of \u{201C}Novel\u{201D} was kept"), one)
+        let two = CloudConflictResolver.noticeText(documentName: "Novel", copies: 2)
+        XCTAssertTrue(two.hasPrefix("2 conflicted copies of \u{201C}Novel\u{201D} were kept"), two)
+    }
+    #endif
 }

@@ -464,7 +464,7 @@ private struct TitleField: UIViewRepresentable {
     let onEscape: () -> Void
     let onTab: () -> Void
     let onBacktab: () -> Void
-    /// ⌃⌘↑ / ⌃⌘↓ from a hardware keyboard: move the block, focus stays in the title.
+    /// ⌥⌘↑ / ⌥⌘↓ from a hardware keyboard: move the block, focus stays in the title.
     let onMoveUp: () -> Void
     let onMoveDown: () -> Void
 
@@ -579,8 +579,8 @@ final class TitleUITextField: UITextField {
             UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(handleEscape)),
             UIKeyCommand(input: "\r", modifierFlags: .command, action: #selector(handleCommandReturn)),
             UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
-            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .control], action: #selector(handleMoveUp)),
-            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .control], action: #selector(handleMoveDown)),
+            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .alternate], action: #selector(handleMoveUp)),
+            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .alternate], action: #selector(handleMoveDown)),
         ]
         // Our Tab beats the system's focus movement.
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
@@ -1055,8 +1055,8 @@ final class CardUITextView: UITextView {
             UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(handleUndo)),
             UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(handleRedo)),
             UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(handleFind)),
-            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .control], action: #selector(handleMoveUp)),
-            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .control], action: #selector(handleMoveDown)),
+            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [.command, .alternate], action: #selector(handleMoveUp)),
+            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [.command, .alternate], action: #selector(handleMoveDown)),
         ]
         list.forEach { $0.wantsPriorityOverSystemBehavior = true }
         return (super.keyCommands ?? []) + list
