@@ -28,6 +28,17 @@ struct KishoDocumentView: View {
 
     private var editorTheme: EditorTheme { EditorTheme(rawValue: editorThemeRaw) ?? .system }
 
+    /// A window restored straight into full screen keeps the system's white
+    /// toolbar until something re-applies the Sepia colour (leaving and
+    /// re-entering full screen did). Change the colour imperceptibly (0.999
+    /// opacity) and back so SwiftUI applies it again; WindowThemeApplier calls
+    /// this when the window appears and when it changes full-screen state.
+    private func nudgeToolbar() {
+        guard editorTheme == .sepia else { return }
+        toolbarNudge = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { toolbarNudge = false }
+    }
+
     @EnvironmentObject var document : KishoDocumentModel
 
     
@@ -88,17 +99,6 @@ struct KishoDocumentView: View {
         .environment(\.kishoEditorTheme, editorTheme)
         .themedAccent()
         .onChange(of: editorThemeRaw) { _ in editorTheme.applyToApp() }
-        // A window restored straight into full screen (closed that way) keeps the
-        // system's white toolbar until something re-applies the colour, which
-        // leaving and re-entering full screen did. Do that after it settles by
-        // changing the colour imperceptibly (0.999 opacity) and back.
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in
-            guard editorTheme == .sepia else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                toolbarNudge = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { toolbarNudge = false }
-            }
-        }
         // Sepia: a paper toolbar instead of the system's near-white. The same
         // two modifiers always apply (swapping them in and out would rebuild
         // the whole window); other themes keep the system's bar material.
@@ -231,7 +231,7 @@ struct KishoDocumentView: View {
             }
         }
         .background(WindowDocumentRegistrar(model: document))
-        .background(WindowThemeApplier(theme: editorTheme))
+        .background(WindowThemeApplier(theme: editorTheme, onRefresh: nudgeToolbar))
         .onAppear {
             // First launch: open the one-page guide beside the document.
             guard !hasShownWelcome else { return }

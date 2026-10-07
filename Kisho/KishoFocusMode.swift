@@ -72,11 +72,61 @@ struct ThemeSetting: DynamicProperty {
 /// transparent over a paper-toned window background, so the toolbar and the
 /// margins round the editor are paper too instead of the system's near-white.
 /// Other themes put back whatever the window had.
+///
+/// A window restored straight into full screen keeps the system's toolbar
+/// until something re-applies the colour (leaving and re-entering full screen
+/// does). So this re-applies on the window's own full-screen and screen
+/// changes, and asks the owner to refresh its toolbar colour (`onRefresh`)
+/// shortly after the window first appears and after those changes.
 struct WindowThemeApplier: NSViewRepresentable {
     let theme: EditorTheme
+    var onRefresh: () -> Void = {}
 
     final class Coordinator {
+        var theme: EditorTheme = .system
+        var onRefresh: () -> Void = {}
         var original: (transparent: Bool, background: NSColor)?
+        weak var window: NSWindow?
+        var observers: [NSObjectProtocol] = []
+
+        deinit { observers.forEach { NotificationCenter.default.removeObserver($0) } }
+
+        func apply(to window: NSWindow) {
+            if original == nil {
+                original = (window.titlebarAppearsTransparent, window.backgroundColor)
+            }
+            if theme == .sepia {
+                window.titlebarAppearsTransparent = true
+                window.backgroundColor = NSColor(Theme.canvas(.sepia))
+            } else if let original {
+                window.titlebarAppearsTransparent = original.transparent
+                window.backgroundColor = original.background
+            }
+        }
+
+        func attach(to window: NSWindow) {
+            guard self.window !== window else { return }
+            self.window = window
+            observers.forEach { NotificationCenter.default.removeObserver($0) }
+            let names: [Notification.Name] = [
+                NSWindow.didEnterFullScreenNotification,
+                NSWindow.didExitFullScreenNotification,
+                NSWindow.didChangeScreenNotification,
+            ]
+            observers = names.map { name in
+                NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
+                    guard let self, let window = self.window else { return }
+                    self.apply(to: window)
+                    for delay in [0.1, 0.5] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.onRefresh() }
+                    }
+                }
+            }
+            // Restoring into full screen finishes a moment after the window appears.
+            for delay in [0.5, 1.5, 3.0] {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.onRefresh() }
+            }
+        }
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -84,20 +134,13 @@ struct WindowThemeApplier: NSViewRepresentable {
 
     func updateNSView(_ view: NSView, context: Context) {
         let coordinator = context.coordinator
-        let theme = theme
+        coordinator.theme = theme
+        coordinator.onRefresh = onRefresh
         // The view has no window yet on its first pass; wait for it.
         DispatchQueue.main.async {
             guard let window = view.window else { return }
-            if coordinator.original == nil {
-                coordinator.original = (window.titlebarAppearsTransparent, window.backgroundColor)
-            }
-            if theme == .sepia {
-                window.titlebarAppearsTransparent = true
-                window.backgroundColor = NSColor(Theme.canvas(.sepia))
-            } else if let original = coordinator.original {
-                window.titlebarAppearsTransparent = original.transparent
-                window.backgroundColor = original.background
-            }
+            coordinator.apply(to: window)
+            coordinator.attach(to: window)
         }
     }
 }
