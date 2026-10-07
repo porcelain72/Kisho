@@ -256,7 +256,8 @@ private struct SectionCard: View {
             .frame(maxWidth: .infinity)
             .frame(height: bodyHandle.height)
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.top, 6)
+            .padding(.bottom, Theme.bodyBottomPadding)
         }
         .background(
             RoundedRectangle(cornerRadius: Theme.cornerRadius)

@@ -26,6 +26,10 @@ enum Theme {
     /// this fraction of the accent colour, so selection is clear but quiet.
     static let selectionOutlineOpacity: CGFloat = 0.5
 
+    /// Space under a block's body text, inside the card, so the text doesn't
+    /// sit on the card's bottom edge.
+    static let bodyBottomPadding: CGFloat = 16
+
     // Each surface token comes in two forms: `Theme.x(theme)`, for views that
     // read `\.kishoEditorTheme` from the environment (so they redraw when the
     // theme changes), and the plain `Theme.x`, which reads the stored choice.
