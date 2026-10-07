@@ -105,7 +105,7 @@
 		A1B2C3D42F00002200KISHO01 /* KishoSection+Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSection+Snapshot.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002400KISHO01 /* KishoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoTheme.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00002600KISHO01 /* Kisho-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Kisho-iOS.entitlements"; sourceTree = "<group>"; };
-		A1B2C3D42F00002700KISHO01 /* KishoSelectionFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoSelectionFormatting.swift"; sourceTree = "<group>"; };
+		A1B2C3D42F00002700KISHO01 /* KishoSelectionFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KishoSelectionFormatting.swift; sourceTree = "<group>"; };
 		A1B2C3D42F00002900KISHO01 /* KishoCardListEditorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoCardListEditorView+iOS.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002B00KISHO01 /* KishoOutlineView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoOutlineView+iOS.swift"; sourceTree = "<group>"; };
 		A1B2C3D42F00002D00KISHO01 /* KishoInspectorView+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KishoInspectorView+iOS.swift"; sourceTree = "<group>"; };
@@ -565,6 +565,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kisho/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kisho;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -608,6 +610,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kisho/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kisho;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
