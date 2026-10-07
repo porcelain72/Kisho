@@ -73,11 +73,11 @@ struct ThemeSetting: DynamicProperty {
 /// margins round the editor are paper too instead of the system's near-white.
 /// Other themes put back whatever the window had.
 ///
-/// A window restored straight into full screen builds its full-screen title bar
-/// from the window's settings at that moment, so the styling is applied the
-/// instant the view reaches the window, and once the window is in full screen
-/// the title bar's transparency is flipped off and on to make AppKit rebuild
-/// it. `onRefresh` also asks the owner to nudge its toolbar colour.
+/// A window restored straight into full screen keeps the system's toolbar
+/// until something re-applies the colour (leaving and re-entering full screen
+/// does). So this re-applies on the window's own full-screen and screen
+/// changes, and asks the owner to refresh its toolbar colour (`onRefresh`)
+/// shortly after the window first appears and after those changes.
 struct WindowThemeApplier: NSViewRepresentable {
     let theme: EditorTheme
     var onRefresh: () -> Void = {}
@@ -104,26 +104,7 @@ struct WindowThemeApplier: NSViewRepresentable {
             }
         }
 
-        /// In full screen, off then on again so AppKit rebuilds the title bar.
-        func rebuildFullScreenTitlebar() {
-            guard theme == .sepia, let window, window.styleMask.contains(.fullScreen) else { return }
-            window.titlebarAppearsTransparent = false
-            DispatchQueue.main.async { [weak self] in
-                guard let self, self.theme == .sepia, let window = self.window else { return }
-                window.titlebarAppearsTransparent = true
-                window.backgroundColor = NSColor(Theme.canvas(.sepia))
-            }
-        }
-
-        func refresh() {
-            guard let window else { return }
-            apply(to: window)
-            rebuildFullScreenTitlebar()
-            onRefresh()
-        }
-
         func attach(to window: NSWindow) {
-            apply(to: window)
             guard self.window !== window else { return }
             self.window = window
             observers.forEach { NotificationCenter.default.removeObserver($0) }
@@ -134,44 +115,33 @@ struct WindowThemeApplier: NSViewRepresentable {
             ]
             observers = names.map { name in
                 NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
-                    for delay in [0.0, 0.3, 0.8] {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.refresh() }
+                    guard let self, let window = self.window else { return }
+                    self.apply(to: window)
+                    for delay in [0.1, 0.5] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.onRefresh() }
                     }
                 }
             }
             // Restoring into full screen finishes a moment after the window appears.
             for delay in [0.5, 1.5, 3.0] {
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.refresh() }
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.onRefresh() }
             }
         }
     }
 
-    /// Reports the window as soon as the view joins it, before the first layout
-    /// pass, rather than a run-loop turn later.
-    final class HostView: NSView {
-        var onWindow: ((NSWindow) -> Void)?
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            if let window { onWindow?(window) }
-        }
-    }
-
     func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeNSView(context: Context) -> NSView { NSView() }
 
-    func makeNSView(context: Context) -> HostView {
+    func updateNSView(_ view: NSView, context: Context) {
         let coordinator = context.coordinator
         coordinator.theme = theme
         coordinator.onRefresh = onRefresh
-        let view = HostView()
-        view.onWindow = { [weak coordinator] window in coordinator?.attach(to: window) }
-        return view
-    }
-
-    func updateNSView(_ view: HostView, context: Context) {
-        let coordinator = context.coordinator
-        coordinator.theme = theme
-        coordinator.onRefresh = onRefresh
-        if let window = view.window { coordinator.apply(to: window) }
+        // The view has no window yet on its first pass; wait for it.
+        DispatchQueue.main.async {
+            guard let window = view.window else { return }
+            coordinator.apply(to: window)
+            coordinator.attach(to: window)
+        }
     }
 }
 #endif
