@@ -210,7 +210,7 @@ struct CellModifier : ViewModifier {
             )
             .overlay(
                 Capsule()
-                    .strokeBorder(selected ? accent : Theme.hairline(theme),
+                    .strokeBorder(selected ? accent.opacity(Theme.selectionOutlineOpacity) : Theme.hairline(theme),
                                   lineWidth: selected ? 1.5 : 1)
             )
             .frame(maxWidth: .infinity)

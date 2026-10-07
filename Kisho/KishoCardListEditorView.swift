@@ -264,7 +264,7 @@ private struct SectionCard: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                .strokeBorder(isSelected ? accent : Theme.hairline,
+                .strokeBorder(isSelected ? accent.opacity(Theme.selectionOutlineOpacity) : Theme.hairline,
                               lineWidth: isSelected ? 1.5 : 1)
         )
         .frame(maxWidth: .infinity)

@@ -22,6 +22,10 @@ enum Theme {
     /// body text. 1 is fully opaque.
     static let titleOpacity: CGFloat = 0.6
 
+    /// The selected block's outline (editor card and sidebar row) is drawn at
+    /// this fraction of the accent colour, so selection is clear but quiet.
+    static let selectionOutlineOpacity: CGFloat = 0.5
+
     // Each surface token comes in two forms: `Theme.x(theme)`, for views that
     // read `\.kishoEditorTheme` from the environment (so they redraw when the
     // theme changes), and the plain `Theme.x`, which reads the stored choice.
