@@ -20,7 +20,7 @@ enum Theme {
 
     /// Block titles are drawn a little translucent so they sit back from the
     /// body text. 1 is fully opaque.
-    static let titleOpacity: CGFloat = 0.72
+    static let titleOpacity: CGFloat = 0.6
 
     // Each surface token comes in two forms: `Theme.x(theme)`, for views that
     // read `\.kishoEditorTheme` from the environment (so they redraw when the
