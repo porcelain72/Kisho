@@ -25,6 +25,7 @@ struct KishoOutlineView: View {
     private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
     @ThemeSetting private var theme
+    @ThemeAccent private var accent
     /// Called after a row is chosen (the iPhone sheet dismisses itself).
     var onChoose: (() -> Void)? = nil
 
@@ -91,7 +92,7 @@ struct KishoOutlineView: View {
                         .onTapGesture { choose(row.section.id) }
                         .listRowInsets(EdgeInsets(top: 6, leading: 12 + CGFloat(min(row.depth, 6)) * 18, bottom: 6, trailing: 8))
                         .listRowBackground(row.section.id == document.selectedSectionID
-                                           ? Color.accentColor.opacity(0.14) : Color.clear)
+                                           ? accent.opacity(0.14) : Color.clear)
                     }
                 }
                 .listStyle(.plain)

@@ -17,6 +17,7 @@ struct SectionRow: View {
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
 
     @State private var dropPosition: DropPosition?
+    @ThemeAccent private var accent
 
     let depth : Int
     @State private var showsSubSections = true
@@ -81,7 +82,7 @@ struct SectionRow: View {
             .onTapGesture { self.document.select(section: section) }
             .overlay(
                 Capsule()
-                    .stroke(Color.accentColor, lineWidth: dropPosition == .on ? 2 : 0)
+                    .stroke(accent, lineWidth: dropPosition == .on ? 2 : 0)
                     .padding(.horizontal, 6.0)
             )
             .onDrag {
@@ -141,7 +142,7 @@ struct SectionRow: View {
     private func dropTargetView(position: DropPosition) -> some View {
         Rectangle()
             .frame(height: 10)
-            .foregroundColor(dropPosition == position ? Color.accentColor.opacity(0.5) : Color.clear)
+            .foregroundColor(dropPosition == position ? accent.opacity(0.5) : Color.clear)
             .onDrop(of: [UTType.text], isTargeted: Binding(
                 get: { dropPosition == position },
                 set: { isOver in
@@ -196,6 +197,7 @@ struct CellModifier : ViewModifier {
 
     let selected : Bool
     @ThemeSetting private var theme
+    @ThemeAccent private var accent
     func body(content: Content) -> some View {
         content
             .font(.headline)
@@ -204,11 +206,11 @@ struct CellModifier : ViewModifier {
             .padding(.vertical, 7)
             .background(
                 Capsule()
-                    .fill(selected ? Color.accentColor.opacity(0.14) : Color.clear)
+                    .fill(selected ? accent.opacity(0.14) : Color.clear)
             )
             .overlay(
                 Capsule()
-                    .strokeBorder(selected ? Color.accentColor : Theme.hairline(theme),
+                    .strokeBorder(selected ? accent : Theme.hairline(theme),
                                   lineWidth: selected ? 1.5 : 1)
             )
             .frame(maxWidth: .infinity)

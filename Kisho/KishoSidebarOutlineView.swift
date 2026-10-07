@@ -39,6 +39,7 @@ struct KishoSidebarOutlineView: View {
             DocumentStatsFooter(stats: document.stats)
         }
         .themedPanel()
+        .themedAccent()
     }
 }
 

@@ -138,6 +138,7 @@ private struct SectionCard: View {
     @Environment(\.undoManager) private var undoManager
     @Environment(\.kishoFocusMode) private var focusMode
     @Environment(\.kishoEditorTheme) private var editorTheme
+    @ThemeAccent private var accent
     @ObservedObject var section: KishoSection
     let depth: Int
 
@@ -237,7 +238,7 @@ private struct SectionCard: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                .strokeBorder(isSelected ? Color.accentColor : Theme.hairline,
+                .strokeBorder(isSelected ? accent : Theme.hairline,
                               lineWidth: isSelected ? 1.5 : 1)
         )
         .frame(maxWidth: .infinity)

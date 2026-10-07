@@ -121,6 +121,7 @@ struct TagPill: View {
 
 struct TagInputPill: View {
     @ThemeSetting private var theme
+    @ThemeAccent private var accent
     @Binding var text: String
     @Binding var suggestion: String?
     var onCommit: (String) -> Void
@@ -170,7 +171,7 @@ struct TagInputPill: View {
             }
         }
         .frame(height: 28) // Ensures consistent height in FlowLayout
-        .overlay(Capsule().strokeBorder(isEditing ? Color.accentColor : Theme.hairline(theme), lineWidth: 1))
+        .overlay(Capsule().strokeBorder(isEditing ? accent : Theme.hairline(theme), lineWidth: 1))
         .foregroundColor(isEditing ? .primary : .secondary)
         .animation(.easeInOut(duration: 0.2), value: isEditing)
     }

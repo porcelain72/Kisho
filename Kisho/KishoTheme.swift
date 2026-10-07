@@ -109,3 +109,39 @@ extension View {
         modifier(ThemedPanel(alwaysPaint: alwaysPaint))
     }
 }
+
+
+// MARK: - Accent
+
+extension Theme {
+    /// The colour for block selection, drop targets and focus rings, replacing
+    /// the system blue so it belongs to the theme: slate on light surfaces,
+    /// warm stone on dark ones, umber on Sepia. "Match System" follows
+    /// whichever appearance the system is in.
+    static func accent(_ theme: EditorTheme, scheme: ColorScheme) -> Color {
+        if theme == .sepia { return Color(red: 0.58, green: 0.36, blue: 0.17) }        // umber
+        switch theme.colorScheme ?? scheme {
+        case .dark: return Color(red: 0.84, green: 0.82, blue: 0.76)                    // warm stone
+        default:    return Color(red: 0.27, green: 0.32, blue: 0.37)                    // slate
+        }
+    }
+}
+
+/// The current theme's accent as a view property. Reads the stored theme and
+/// the colour scheme itself, so any view redraws when either changes.
+@propertyWrapper
+struct ThemeAccent: DynamicProperty {
+    @ThemeSetting private var theme
+    @Environment(\.colorScheme) private var scheme
+    var wrappedValue: Color { Theme.accent(theme, scheme: scheme) }
+}
+
+/// Tints the controls inside (pickers, buttons, toggles) with the theme's accent.
+struct ThemedAccent: ViewModifier {
+    @ThemeAccent private var accent
+    func body(content: Content) -> some View { content.tint(accent) }
+}
+
+extension View {
+    func themedAccent() -> some View { modifier(ThemedAccent()) }
+}
