@@ -80,8 +80,10 @@ struct KishoDocumentView: View {
             .animation(.easeInOut(duration: 0.22), value: focusMode)
             .clipped()
             .environment(\.kishoFocusMode, focusMode)
-            .environment(\.kishoEditorTheme, editorTheme)
         }
+        // On the whole split view, so the sidebar and inspector see the theme too.
+        .environment(\.kishoEditorTheme, editorTheme)
+        .onChange(of: editorThemeRaw) { _ in editorTheme.applyToApp() }
         .focusedSceneObject(document)
         .onChange(of: focusMode) { on in
             // Quick rather than animated: the sidebar, toolbar items and card

@@ -88,6 +88,7 @@ struct TagEditorView: View {
 
 
 struct TagPill: View {
+    @Environment(\.kishoEditorTheme) private var theme
     let label: String
     var icon: String? = nil
     var onDelete: (() -> Void)? = nil
@@ -110,7 +111,7 @@ struct TagPill: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .overlay(Capsule().strokeBorder(Theme.hairline, lineWidth: 1))
+        .overlay(Capsule().strokeBorder(Theme.hairline(theme), lineWidth: 1))
         .foregroundColor(.primary)
     }
 }
@@ -119,6 +120,7 @@ struct TagPill: View {
 
 
 struct TagInputPill: View {
+    @Environment(\.kishoEditorTheme) private var theme
     @Binding var text: String
     @Binding var suggestion: String?
     var onCommit: (String) -> Void
@@ -168,7 +170,7 @@ struct TagInputPill: View {
             }
         }
         .frame(height: 28) // Ensures consistent height in FlowLayout
-        .overlay(Capsule().strokeBorder(isEditing ? Color.accentColor : Theme.hairline, lineWidth: 1))
+        .overlay(Capsule().strokeBorder(isEditing ? Color.accentColor : Theme.hairline(theme), lineWidth: 1))
         .foregroundColor(isEditing ? .primary : .secondary)
         .animation(.easeInOut(duration: 0.2), value: isEditing)
     }

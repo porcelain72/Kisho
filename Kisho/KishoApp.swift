@@ -19,6 +19,8 @@ struct KishoApp: App {
 
     init() {
         #if os(macOS)
+        // The chosen editor theme covers the whole app, from the first window.
+        EditorTheme.current.applyToApp()
         // Configure spell checker to use the language from the user's
         // system preferences / locale rather than defaulting to en-US.
         if let preferredLanguage = Locale.preferredLanguages.first {

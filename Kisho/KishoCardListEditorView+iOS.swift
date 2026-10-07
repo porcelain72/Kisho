@@ -34,7 +34,7 @@ struct KishoCardListEditorView: View {
             }
             cards
         }
-        // The editor area carries its own theme; the chrome around it follows the system.
+        // Also set here so the editor matches the theme even where the window-level appearance can't reach it.
         .environment(\.colorScheme, editorTheme.colorScheme ?? systemColorScheme)
     }
 

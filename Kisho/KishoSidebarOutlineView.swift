@@ -38,6 +38,7 @@ struct KishoSidebarOutlineView: View {
             Divider()
             DocumentStatsFooter(stats: document.stats)
         }
+        .themedPanel()
     }
 }
 

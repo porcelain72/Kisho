@@ -12,8 +12,8 @@ import SwiftUI
 
 // MARK: - Editor theme
 
-/// Appearance of the editor area only — the sidebar and chrome follow the
-/// system. Sepia is a light scheme with paper-toned surfaces.
+/// The app's appearance: editor, sidebar, inspector, toolbar and the other
+/// windows all follow it. Sepia is a light scheme with paper-toned surfaces.
 enum EditorTheme: String, CaseIterable, Identifiable {
     case system, light, dark, sepia
     var id: String { rawValue }
@@ -43,6 +43,12 @@ enum EditorTheme: String, CaseIterable, Identifiable {
         case .light, .sepia: return NSAppearance(named: .aqua)
         case .dark: return NSAppearance(named: .darkAqua)
         }
+    }
+
+    /// Applies the theme's light/dark appearance to the whole app: every
+    /// window, menu and panel, not just the editor. nil follows the system.
+    func applyToApp() {
+        NSApplication.shared.appearance = appearance
     }
     #endif
 

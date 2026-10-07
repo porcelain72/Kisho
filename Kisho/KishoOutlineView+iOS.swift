@@ -24,6 +24,7 @@ struct KishoOutlineView: View {
     @Environment(\.documentUndoManager) private var documentUndoManager
     private var undoManager: UndoManager? { documentUndoManager ?? environmentUndoManager }
     @AppStorage(KishoPreferences.Key.showSynopses) private var showSynopses = false
+    @Environment(\.kishoEditorTheme) private var theme
     /// Called after a row is chosen (the iPhone sheet dismisses itself).
     var onChoose: (() -> Void)? = nil
 
@@ -94,6 +95,8 @@ struct KishoOutlineView: View {
                     }
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(theme == .sepia ? .hidden : .automatic)
+                .themedPanel()
                 .onChange(of: document.selectedSectionID) { id in
                     guard let id else { return }
                     // Unfold the way to the selected block, then show it.

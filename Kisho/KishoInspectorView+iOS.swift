@@ -14,6 +14,7 @@ import SwiftUI
 struct BlockInspectorSheet: View {
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.kishoEditorTheme) private var theme
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,7 +30,9 @@ struct BlockInspectorSheet: View {
                     }
                 }
             }
+            .scrollContentBackground(theme == .sepia ? .hidden : .automatic)
         }
+        .themedPanel()
     }
 }
 

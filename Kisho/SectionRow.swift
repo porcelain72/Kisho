@@ -195,6 +195,7 @@ struct CellModifier : ViewModifier {
     let depth : Int
 
     let selected : Bool
+    @Environment(\.kishoEditorTheme) private var theme
     func body(content: Content) -> some View {
         content
             .font(.headline)
@@ -207,7 +208,7 @@ struct CellModifier : ViewModifier {
             )
             .overlay(
                 Capsule()
-                    .strokeBorder(selected ? Color.accentColor : Theme.hairline,
+                    .strokeBorder(selected ? Color.accentColor : Theme.hairline(theme),
                                   lineWidth: selected ? 1.5 : 1)
             )
             .frame(maxWidth: .infinity)

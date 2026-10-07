@@ -66,6 +66,8 @@ struct KishoDocumentView: View {
         .environmentObject(find)
         .environment(\.kishoFocusMode, focusMode)
         .environment(\.kishoEditorTheme, editorTheme)
+        // The whole screen (outline, bars, sheets), not just the editor.
+        .preferredColorScheme(editorTheme.colorScheme)
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
                 if isCompact {
@@ -233,6 +235,7 @@ struct KishoDocumentView: View {
         }
         .sheet(isPresented: $showSettings) {
             KishoSettingsSheet()
+                .preferredColorScheme(editorTheme.colorScheme)
                 .presentationDetents([.large])
         }
         .fileImporter(isPresented: $showImporter,
@@ -266,12 +269,16 @@ struct KishoDocumentView: View {
             }
             .environmentObject(document)
             .environment(\.documentUndoManager, undoManager)
+            .environment(\.kishoEditorTheme, editorTheme)
+            .preferredColorScheme(editorTheme.colorScheme)
             .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showInspector) {
             BlockInspectorSheet()
                 .environmentObject(document)
                 .environment(\.documentUndoManager, undoManager)
+                .environment(\.kishoEditorTheme, editorTheme)
+                .preferredColorScheme(editorTheme.colorScheme)
                 .presentationDetents([.large])
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSUndoManagerDidOpenUndoGroup).merge(with:

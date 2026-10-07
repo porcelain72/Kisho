@@ -356,6 +356,7 @@ final class FindState: ObservableObject {
 // MARK: - Find bar
 
 struct FindBar: View {
+    @Environment(\.kishoEditorTheme) private var theme
     @EnvironmentObject var document: KishoDocumentModel
     @ObservedObject var find: FindState
     @Environment(\.undoManager) private var undoManager
@@ -412,9 +413,9 @@ struct FindBar: View {
         .controlSize(.small)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Theme.canvas)
+        .background(Theme.canvas(theme))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.hairline, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.hairline(theme), lineWidth: 1))
         .onAppear {
             find.attach(to: document)
             find.refresh()

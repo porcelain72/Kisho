@@ -88,7 +88,7 @@ struct BlockInspectorView: View {
             }
         }
         .frame(width: 270)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .themedPanel(alwaysPaint: true)
     }
 }
 
@@ -160,6 +160,7 @@ private struct DocumentInspectorSection: View {
 }
 
 private struct BlockInspectorForm: View {
+    @Environment(\.kishoEditorTheme) private var theme
     @EnvironmentObject var document: KishoDocumentModel
     @Environment(\.undoManager) private var undoManager
     @ObservedObject var section: KishoSection
@@ -223,8 +224,8 @@ private struct BlockInspectorForm: View {
                         .frame(minHeight: 64, maxHeight: 110)
                         .scrollContentBackground(.hidden)
                         .padding(4)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.field(theme)))
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.hairline(theme)))
                         .focused($focus, equals: .synopsis)
                     Text("One or two lines: what this block is for. Shown in the sidebar when View ▸ Show Synopses is on.")
                         .font(.caption2)
@@ -239,8 +240,8 @@ private struct BlockInspectorForm: View {
                         .frame(minHeight: 140)
                         .scrollContentBackground(.hidden)
                         .padding(4)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.field(theme)))
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.hairline(theme)))
                         .focused($focus, equals: .notes)
                     Text("Research, to-dos, things to remember. Never exported.")
                         .font(.caption2)
