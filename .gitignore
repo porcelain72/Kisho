@@ -3,3 +3,6 @@ AppStore/
 
 # Xcode per-user state (breakpoints, schemes, UI layout)
 xcuserdata/
+
+# Xcode localization exchange bundles (export/import only)
+Kisho Localizations/
