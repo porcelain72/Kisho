@@ -84,6 +84,13 @@ struct KishoDocumentView: View {
         // On the whole split view, so the sidebar and inspector see the theme too.
         .environment(\.kishoEditorTheme, editorTheme)
         .onChange(of: editorThemeRaw) { _ in editorTheme.applyToApp() }
+        // Sepia: a paper toolbar instead of the system's near-white. The same
+        // two modifiers always apply (swapping them in and out would rebuild
+        // the whole window); other themes keep the system's bar material.
+        .toolbarBackground(editorTheme == .sepia ? AnyShapeStyle(Theme.canvas(.sepia)) : AnyShapeStyle(Material.bar),
+                           for: .windowToolbar)
+        .toolbarBackground(editorTheme == .sepia ? Visibility.visible : Visibility.automatic,
+                           for: .windowToolbar)
         .focusedSceneObject(document)
         .onChange(of: focusMode) { on in
             // Quick rather than animated: the sidebar, toolbar items and card
