@@ -21,6 +21,9 @@ struct KishoDocumentView: View {
     @AppStorage(KishoPreferences.Key.editorTheme) private var editorThemeRaw = EditorTheme.system.rawValue
     /// Focus Mode is per window: just the cards, the current block bright.
     @State private var focusMode = false
+    /// Flipped briefly after the window enters full screen so SwiftUI re-applies
+    /// the Sepia toolbar colour (see below).
+    @State private var toolbarNudge = false
     @State private var columns: NavigationSplitViewVisibility = .all
 
     private var editorTheme: EditorTheme { EditorTheme(rawValue: editorThemeRaw) ?? .system }
@@ -85,10 +88,22 @@ struct KishoDocumentView: View {
         .environment(\.kishoEditorTheme, editorTheme)
         .themedAccent()
         .onChange(of: editorThemeRaw) { _ in editorTheme.applyToApp() }
+        // A window restored straight into full screen (closed that way) keeps the
+        // system's white toolbar until something re-applies the colour, which
+        // leaving and re-entering full screen did. Do that after it settles by
+        // changing the colour imperceptibly (0.999 opacity) and back.
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in
+            guard editorTheme == .sepia else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                toolbarNudge = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { toolbarNudge = false }
+            }
+        }
         // Sepia: a paper toolbar instead of the system's near-white. The same
         // two modifiers always apply (swapping them in and out would rebuild
         // the whole window); other themes keep the system's bar material.
-        .toolbarBackground(editorTheme == .sepia ? AnyShapeStyle(Theme.canvas(.sepia)) : AnyShapeStyle(Material.bar),
+        .toolbarBackground(editorTheme == .sepia ? AnyShapeStyle(Theme.canvas(.sepia).opacity(toolbarNudge ? 0.999 : 1))
+                                                 : AnyShapeStyle(Material.bar),
                            for: .windowToolbar)
         .toolbarBackground(editorTheme == .sepia ? Visibility.visible : Visibility.automatic,
                            for: .windowToolbar)
